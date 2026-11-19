@@ -1,0 +1,804 @@
+diff --git a/PQ-MIGRATE-MODIFICATIONS.md b/PQ-MIGRATE-MODIFICATIONS.md
+index 1a4f78d0f45550d1265e25acdcd4d3d77e02543c..aab93b76bf15d1be954839fb80e11d1b7a097427 100644
+--- a/PQ-MIGRATE-MODIFICATIONS.md
++++ b/PQ-MIGRATE-MODIFICATIONS.md
+@@ -1,6 +1,6 @@
+ # PQ-Migrate client modifications
+ 
+-Notice date: 2026-11-07; modifications: 2026-09 to 2026-11. Modified by PQ-Migrate contributors.
++Notice date: 2026-11-10; modifications: 2026-09 to 2026-11. Modified by PQ-Migrate contributors.
+ 
+ Upstream: https://github.com/ethereum/go-ethereum.git at commit `3d84c6b2e3e9be032f8f2dcd9e900f89391fcdab`.
+ 
+@@ -146,6 +146,7 @@ This source distribution contains the PQ-Migrate research adaptation. Existing u
+ | Added | `core/vm/pq_rotate.go` |
+ | Added | `core/vm/pq_rotate_test.go` |
+ | Modified | `eth/api_backend.go` |
++| Modified | `eth/api_debug_replay.go` |
+ | Modified | `eth/backend.go` |
+ | Modified | `eth/catalyst/api.go` |
+ | Added | `eth/catalyst/pq_applied_state.go` |
+@@ -161,12 +162,15 @@ This source distribution contains the PQ-Migrate research adaptation. Existing u
+ | Modified | `eth/handler_eth.go` |
+ | Added | `eth/pq_genesis_images_test.go` |
+ | Added | `eth/pq_l2_propagation_test.go` |
++| Added | `eth/pq_replay_prologue_test.go` |
+ | Modified | `eth/protocols/eth/handlers.go` |
+ | Modified | `eth/protocols/eth/peer.go` |
+ | Added | `eth/protocols/eth/pq_batch_request_test.go` |
+ | Added | `eth/protocols/eth/pq_delivery_clock_test.go` |
+ | Added | `eth/protocols/eth/pq_request.go` |
+ | Added | `eth/protocols/eth/pq_request_test.go` |
++| Modified | `eth/state_accessor.go` |
++| Modified | `eth/tracers/api.go` |
+ | Modified | `go.mod` |
+ | Modified | `go.sum` |
+ | Modified | `graphql/graphql.go` |
+@@ -182,6 +186,7 @@ This source distribution contains the PQ-Migrate research adaptation. Existing u
+ | Added | `internal/ethapi/pq_submit.go` |
+ | Added | `internal/ethapi/pq_submit_test.go` |
+ | Added | `internal/ethapi/pq_unsupported.go` |
++| Modified | `internal/ethapi/simulate.go` |
+ | Added | `internal/pqtest/batch.go` |
+ | Added | `internal/pqtest/single.go` |
+ | Added | `miner/pq_held_override_test.go` |
+diff --git a/core/pq_checkpoint.go b/core/pq_checkpoint.go
+index a183f2435375455a9248e1dab805c3225d9f27f2..57da531f3b57b83bf8d91293cdc68c58fcfde029 100644
+--- a/core/pq_checkpoint.go
++++ b/core/pq_checkpoint.go
+@@ -4,6 +4,7 @@
+ package core
+ 
+ import (
++	"context"
+ 	"crypto/sha256"
+ 	"encoding/json"
+ 	"errors"
+@@ -14,6 +15,8 @@ import (
+ 	"github.com/ethereum/go-ethereum/core/state"
+ 	"github.com/ethereum/go-ethereum/core/tracing"
+ 	"github.com/ethereum/go-ethereum/core/types"
++	"github.com/ethereum/go-ethereum/core/types/bal"
++	"github.com/ethereum/go-ethereum/core/vm"
+ 	"github.com/ethereum/go-ethereum/ethdb"
+ 	"github.com/ethereum/go-ethereum/params"
+ 	"github.com/holiman/uint256"
+@@ -99,9 +102,9 @@ func CheckTrustedCheckpointConfig(db ethdb.KeyValueReader, cfg *params.ChainConf
+ 	return nil
+ }
+ 
+-// ApplyLabInit is shared by the ordinary builder and importer before system
+-// calls. It never edits H, pre-writes migration records, or credits twice after
+-// H+1. Reorg branches replay it from the authenticated original parent root.
++// ApplyLabInit is shared by the ordinary builder, importer and RPC replays before
++// system calls. It never edits H, pre-writes migration records, or credits twice
++// after H+1. Reorg branches replay it from the authenticated original parent root.
+ func ApplyLabInit(cfg *params.ChainConfig, parentHash common.Hash, number *big.Int, timestamp uint64, s *state.StateDB) (common.Hash, error) {
+ 	p := cfg.PQStateBridge
+ 	if p == nil {
+@@ -211,10 +214,10 @@ func InstallPQSystemImages(cfg *params.ChainConfig, parentTime, timestamp uint64
+ }
+ 
+ // ApplyPQPrologue keeps experimental funding (R_lab) separate from the protocol
+-// system image transition. Builder and importer share this order. It runs before
+-// the EIP-4788 and EIP-2935 system calls rather than after them (section 24.6
+-// rule 2): the accounts are distinct, so the state is the same, and R-1 records
+-// no block-level access list.
++// system image transition. Builder, importer and RPC replays (ReplayPreExecution)
++// share this order. It runs before the EIP-4788 and EIP-2935 system calls rather
++// than after them (section 24.6 rule 2): the accounts are distinct, so the state
++// is the same, and R-1 records no block-level access list.
+ func ApplyPQPrologue(cfg *params.ChainConfig, parent *types.Header, number *big.Int, timestamp uint64, s *state.StateDB) (common.Hash, error) {
+ 	root, err := ApplyLabInit(cfg, parent.Hash(), number, timestamp, s)
+ 	if err != nil {
+@@ -228,3 +231,18 @@ func ApplyPQPrologue(cfg *params.ChainConfig, parent *types.Header, number *big.
+ 	}
+ 	return root, nil
+ }
++
++// ReplayPreExecution is the pre-transaction step of header's block (section
++// 20.10 item 1) for the RPC paths that re-execute the block on its parent's
++// state: tracers, bad-block replay and eth_simulateV1 (section 32.6 rule 8
++// (c)). It runs ApplyPQPrologue on s, then the EIP-4788 and EIP-2935 system
++// calls through evm, which executes on s, with the importer's arguments and in
++// its order (the prologue first, section 32.6 rule 8 (a)). The prologue's error
++// is returned where the importer rejects the block, and its lab root is unused
++// as there. s must not carry the prologue already.
++func ReplayPreExecution(ctx context.Context, cfg *params.ChainConfig, parent, header *types.Header, s *state.StateDB, evm *vm.EVM) (*bal.ConstructionBlockAccessList, error) {
++	if _, err := ApplyPQPrologue(cfg, parent, header.Number, header.Time, s); err != nil {
++		return nil, err
++	}
++	return PreExecution(ctx, header.ParentBeaconRoot, parent, cfg, evm, header.Number, header.Time), nil
++}
+diff --git a/eth/api_debug_replay.go b/eth/api_debug_replay.go
+index 0c08c718627be09b6df46b5e311ebd754ec9b178..68fdece387565e323cb68695790b2d274213dd44 100644
+--- a/eth/api_debug_replay.go
++++ b/eth/api_debug_replay.go
+@@ -127,8 +127,13 @@ func (api *DebugAPI) replayBuild(ctx context.Context, block *types.Block, stated
+ 		receipts  types.Receipts
+ 		tcount    = 0
+ 	)
+-	// Pre-execution system calls.
+-	blockAL.Merge(core.PreExecution(ctx, header.ParentBeaconRoot, parent, config, evm, header.Number, header.Time))
++	// The PQ prologue and the pre-execution system calls, as the builder and the
++	// importer run them.
++	preAL, err := core.ReplayPreExecution(ctx, config, parent, header, statedb, evm)
++	if err != nil {
++		return nil, nil, 0, common.Hash{}, err
++	}
++	blockAL.Merge(preAL)
+ 
+ 	// Group the reverted transactions by build slot.
+ 	revBySlot := make(map[int][]*types.Transaction)
+diff --git a/eth/pq_replay_prologue_test.go b/eth/pq_replay_prologue_test.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..d2847a416ebdd291c2567df6c58294ab2e4710e3
+--- /dev/null
++++ b/eth/pq_replay_prologue_test.go
+@@ -0,0 +1,547 @@
++// Copyright 2026 PQ-Migrate contributors
++// SPDX-License-Identifier: LGPL-3.0-or-later
++
++// Research client: the RPC paths that replay a block run its PQ prologue as the
++// importer does (spec section 32.6 rule 8 (c), F-12; section 24.6 rule 2), so
++// a trace, a bad-block replay or a simulation of the transition block of T0
++// reports the state the chain holds, and the tracers and eth_simulateV1 return
++// the prologue's refusal as the RPC error. Component tests (model tier): a
++// real chain imported in process, the node's own backend, every call through
++// an in-process RPC server; no network.
++
++package eth
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"fmt"
++	"math/big"
++	"slices"
++	"sync"
++	"testing"
++	"time"
++
++	"github.com/cloudflare/circl/sign/mldsa/mldsa44"
++	"github.com/ethereum/go-ethereum/common"
++	"github.com/ethereum/go-ethereum/common/hexutil"
++	"github.com/ethereum/go-ethereum/consensus/beacon"
++	"github.com/ethereum/go-ethereum/consensus/ethash"
++	"github.com/ethereum/go-ethereum/core"
++	"github.com/ethereum/go-ethereum/core/rawdb"
++	"github.com/ethereum/go-ethereum/core/state"
++	"github.com/ethereum/go-ethereum/core/types"
++	"github.com/ethereum/go-ethereum/core/vm"
++	"github.com/ethereum/go-ethereum/crypto"
++	"github.com/ethereum/go-ethereum/eth/ethconfig"
++	"github.com/ethereum/go-ethereum/eth/tracers"
++	_ "github.com/ethereum/go-ethereum/eth/tracers/js" // JS tracers take the traceBlockParallel path
++	"github.com/ethereum/go-ethereum/ethdb"
++	"github.com/ethereum/go-ethereum/internal/ethapi"
++	"github.com/ethereum/go-ethereum/params"
++	"github.com/ethereum/go-ethereum/rpc"
++)
++
++// Blocks come every 10 seconds; T0 = 25 makes block 3 (timestamp 30) the
++// transition block of T0, as in core/pq_t0_install_test.go.
++const pqReplayT0 = 25
++
++type pqReplayFixture struct {
++	cfg    *params.ChainConfig
++	gspec  *core.Genesis
++	db     ethdb.Database
++	chain  *core.BlockChain
++	blocks []*types.Block // blocks 1-4
++	watch  *pqBaseWatch
++	client *rpc.Client
++}
++
++// pqBaseWatch is the node's backend with one probe. debug_traceChain hands the
++// state it got for a block back to StateAtBlock as the base of the next block,
++// which StateAtBlock regenerates on it with Process, prologue included. That
++// base must still be the state of the parent, or the regeneration applies the
++// prologue and the system calls a second time (the bridge laboratory's
++// prologue refuses a prestate that already carries it).
++type pqBaseWatch struct {
++	*EthAPIBackend
++	mu     sync.Mutex
++	checks int
++	bad    []string
++}
++
++func (b *pqBaseWatch) StateAtBlock(ctx context.Context, block *types.Block, base *state.StateDB, readOnly bool, preferDisk bool) (*state.StateDB, tracers.StateReleaseFunc, error) {
++	if base != nil {
++		parent := b.eth.blockchain.GetHeader(block.ParentHash(), block.NumberU64()-1)
++		root := base.IntermediateRoot(b.ChainConfig().Rules(parent.Number, true, parent.Time))
++		b.mu.Lock()
++		b.checks++
++		if root != parent.Root {
++			b.bad = append(b.bad, fmt.Sprintf("base of block %d has root %x, its parent %x", block.NumberU64(), root, parent.Root))
++		}
++		b.mu.Unlock()
++	}
++	return b.EthAPIBackend.StateAtBlock(ctx, block, base, readOnly, preferDisk)
++}
++
++// pqConfigBackend is the node's backend whose ChainConfig returns cfg, the
++// configuration that the tracers and eth_simulateV1 replay a block under. The
++// chain keeps its own, which stateAtTransaction, debug_replayBadBlock and the
++// regeneration of states read.
++type pqConfigBackend struct {
++	*EthAPIBackend
++	cfg *params.ChainConfig
++}
++
++func (b *pqConfigBackend) ChainConfig() *params.ChainConfig { return b.cfg }
++
++// pqReplayConfig is an R-1 configuration of the E1 kind (as r1TestChain of the
++// core tests), Osaka from genesis and T0 at pqReplayT0. Test data only.
++func pqReplayConfig() *params.ChainConfig {
++	cfg := *params.MergedTestChainConfig
++	cfg.ChainID = new(big.Int).SetUint64(params.PQR1ChainID)
++	cfg.PQMigrate = &params.PQMigrateConfig{T0: pqReplayT0, ReceivingTime: pqReplayT0, T: pqReplayT0 + 100, W: 31536000, MaxPayloadBytes: 131072,
++		Registry: common.HexToAddress("800"), FactRegistry: common.HexToAddress("801"),
++		FullResearch: &params.PQFullResearchConfig{Backend: params.PQSuccinctNativeBackend, NativeAlgorithmDigest: params.PQSuccinctAlgorithmDigest,
++			Version: params.PQR1Version, Sunset: 10000000, ProofLifetime: 604800, MaxProofBytes: params.PQSuccinctMaxProofBytes,
++			MaxTxBytes: params.PQSuccinctMaxTxBytes, TxGasCap: params.MaxTxGas, VerifyGas: 5500000, ImageID: params.PQSuccinctImageID,
++			GuestSHA: common.HexToHash("222f5a31d92e9fd062749f6b83b7f811d810a6cb4fbee222081bb2e41550f72e")}}
++	return &cfg
++}
++
++func pqReplaySign(t *testing.T, sk *mldsa44.PrivateKey, tag string, digest common.Hash) []byte {
++	t.Helper()
++	sig := make([]byte, mldsa44.SignatureSize)
++	if err := mldsa44.SignTo(sk, append([]byte(tag), digest[:]...), []byte(tag), false, sig); err != nil {
++		t.Fatal(err)
++	}
++	return sig
++}
++
++// newPQReplayFixture imports a four-block chain whose transition block 3 holds
++// a 0x7d enrolling the owner and the owner's 0x7c activating the key, both of
++// which need the Registry that the prologue installs in that block: without it
++// EIP-158 finalization drops the enrollment record, and the 0x7c finds no
++// enrolled account. Block 4 holds a 0x7c spend under the activated key.
++func newPQReplayFixture(t *testing.T) *pqReplayFixture {
++	t.Helper()
++	cfg := pqReplayConfig()
++	key, _ := crypto.HexToECDSA("8a1f9a8f95be41cd7ccb6168179afb4504aefe388d1e14474d32c45c72ce7b7a")
++	owner := crypto.PubkeyToAddress(key.PublicKey)
++	var seed [mldsa44.SeedSize]byte // public synthetic test seed only
++	for i := range seed {
++		seed[i] = 0x41
++	}
++	pk, sk := mldsa44.NewKeyFromSeed(&seed)
++	tip, fee := big.NewInt(params.GWei), big.NewInt(10*params.GWei)
++
++	en := &types.PQEnrollTx{ChainID: cfg.ChainID, GasTipCap: tip, GasFeeCap: fee, Gas: 500000, AlgID: 1, PublicKey: pk.Bytes()}
++	en.PoPSignature = pqReplaySign(t, sk, "ETH-PQ-ENROLL-POP/v1", core.PQEnrollmentDigest(cfg.ChainID, owner, 0, 1, en.PublicKey))
++	h := en.SigningHash()
++	sig, err := crypto.Sign(h[:], key)
++	if err != nil {
++		t.Fatal(err)
++	}
++	en.R, en.S, en.V = new(big.Int).SetBytes(sig[:32]), new(big.Int).SetBytes(sig[32:64]), new(big.Int).SetUint64(uint64(sig[64]))
++	pqTx := func(nonce uint64, activate bool) *types.Transaction {
++		p := &types.PQTx{ChainID: cfg.ChainID, From: owner, Nonce: nonce, GasTipCap: tip, GasFeeCap: fee, Gas: 1000000,
++			To: common.HexToAddress("7777777777777777777777777777777777777777"), Value: big.NewInt(1), AlgID: 1}
++		if activate {
++			p.PublicKey = [][]byte{pk.Bytes()}
++		}
++		p.Signature = pqReplaySign(t, sk, "ETH-PQ-TX/v1", p.SigningHash())
++		return types.NewTx(p)
++	}
++	txs := map[uint64][]*types.Transaction{3: {types.NewTx(en), pqTx(1, true)}, 4: {pqTx(2, false)}}
++
++	alloc := core.SystemContractAllocs()
++	alloc[owner] = types.Account{Balance: new(big.Int).Mul(big.NewInt(10), big.NewInt(params.Ether))}
++	gspec := &core.Genesis{Config: cfg, GasLimit: 30000000, Alloc: alloc}
++	engine := beacon.New(ethash.NewFaker())
++	_, blocks, _ := core.GenerateChainWithGenesis(gspec, engine, 4, func(i int, b *core.BlockGen) {
++		for _, tx := range txs[b.Number().Uint64()] {
++			b.AddTx(tx)
++		}
++	})
++	// The default configuration keeps recent states in memory only (hash
++	// scheme, no archive), so debug_traceChain regenerates them with Process.
++	db := rawdb.NewMemoryDatabase()
++	chain, err := core.NewBlockChain(db, gspec, engine, nil)
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(chain.Stop)
++	if n, err := chain.InsertChain(blocks); err != nil {
++		t.Fatalf("import of the built chain failed at %d: %v", n, err)
++	}
++	for _, b := range blocks {
++		rawdb.WriteTxLookupEntriesByBlock(db, b) // for debug_traceTransaction
++	}
++	// The chain as imported: block 3 is the transition block, its two
++	// transactions succeed, the images are installed and the key activated.
++	if blocks[1].Time() >= pqReplayT0 || blocks[2].Time() < pqReplayT0 || len(blocks[2].Transactions()) != 2 {
++		t.Fatal("block 3 must be the transition block of T0 and hold the 0x7d and the 0x7c")
++	}
++	for _, b := range blocks[2:] {
++		for i, r := range chain.GetReceiptsByHash(b.Hash()) {
++			if r.Status != types.ReceiptStatusSuccessful {
++				t.Fatalf("block %d tx %d failed at import", b.NumberU64(), i)
++			}
++		}
++	}
++	s, err := chain.StateAt(blocks[2].Header())
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, a := range []common.Address{cfg.PQMigrate.Registry, cfg.PQMigrate.FactRegistry} {
++		if !bytes.Equal(s.GetCode(a), []byte{0}) || s.GetNonce(a) != 1 {
++			t.Fatalf("image of %s not installed at import", a)
++		}
++	}
++	if !core.PQActivated(s, cfg.PQMigrate, owner) {
++		t.Fatal("the 0x7c of block 3 did not activate the key at import")
++	}
++
++	ecfg := ethconfig.Defaults
++	e := &Ethereum{config: &ecfg, blockchain: chain, chainDb: db, engine: engine}
++	backend := &EthAPIBackend{eth: e}
++	e.APIBackend = backend
++	watch := &pqBaseWatch{EthAPIBackend: backend}
++	srv := rpc.NewServer()
++	for _, api := range []struct {
++		name string
++		rcvr any
++	}{{"debug", tracers.NewAPI(watch)}, {"debug", NewDebugAPI(e)}, {"eth", ethapi.NewBlockChainAPI(backend)}} {
++		if err := srv.RegisterName(api.name, api.rcvr); err != nil {
++			t.Fatal(err)
++		}
++	}
++	client := rpc.DialInProc(srv)
++	t.Cleanup(func() {
++		client.Close()
++		srv.Stop()
++	})
++	return &pqReplayFixture{cfg: cfg, gspec: gspec, db: db, chain: chain, blocks: blocks, watch: watch, client: client}
++}
++
++// importerRoots returns the roots that the importer's own processor reaches on
++// each prefix of block's transactions, on the parent state: the reference
++// per-transaction roots. The whole block reaches the header root.
++func (f *pqReplayFixture) importerRoots(t *testing.T, block *types.Block) []common.Hash {
++	t.Helper()
++	parent := f.chain.GetHeader(block.ParentHash(), block.NumberU64()-1)
++	rules := f.cfg.Rules(block.Number(), true, block.Time())
++	var roots []common.Hash
++	for k := 1; k <= len(block.Transactions()); k++ {
++		statedb, err := f.chain.StateAt(parent)
++		if err != nil {
++			t.Fatal(err)
++		}
++		prefix := types.NewBlockWithHeader(block.Header()).WithBody(types.Body{Transactions: block.Transactions()[:k], Withdrawals: block.Withdrawals()})
++		if _, err := f.chain.Processor().Process(context.Background(), prefix, statedb, nil, nil, vm.Config{}, nil); err != nil {
++			t.Fatalf("importer on the first %d transactions of block %d: %v", k, block.NumberU64(), err)
++		}
++		roots = append(roots, statedb.IntermediateRoot(rules))
++	}
++	if n := len(roots); n > 0 && roots[n-1] != block.Root() {
++		t.Fatalf("block %d: the importer's last root %x is not the header root %x", block.NumberU64(), roots[n-1], block.Root())
++	}
++	return roots
++}
++
++type pqTraced struct {
++	Gas    uint64 `json:"gas"`
++	Failed bool   `json:"failed"`
++}
++
++type pqTxTrace struct {
++	TxHash common.Hash `json:"txHash"`
++	Result *pqTraced   `json:"result"`
++	Error  string      `json:"error"`
++}
++
++// checkTraced compares one traced transaction with the receipt of its import.
++func (f *pqReplayFixture) checkTraced(t *testing.T, what string, block *types.Block, i int, res *pqTraced) {
++	t.Helper()
++	r := f.chain.GetReceiptsByHash(block.Hash())[i]
++	if res == nil || res.Gas != r.GasUsed || res.Failed != (r.Status != types.ReceiptStatusSuccessful) {
++		t.Errorf("%s, block %d tx %d: traced %+v, imported gas %d status %d", what, block.NumberU64(), i, res, r.GasUsed, r.Status)
++	}
++}
++
++// checkTraces compares the traces of block's transactions with their receipts.
++func (f *pqReplayFixture) checkTraces(t *testing.T, what string, block *types.Block, traces []*pqTxTrace) {
++	t.Helper()
++	txs := block.Transactions()
++	if len(traces) != len(txs) {
++		t.Errorf("%s, block %d: %d traces for %d transactions", what, block.NumberU64(), len(traces), len(txs))
++		return
++	}
++	for i, tr := range traces {
++		switch {
++		case tr == nil:
++			t.Errorf("%s, block %d tx %d: no trace", what, block.NumberU64(), i)
++		case tr.TxHash != txs[i].Hash() || tr.Error != "":
++			t.Errorf("%s, block %d tx %d: trace of %x, error %q", what, block.NumberU64(), i, tr.TxHash, tr.Error)
++		default:
++			f.checkTraced(t, what, block, i, tr.Result)
++		}
++	}
++}
++
++func TestPQReplayPrologueRPC(t *testing.T) {
++	f := newPQReplayFixture(t)
++	transition := f.blocks[2]
++	traced := f.blocks[2:] // the blocks with transactions: the transition block and its child
++
++	t.Run("debug_intermediateRoots", func(t *testing.T) {
++		for _, b := range traced {
++			var roots []common.Hash
++			if err := f.client.Call(&roots, "debug_intermediateRoots", b.Hash()); err != nil {
++				t.Fatalf("block %d: %v", b.NumberU64(), err)
++			}
++			if want := f.importerRoots(t, b); !slices.Equal(roots, want) {
++				t.Errorf("block %d: intermediate roots %x, importer %x", b.NumberU64(), roots, want)
++			}
++		}
++	})
++	t.Run("debug_traceBlockByNumber", func(t *testing.T) {
++		for _, b := range traced {
++			var traces []*pqTxTrace
++			if err := f.client.Call(&traces, "debug_traceBlockByNumber", hexutil.Uint64(b.NumberU64())); err != nil {
++				t.Errorf("block %d: %v", b.NumberU64(), err)
++				continue
++			}
++			f.checkTraces(t, "struct logger", b, traces)
++		}
++	})
++	t.Run("debug_traceBlockByHash-js", func(t *testing.T) {
++		js := `{result: function(ctx) { return {gas: ctx.gasUsed, failed: ctx.error !== undefined}; }, fault: function() {}}`
++		for _, b := range traced {
++			var traces []*pqTxTrace
++			if err := f.client.Call(&traces, "debug_traceBlockByHash", b.Hash(), map[string]any{"tracer": js}); err != nil {
++				t.Errorf("block %d: %v", b.NumberU64(), err)
++				continue
++			}
++			f.checkTraces(t, "JS tracer", b, traces)
++		}
++	})
++	t.Run("debug_traceTransaction", func(t *testing.T) {
++		for _, b := range traced {
++			for i, tx := range b.Transactions() {
++				var res pqTraced
++				if err := f.client.Call(&res, "debug_traceTransaction", tx.Hash()); err != nil {
++					t.Errorf("block %d tx %d: %v", b.NumberU64(), i, err)
++					continue
++				}
++				f.checkTraced(t, "debug_traceTransaction", b, i, &res)
++			}
++		}
++	})
++	t.Run("debug_traceChain", func(t *testing.T) {
++		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
++		defer cancel()
++		ch := make(chan json.RawMessage, 8)
++		sub, err := f.client.Subscribe(ctx, "debug", ch, "traceChain", hexutil.Uint64(1), hexutil.Uint64(4))
++		if err != nil {
++			t.Fatal(err)
++		}
++		defer sub.Unsubscribe()
++		// Blocks 2-4 are traced; block 2 has no transaction and is not sent.
++		for _, b := range traced {
++			select {
++			case raw := <-ch:
++				var res struct {
++					Hash   common.Hash  `json:"hash"`
++					Traces []*pqTxTrace `json:"traces"`
++				}
++				if err := json.Unmarshal(raw, &res); err != nil {
++					t.Fatal(err)
++				}
++				if res.Hash != b.Hash() {
++					t.Fatalf("traced block %x, want block %d", res.Hash, b.NumberU64())
++				}
++				f.checkTraces(t, "debug_traceChain", b, res.Traces)
++			case err := <-sub.Err():
++				t.Fatal(err)
++			case <-ctx.Done():
++				t.Fatal("debug_traceChain did not deliver its results")
++			}
++		}
++		f.watch.mu.Lock()
++		defer f.watch.mu.Unlock()
++		if f.watch.checks != 2 || len(f.watch.bad) != 0 {
++			t.Errorf("bases handed back to StateAtBlock: %d checked (want 2), changed: %v", f.watch.checks, f.watch.bad)
++		}
++	})
++	t.Run("debug_standardTraceBlockToFile", func(t *testing.T) {
++		t.Setenv("TMPDIR", t.TempDir())
++		var files []string
++		if err := f.client.Call(&files, "debug_standardTraceBlockToFile", transition.Hash()); err != nil {
++			t.Fatal(err)
++		}
++		if len(files) != len(transition.Transactions()) {
++			t.Fatalf("%d trace files for %d transactions", len(files), len(transition.Transactions()))
++		}
++	})
++	t.Run("debug_replayBadBlock", func(t *testing.T) {
++		rawdb.WriteBadBlock(f.db, transition) // valid, stored as bad only to be replayed
++		var res struct {
++			BuildStateRoot  common.Hash `json:"buildStateRoot"`
++			ImportStateRoot common.Hash `json:"importStateRoot"`
++			BuildGasUsed    uint64      `json:"buildGasUsed"`
++			ImportGasUsed   uint64      `json:"importGasUsed"`
++			ImportReceipts  []struct {
++				Status  hexutil.Uint64 `json:"status"`
++				GasUsed hexutil.Uint64 `json:"gasUsed"`
++			} `json:"importReceipts"`
++		}
++		if err := f.client.Call(&res, "debug_replayBadBlock", transition.Hash()); err != nil {
++			t.Fatal(err)
++		}
++		if res.BuildStateRoot != transition.Root() || res.ImportStateRoot != transition.Root() || res.BuildGasUsed != transition.GasUsed() || res.ImportGasUsed != transition.GasUsed() {
++			t.Errorf("replay: roots %x / %x, gas %d / %d; header root %x, gas %d", res.BuildStateRoot, res.ImportStateRoot, res.BuildGasUsed, res.ImportGasUsed, transition.Root(), transition.GasUsed())
++		}
++		receipts := f.chain.GetReceiptsByHash(transition.Hash())
++		if len(res.ImportReceipts) != len(receipts) {
++			t.Fatalf("%d replayed receipts for %d", len(res.ImportReceipts), len(receipts))
++		}
++		for i, r := range receipts {
++			if got := res.ImportReceipts[i]; uint64(got.Status) != r.Status || uint64(got.GasUsed) != r.GasUsed {
++				t.Errorf("tx %d: replayed status %d gas %d, imported %d / %d", i, got.Status, got.GasUsed, r.Status, r.GasUsed)
++			}
++		}
++	})
++	t.Run("eth_simulateV1", func(t *testing.T) {
++		// Two empty simulated blocks on block 2, the transition block at 30 and
++		// its child at 40, simulated with validation (which sets the base fee
++		// that the importer checks) and rebuilt from the result: the importer
++		// accepts them on blocks 1-2, so each simulated root is the importer's
++		// root for that block, the child's system calls on its simulated parent
++		// included.
++		var sims []json.RawMessage
++		empty := map[string]any{"validation": true, "blockStateCalls": []any{
++			map[string]any{"blockOverrides": map[string]any{"time": hexutil.Uint64(30)}},
++			map[string]any{"blockOverrides": map[string]any{"time": hexutil.Uint64(40)}},
++		}}
++		if err := f.client.Call(&sims, "eth_simulateV1", empty, hexutil.Uint64(2)); err != nil {
++			t.Fatal(err)
++		}
++		var rebuilt types.Blocks
++		for i, raw := range sims {
++			var (
++				h  types.Header
++				id struct {
++					Hash common.Hash `json:"hash"`
++				}
++			)
++			if err := json.Unmarshal(raw, &h); err != nil {
++				t.Fatal(err)
++			}
++			if err := json.Unmarshal(raw, &id); err != nil {
++				t.Fatal(err)
++			}
++			if h.Hash() != id.Hash {
++				t.Fatalf("simulated block %d: header of %x rebuilt as %x", i+1, id.Hash, h.Hash())
++			}
++			rebuilt = append(rebuilt, types.NewBlockWithHeader(&h).WithBody(types.Body{Withdrawals: []*types.Withdrawal{}}))
++		}
++		if len(rebuilt) != 2 {
++			t.Fatalf("%d simulated blocks", len(rebuilt))
++		}
++		ref, err := core.NewBlockChain(rawdb.NewMemoryDatabase(), f.gspec, beacon.New(ethash.NewFaker()), nil)
++		if err != nil {
++			t.Fatal(err)
++		}
++		defer ref.Stop()
++		if _, err := ref.InsertChain(f.blocks[:2]); err != nil {
++			t.Fatal(err)
++		}
++		if n, err := ref.InsertChain(rebuilt); err != nil {
++			t.Errorf("the importer refuses simulated block %d: %v", n+1, err)
++		}
++
++		// One test only (section 24.6 rule 2), seen through a probe that returns
++		// the code sizes of both registries. On block 2 the simulated block at 22
++		// installs nothing, the one at 26 is the transition block and installs
++		// both, and the one at 30, whose simulated parent at 26 is not earlier
++		// than T0, installs nothing although an override cleared PQ_REGISTRY's
++		// code; a replay that took block 2 (time 20) as the parent would install
++		// it again.
++		type simulated struct {
++			Calls []struct {
++				ReturnData hexutil.Bytes  `json:"returnData"`
++				Status     hexutil.Uint64 `json:"status"`
++			} `json:"calls"`
++		}
++		probe := common.HexToAddress("c0de")
++		code := hexutil.Bytes{0x61, 0x08, 0x00, 0x3b, 0x60, 0x00, 0x52, 0x61, 0x08, 0x01, 0x3b, 0x60, 0x20, 0x52, 0x60, 0x40, 0x60, 0x00, 0xf3}
++		call := []any{map[string]any{"to": probe}}
++		cleared := map[string]any{f.cfg.PQMigrate.Registry.Hex(): map[string]any{"code": hexutil.Bytes{}}}
++		three := map[string]any{"blockStateCalls": []any{
++			map[string]any{"blockOverrides": map[string]any{"time": hexutil.Uint64(22)}, "stateOverrides": map[string]any{probe.Hex(): map[string]any{"code": code}}, "calls": call},
++			map[string]any{"blockOverrides": map[string]any{"time": hexutil.Uint64(26)}, "calls": call},
++			map[string]any{"blockOverrides": map[string]any{"time": hexutil.Uint64(30)}, "stateOverrides": cleared, "calls": call},
++		}}
++		var probed []simulated
++		if err := f.client.Call(&probed, "eth_simulateV1", three, hexutil.Uint64(2)); err != nil {
++			t.Fatal(err)
++		}
++		if len(probed) != 3 {
++			t.Fatalf("%d simulated blocks", len(probed))
++		}
++		for i, want := range [][2]byte{{0, 0}, {1, 1}, {0, 1}} {
++			sizes := make([]byte, 64)
++			sizes[31], sizes[63] = want[0], want[1]
++			if c := probed[i].Calls; len(c) != 1 || c[0].Status != 1 || !bytes.Equal(c[0].ReturnData, sizes) {
++				t.Errorf("simulated block %d: probe %+v, want code sizes %v", i+1, c, want)
++			}
++		}
++	})
++	t.Run("prologue-refusal", func(t *testing.T) {
++		// Under a bridge laboratory configuration that fails validation the
++		// prologue refuses the transition block. The tracers and eth_simulateV1
++		// read the configuration from the backend and return that refusal as the
++		// RPC error. Not reached this way: stateAtTransaction
++		// (debug_traceTransaction) and debug_replayBadBlock read the chain's own
++		// configuration, and debug_traceChain only logs a failure and stops
++		// sending.
++		bad := *f.cfg
++		bad.PQStateBridge = new(params.PQStateBridgeConfig)
++		parent := f.blocks[1].Header()
++		s, err := f.chain.StateAt(parent)
++		if err != nil {
++			t.Fatal(err)
++		}
++		_, refusal := core.ApplyPQPrologue(&bad, parent, transition.Number(), transition.Time(), s)
++		if refusal == nil {
++			t.Fatal("the prologue accepts the transition block under an invalid bridge configuration")
++		}
++		backend := &pqConfigBackend{EthAPIBackend: f.watch.EthAPIBackend, cfg: &bad}
++		srv := rpc.NewServer()
++		defer srv.Stop()
++		if err := srv.RegisterName("debug", tracers.NewAPI(backend)); err != nil {
++			t.Fatal(err)
++		}
++		if err := srv.RegisterName("eth", ethapi.NewBlockChainAPI(backend)); err != nil {
++			t.Fatal(err)
++		}
++		client := rpc.DialInProc(srv)
++		defer client.Close()
++		t.Setenv("TMPDIR", t.TempDir()) // for trace files of a replay that goes on
++		sim := map[string]any{"blockStateCalls": []any{map[string]any{"blockOverrides": map[string]any{"time": hexutil.Uint64(transition.Time())}}}}
++		for _, c := range []struct {
++			method string
++			args   []any
++		}{
++			{"debug_traceBlockByNumber", []any{hexutil.Uint64(transition.NumberU64())}},
++			{"debug_intermediateRoots", []any{transition.Hash()}},
++			{"debug_standardTraceBlockToFile", []any{transition.Hash()}},
++			{"eth_simulateV1", []any{sim, hexutil.Uint64(2)}},
++		} {
++			var res json.RawMessage
++			if err := client.Call(&res, c.method, c.args...); err == nil || err.Error() != refusal.Error() {
++				t.Errorf("%s: error %v, result %s; want the prologue's refusal %q", c.method, err, res, refusal)
++			}
++		}
++	})
++}
+diff --git a/eth/state_accessor.go b/eth/state_accessor.go
+index b31d5718c195fe272af19da3271b8852053644d0..561e26620c8c95b55c4e312c50321551fdf5846a 100644
+--- a/eth/state_accessor.go
++++ b/eth/state_accessor.go
+@@ -250,8 +250,11 @@ func (eth *Ethereum) stateAtTransaction(ctx context.Context, block *types.Block,
+ 	evm := vm.NewEVM(context, statedb, eth.blockchain.Config(), vm.Config{})
+ 	defer evm.Release()
+ 
+-	// Run pre-execution system calls
+-	core.PreExecution(ctx, block.BeaconRoot(), parent.Header(), eth.blockchain.Config(), evm, block.Number(), block.Time())
++	// Run the PQ prologue and the pre-execution system calls, as the importer does
++	if _, err := core.ReplayPreExecution(ctx, eth.blockchain.Config(), parent.Header(), block.Header(), statedb, evm); err != nil {
++		release()
++		return nil, vm.BlockContext{}, nil, nil, err
++	}
+ 
+ 	if txIndex == 0 && len(block.Transactions()) == 0 {
+ 		return nil, context, statedb, release, nil
+diff --git a/eth/tracers/api.go b/eth/tracers/api.go
+index af4228e522ba2f77cb8e8142921c2e5ce22e4261..95bdc570b0322ba6a490765a2d586b4fdc5bf869 100644
+--- a/eth/tracers/api.go
++++ b/eth/tracers/api.go
+@@ -368,13 +368,23 @@ func (api *API) traceChain(start, end *types.Block, config *TraceConfig, closed
+ 				failed = err
+ 				break
+ 			}
+-			// Insert block's parent beacon block root in the state
+-			// as per EIP-4788.
++			// Run the PQ prologue and the pre-execution system calls of block
++			// next, as the importer does, on the copy handed to the tracers.
++			// statedb stays the state of block: it is the base on which
++			// StateAtBlock regenerates the state of next with Process, which
++			// runs both again, and the bridge laboratory's prologue refuses a
++			// prestate that already carries it.
++			traceState := statedb.Copy()
+ 			context := core.NewEVMBlockContext(next.Header(), api.chainContext(ctx), nil)
+-			evm := vm.NewEVM(context, statedb, api.backend.ChainConfig(), vm.Config{})
++			evm := vm.NewEVM(context, traceState, api.backend.ChainConfig(), vm.Config{})
+ 
+-			core.PreExecution(ctx, next.BeaconRoot(), block.Header(), api.backend.ChainConfig(), evm, next.Number(), next.Time())
++			_, err = core.ReplayPreExecution(ctx, api.backend.ChainConfig(), block.Header(), next.Header(), traceState, evm)
+ 			evm.Release()
++			if err != nil {
++				tracker.releaseState(number, release)
++				failed = err
++				break
++			}
+ 			// Clean out any pending release functions of trace state. Note this
+ 			// step must be done after constructing tracing state, because the
+ 			// tracing state of block next depends on the parent state and construction
+@@ -384,7 +394,7 @@ func (api *API) traceChain(start, end *types.Block, config *TraceConfig, closed
+ 			// Send the block over to the concurrent tracers (if not in the fast-forward phase)
+ 			txs := next.Transactions()
+ 			select {
+-			case taskCh <- &blockTraceTask{statedb: statedb.Copy(), block: next, release: release, results: make([]*txTraceResult, len(txs))}:
++			case taskCh <- &blockTraceTask{statedb: traceState, block: next, release: release, results: make([]*txTraceResult, len(txs))}:
+ 			case <-closed:
+ 				tracker.releaseState(number, release)
+ 				return
+@@ -522,8 +532,10 @@ func (api *API) IntermediateRoots(ctx context.Context, hash common.Hash, config
+ 		evm         = vm.NewEVM(vmctx, statedb, chainConfig, vm.Config{})
+ 	)
+ 	defer evm.Release()
+-	// Run pre-execution system calls
+-	core.PreExecution(ctx, block.BeaconRoot(), parent.Header(), chainConfig, evm, block.Number(), block.Time())
++	// Run the PQ prologue and the pre-execution system calls, as the importer does
++	if _, err := core.ReplayPreExecution(ctx, chainConfig, parent.Header(), block.Header(), statedb, evm); err != nil {
++		return nil, err
++	}
+ 
+ 	for i, tx := range block.Transactions() {
+ 		if err := ctx.Err(); err != nil {
+@@ -581,8 +593,10 @@ func (api *API) traceBlock(ctx context.Context, block *types.Block, config *Trac
+ 	evm := vm.NewEVM(blockCtx, statedb, api.backend.ChainConfig(), vm.Config{})
+ 	defer evm.Release()
+ 
+-	// Run pre-execution system calls
+-	core.PreExecution(ctx, block.BeaconRoot(), parent.Header(), api.backend.ChainConfig(), evm, block.Number(), block.Time())
++	// Run the PQ prologue and the pre-execution system calls, as the importer does
++	if _, err := core.ReplayPreExecution(ctx, api.backend.ChainConfig(), parent.Header(), block.Header(), statedb, evm); err != nil {
++		return nil, err
++	}
+ 
+ 	// JS tracers have high overhead. In this case run a parallel
+ 	// process that generates states in one thread and traces txes
+@@ -752,8 +766,10 @@ func (api *API) standardTraceBlockToFile(ctx context.Context, block *types.Block
+ 	evm := vm.NewEVM(vmctx, statedb, chainConfig, vm.Config{})
+ 	defer evm.Release()
+ 
+-	// Run pre-execution system calls
+-	core.PreExecution(ctx, block.BeaconRoot(), parent.Header(), chainConfig, evm, block.Number(), block.Time())
++	// Run the PQ prologue and the pre-execution system calls, as the importer does
++	if _, err := core.ReplayPreExecution(ctx, chainConfig, parent.Header(), block.Header(), statedb, evm); err != nil {
++		return nil, err
++	}
+ 
+ 	for i, tx := range block.Transactions() {
+ 		// Prepare the transaction for un-traced execution
+diff --git a/internal/ethapi/simulate.go b/internal/ethapi/simulate.go
+index 7e174551befc3753376347757a28a9d7f6b6d6b4..25d6c1c68b77f5e118b1bace616d8b763ad98c54 100644
+--- a/internal/ethapi/simulate.go
++++ b/internal/ethapi/simulate.go
+@@ -321,8 +321,14 @@ func (sim *simulator) processBlock(ctx context.Context, block *simBlock, header,
+ 	if precompiles != nil {
+ 		evm.SetPrecompiles(precompiles)
+ 	}
+-	// Run pre-execution system calls
+-	blockAccessList.Merge(core.PreExecution(ctx, header.ParentBeaconRoot, parent, sim.chainConfig, evm, header.Number, header.Time))
++	// Run the PQ prologue and the pre-execution system calls, as the importer
++	// does: a simulated block can be a transition block itself, and the
++	// trigger reads the simulated parent and timestamp.
++	preAL, err := core.ReplayPreExecution(ctx, sim.chainConfig, parent, header, sim.state, evm)
++	if err != nil {
++		return nil, nil, nil, err
++	}
++	blockAccessList.Merge(preAL)
+ 
+ 	var allLogs []*types.Log
+ 	for i, call := range block.Calls {

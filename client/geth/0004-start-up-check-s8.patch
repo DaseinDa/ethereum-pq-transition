@@ -1,0 +1,761 @@
+diff --git a/PQ-MIGRATE-MODIFICATIONS.md b/PQ-MIGRATE-MODIFICATIONS.md
+index 904ca3d25951283daf7751c402c97444fcbd7a24..1a4f78d0f45550d1265e25acdcd4d3d77e02543c 100644
+--- a/PQ-MIGRATE-MODIFICATIONS.md
++++ b/PQ-MIGRATE-MODIFICATIONS.md
+@@ -32,6 +32,8 @@ This source distribution contains the PQ-Migrate research adaptation. Existing u
+ | Added | `core/pq_final_test.go` |
+ | Added | `core/pq_final_unavailable.go` |
+ | Added | `core/pq_full_verifier.go` |
++| Added | `core/pq_genesis_images.go` |
++| Added | `core/pq_genesis_images_test.go` |
+ | Added | `core/pq_historical_composite_test.go` |
+ | Added | `core/pq_migrate.go` |
+ | Added | `core/pq_migrate_test.go` |
+@@ -157,6 +159,7 @@ This source distribution contains the PQ-Migrate research adaptation. Existing u
+ | Modified | `eth/fetcher/tx_fetcher.go` |
+ | Modified | `eth/handler.go` |
+ | Modified | `eth/handler_eth.go` |
++| Added | `eth/pq_genesis_images_test.go` |
+ | Added | `eth/pq_l2_propagation_test.go` |
+ | Modified | `eth/protocols/eth/handlers.go` |
+ | Modified | `eth/protocols/eth/peer.go` |
+diff --git a/core/pq_genesis_images.go b/core/pq_genesis_images.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..fe1ebf70ddb7558be0fcf91e7057239a7647f125
+--- /dev/null
++++ b/core/pq_genesis_images.go
+@@ -0,0 +1,158 @@
++// Copyright 2026 PQ-Migrate contributors
++// SPDX-License-Identifier: LGPL-3.0-or-later
++
++package core
++
++import (
++	"bytes"
++	"errors"
++	"fmt"
++	"strings"
++
++	"github.com/ethereum/go-ethereum/common"
++	"github.com/ethereum/go-ethereum/core/state"
++	"github.com/ethereum/go-ethereum/core/types"
++	"github.com/ethereum/go-ethereum/crypto"
++	"github.com/ethereum/go-ethereum/ethdb"
++	"github.com/ethereum/go-ethereum/params"
++)
++
++// ErrPQGenesisImages is a refusal by start-up check S8: a configuration error of
++// the genesis, never a block or proof verdict.
++var ErrPQGenesisImages = errors.New("PQ start-up check S8")
++
++// pqRegistryImage is the code image of PQ_REGISTRY and FACT_REGISTRY, one STOP
++// byte (section 19.9 item 4).
++var pqRegistryImage = []byte{0x00}
++
++// CheckPQGenesisImages is start-up check S8 of spec section 24.6 rule 3, which
++// the node runs at every start after S1-S7 (eth.New). When T0 is at or before
++// the genesis timestamp no block installs the code images, a transition block
++// needing a parent earlier than T0 (rule 2, InstallPQSystemImages), so the
++// genesis allocation must hold them: PQ_REGISTRY and FACT_REGISTRY each with
++// code exactly 0x00, compared byte for byte, and nonce 1. Otherwise the node
++// refuses to start. The check only reads: a client never writes the images
++// into the genesis state itself (rule 3).
++//
++// Not checked: a chain without PQMigrate; the bridge laboratory, which installs
++// the images in its InitBlock by number (InstallPQBridgeSystemImages; the
++// generic trigger leaves it out too), whose genesis is mainnet's at timestamp 0
++// while CheckConfigForkOrder holds its T0 at its Osaka time after 1753185599,
++// so no address of it has an installation time at or before its genesis; a
++// statement verifier, of which this Route A client has none (params refuses
++// FactVerifiers); and PQ_SIG_VERIFY, which has no installation time (section
++// 24.3 rule 4).
++func (bc *BlockChain) CheckPQGenesisImages() error {
++	return checkPQGenesisImages(bc.chainConfig, bc.db, bc.genesisBlock.Header(), bc.StateAt)
++}
++
++func checkPQGenesisImages(cfg *params.ChainConfig, db ethdb.Database, genesis *types.Header, stateAt func(*types.Header) (*state.StateDB, error)) error {
++	p := cfg.PQMigrate
++	if p == nil || cfg.PQStateBridge != nil || p.T0 > genesis.Time {
++		return nil
++	}
++	refuse := func(format string, args ...any) error {
++		return fmt.Errorf("%w (spec section 24.6 rule 3): T0 %d is at or before the genesis timestamp %d, %s",
++			ErrPQGenesisImages, p.T0, genesis.Time, fmt.Sprintf(format, args...))
++	}
++	if len(p.FactVerifiers) != 0 {
++		// Unreachable while params refuses them; never start with an image unchecked.
++		return refuse("and a statement verifier image is not checked by this Route A client")
++	}
++	images := []struct {
++		name string
++		addr common.Address
++	}{{"PQ_REGISTRY", p.Registry}, {"FACT_REGISTRY", p.FactRegistry}}
++	accounts, err := readPQGenesisAccounts(cfg, db, genesis, stateAt, []common.Address{p.Registry, p.FactRegistry})
++	if err != nil {
++		return refuse("and the genesis state is unavailable: %v", err)
++	}
++	var faults []string
++	for i, image := range images {
++		a, at := accounts[i], image.name+" "+image.addr.Hex()
++		if !a.exists {
++			faults = append(faults, at+" is absent, want code 0x00 and nonce 1")
++			continue
++		}
++		if !bytes.Equal(a.code, pqRegistryImage) {
++			faults = append(faults, fmt.Sprintf("%s holds %s, want exactly 0x00", at, pqCodeText(a.code)))
++		}
++		if a.nonce != 1 {
++			faults = append(faults, fmt.Sprintf("%s holds nonce %d, want 1", at, a.nonce))
++		}
++	}
++	if len(faults) != 0 {
++		return refuse("so the genesis state must hold the code images: %s", strings.Join(faults, "; "))
++	}
++	return nil
++}
++
++// pqGenesisAccount is one address as the genesis state holds it.
++type pqGenesisAccount struct {
++	exists bool
++	code   []byte
++	nonce  uint64
++}
++
++// readPQGenesisAccounts reads addrs in the genesis state itself, on a new and
++// an existing datadir alike, from the first of two sources that has it:
++//   - the genesis block's state, while the state database holds it: always
++//     under the hash scheme (the genesis is committed to disk and offline
++//     pruning keeps it), under the path scheme until the head is more than 128
++//     blocks past it;
++//   - otherwise the allocation that Genesis.Commit stores with the genesis
++//     block, used only when it hashes to the genesis header's state root, so
++//     that it is the genesis state and not a copy that may differ from it.
++//
++// With neither, S8 cannot be decided and the node is refused.
++//
++// The head state is not read. That it would give the same answer rests on an
++// argument over every transition the chain can apply: the image is one STOP
++// byte and never runs SELFDESTRUCT or CREATE; no key signs for these addresses,
++// and EIP-7702 skips an authority whose code is not a delegation; at nonce 1
++// the account is never empty under EIP-161; and after a genesis at or after T0
++// no transition block exists. A later patch or fork can break that argument
++// silently, while the genesis state root commits to the answer.
++func readPQGenesisAccounts(cfg *params.ChainConfig, db ethdb.Database, genesis *types.Header, stateAt func(*types.Header) (*state.StateDB, error), addrs []common.Address) ([]pqGenesisAccount, error) {
++	out := make([]pqGenesisAccount, len(addrs))
++	if s, err := stateAt(genesis); err == nil {
++		for i, a := range addrs {
++			out[i] = pqGenesisAccount{exists: s.Exist(a), code: s.GetCode(a), nonce: s.GetNonce(a)}
++		}
++		if s.Error() == nil {
++			return out, nil
++		}
++	}
++	alloc, err := getGenesisState(db, genesis.Hash())
++	if err != nil {
++		return nil, fmt.Errorf("stored genesis allocation: %v", err)
++	}
++	if alloc == nil {
++		return nil, errors.New("the state database no longer holds it and no genesis allocation is stored")
++	}
++	root, err := hashAlloc(&alloc, cfg.IsUBTGenesis())
++	if err != nil {
++		return nil, err
++	}
++	if root != genesis.Root {
++		return nil, fmt.Errorf("the state database no longer holds it and the stored genesis allocation hashes to %s, not to the genesis state root %s", root.Hex(), genesis.Root.Hex())
++	}
++	for i, a := range addrs {
++		account, ok := alloc[a]
++		out[i] = pqGenesisAccount{exists: ok, code: account.Code, nonce: account.Nonce}
++	}
++	return out, nil
++}
++
++// pqCodeText names code in a refusal: short code in full, long code by its
++// length and keccak256.
++func pqCodeText(code []byte) string {
++	switch {
++	case len(code) == 0:
++		return "no code"
++	case len(code) <= 32:
++		return fmt.Sprintf("code %#x", code)
++	default:
++		return fmt.Sprintf("%d bytes of code with keccak256 %s", len(code), crypto.Keccak256Hash(code).Hex())
++	}
++}
+diff --git a/core/pq_genesis_images_test.go b/core/pq_genesis_images_test.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..66ce20d91b73fb9816d9f59953254462d07ce1e5
+--- /dev/null
++++ b/core/pq_genesis_images_test.go
+@@ -0,0 +1,379 @@
++// Copyright 2026 PQ-Migrate contributors
++// SPDX-License-Identifier: LGPL-3.0-or-later
++
++package core
++
++import (
++	"bytes"
++	"encoding/json"
++	"errors"
++	"maps"
++	"math/big"
++	"strings"
++	"testing"
++
++	"github.com/ethereum/go-ethereum/common"
++	"github.com/ethereum/go-ethereum/consensus/beacon"
++	"github.com/ethereum/go-ethereum/consensus/ethash"
++	"github.com/ethereum/go-ethereum/core/rawdb"
++	"github.com/ethereum/go-ethereum/core/state"
++	"github.com/ethereum/go-ethereum/core/types"
++	"github.com/ethereum/go-ethereum/params"
++	"github.com/ethereum/go-ethereum/triedb"
++)
++
++// Start-up check S8 of spec section 24.6 rule 3 and the genesis-case vectors
++// TB-5, TB-6, TB-7, TB-8 and TB-9 of that section in R-1's Route A form: the
++// two registry images and no statement verifier (params refuses FactVerifiers).
++// Component tests (model tier); the node start itself is tested in package eth.
++
++// s8Image is a registry image as rule 3 requires it in the allocation.
++func s8Image() types.Account {
++	return types.Account{Code: []byte{0}, Nonce: 1, Balance: new(big.Int)}
++}
++
++// s8Genesis is an R-1 genesis at timestamp tgen with T0 at t0, whose allocation
++// holds alloc and the system contracts that block building needs.
++func s8Genesis(t0, tgen uint64, alloc types.GenesisAlloc) *Genesis {
++	return &Genesis{Config: r1TestChain(t0), Timestamp: tgen, GasLimit: 30000000, Alloc: withSystemContracts(alloc)}
++}
++
++// s8Chain opens a chain from gspec on a new database; it processes no block.
++func s8Chain(t *testing.T, gspec *Genesis, scheme string) *BlockChain {
++	t.Helper()
++	chain, err := NewBlockChain(rawdb.NewMemoryDatabase(), gspec, beacon.New(ethash.NewFaker()), DefaultConfig().WithStateScheme(scheme))
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(chain.Stop)
++	return chain
++}
++
++// s8NoInjection checks that a refused chain is still its genesis as written:
++// head block 0 at the allocation's root, both registries with the code and nonce
++// the allocation gave them (rule 3: a client never writes an image itself).
++func s8NoInjection(t *testing.T, chain *BlockChain, gspec *Genesis) {
++	t.Helper()
++	head := chain.CurrentBlock()
++	if head.Number.Uint64() != 0 || head.Hash() != gspec.ToBlock().Hash() {
++		t.Fatalf("head %d %s is not the genesis as written", head.Number, head.Hash())
++	}
++	s, err := chain.StateAt(head)
++	if err != nil {
++		t.Fatal(err)
++	}
++	p := gspec.Config.PQMigrate
++	for _, a := range []common.Address{p.Registry, p.FactRegistry} {
++		want := gspec.Alloc[a]
++		if !bytes.Equal(s.GetCode(a), want.Code) || s.GetNonce(a) != want.Nonce {
++			t.Fatalf("%s holds code %x nonce %d, the allocation %x nonce %d", a, s.GetCode(a), s.GetNonce(a), want.Code, want.Nonce)
++		}
++	}
++}
++
++func TestPQGenesisImagesStartupCheck(t *testing.T) {
++	p := r1TestChain(0).PQMigrate
++	registry, facts := p.Registry, p.FactRegistry
++	reg, fact := "PQ_REGISTRY "+registry.Hex(), "FACT_REGISTRY "+facts.Hex()
++	images := func() types.GenesisAlloc { return types.GenesisAlloc{registry: s8Image(), facts: s8Image()} }
++	// TB-7: a Rec(S) of mode 1 preloaded at key(S) and key(S) + 1, and a balance.
++	owner := common.HexToAddress("1234")
++	k, k1 := PQRecordSlots(owner)
++	record := s8Image()
++	record.Balance = big.NewInt(1000000000)
++	record.Storage = map[common.Hash]common.Hash{k: common.BigToHash(big.NewInt(1)), k1: common.HexToHash("01")}
++	preloaded := func(t *testing.T, chain *BlockChain) {
++		s, err := chain.StateAt(chain.Genesis().Header())
++		if err != nil {
++			t.Fatal(err)
++		}
++		if s.GetState(registry, k) != record.Storage[k] || ReadPQRecord(s, registry, owner).Mode != 1 {
++			t.Fatal("the allocated Rec(S) is not read back")
++		}
++	}
++	for _, c := range []struct {
++		name       string
++		t0, tgen   uint64
++		activation uint64 // the Route A version's activation; it installs no image (TB-9)
++		alloc      types.GenesisAlloc
++		faults     []string // parts of the refusal; none: the client starts
++		started    func(*testing.T, *BlockChain)
++	}{
++		{name: "TB-5", alloc: images()},
++		{name: "TB-5/T0-before-genesis", tgen: 1200, alloc: images()},
++		{name: "TB-5/T0-at-genesis", t0: 1200, tgen: 1200, alloc: images()},
++		{name: "TB-7/preloaded-record", alloc: types.GenesisAlloc{registry: record, facts: s8Image()}, started: preloaded},
++		{name: "TB-9/registry-images", activation: 1206, alloc: images()},
++		{name: "TB-8/T0-after-genesis", t0: 12},
++		{name: "T0-one-second-after-genesis", t0: 1201, tgen: 1200},
++		{name: "TB-6/registry-absent", alloc: types.GenesisAlloc{facts: s8Image()},
++			faults: []string{reg + " is absent, want code 0x00 and nonce 1"}},
++		{name: "TB-6/fact-registry-nonce-0", alloc: types.GenesisAlloc{registry: s8Image(), facts: {Code: []byte{0}}},
++			faults: []string{fact + " holds nonce 0, want 1"}},
++		{name: "TB-6/registry-code-0x5b", alloc: types.GenesisAlloc{registry: {Code: []byte{0x5b}, Nonce: 1}, facts: s8Image()},
++			faults: []string{reg + " holds code 0x5b, want exactly 0x00"}},
++		{name: "registry-code-0x0000", alloc: types.GenesisAlloc{registry: {Code: []byte{0, 0}, Nonce: 1}, facts: s8Image()},
++			faults: []string{reg + " holds code 0x0000, want exactly 0x00"}},
++		{name: "registry-nonce-1-no-code", alloc: types.GenesisAlloc{registry: {Nonce: 1, Balance: big.NewInt(5)}, facts: s8Image()},
++			faults: []string{reg + " holds no code, want exactly 0x00"}},
++		{name: "fact-registry-code-and-nonce", alloc: types.GenesisAlloc{registry: s8Image(), facts: {Code: []byte{0x60, 0x00}, Nonce: 2}},
++			faults: []string{fact + " holds code 0x6000, want exactly 0x00", fact + " holds nonce 2, want 1"}},
++		{name: "TB-9/no-registry-images", activation: 1206,
++			faults: []string{reg + " is absent", fact + " is absent"}},
++		{name: "T0-at-genesis/no-registry-images", t0: 1200, tgen: 1200,
++			faults: []string{"T0 1200 is at or before the genesis timestamp 1200", reg + " is absent", fact + " is absent"}},
++	} {
++		t.Run(c.name, func(t *testing.T) {
++			gspec := s8Genesis(c.t0, c.tgen, c.alloc)
++			gspec.Config.PQMigrate.FullResearch.Activation = c.activation
++			chain := s8Chain(t, gspec, rawdb.HashScheme)
++			err := chain.CheckPQGenesisImages()
++			if len(c.faults) == 0 {
++				if err != nil {
++					t.Fatalf("refused: %v", err)
++				}
++				if c.started != nil {
++					c.started(t, chain)
++				}
++				return
++			}
++			if !errors.Is(err, ErrPQGenesisImages) {
++				t.Fatalf("not a start-up refusal of S8: %v", err)
++			}
++			for _, part := range c.faults {
++				if !strings.Contains(err.Error(), part) {
++					t.Fatalf("refusal %q does not say %q", err, part)
++				}
++			}
++			s8NoInjection(t, chain, gspec)
++		})
++	}
++}
++
++// S8 reads nothing outside the genesis case: on a chain without PQMigrate, and
++// on the bridge laboratory, which installs the images in its InitBlock by
++// number and whose genesis precedes its T0 anyway. A configuration listing a
++// statement verifier is refused, not started with that image unchecked (this
++// client is Route A only).
++func TestPQGenesisImagesScope(t *testing.T) {
++	plain := &Genesis{Config: params.MergedTestChainConfig, GasLimit: 30000000, Alloc: withSystemContracts(nil)}
++	if err := s8Chain(t, plain, rawdb.HashScheme).CheckPQGenesisImages(); err != nil {
++		t.Fatalf("chain without PQMigrate checked: %v", err)
++	}
++	chain := s8Chain(t, s8Genesis(0, 0, nil), rawdb.HashScheme)
++	genesis := chain.Genesis().Header()
++	if err := checkPQGenesisImages(chain.Config(), chain.db, genesis, chain.StateAt); !errors.Is(err, ErrPQGenesisImages) {
++		t.Fatalf("control, a genesis without the images: %v", err)
++	}
++	bridge := *chain.Config()
++	bridge.PQStateBridge = bridgeTestConfig(t).PQStateBridge
++	if err := checkPQGenesisImages(&bridge, chain.db, genesis, chain.StateAt); err != nil {
++		t.Fatalf("bridge laboratory checked: %v", err)
++	}
++	// Its accepted shape: mainnet's genesis, at timestamp 0, and T0 at its Osaka
++	// time after 1753185599, so no installation time is at or before its genesis.
++	lab := bridgeTestConfig(t)
++	osaka := *lab.OsakaTime
++	lab.ChainID = new(big.Int).SetUint64(params.PQR1ChainID)
++	lab.PQMigrate = &params.PQMigrateConfig{T0: osaka, ReceivingTime: osaka, T: osaka + 100, W: 31536000, MaxPayloadBytes: 131072,
++		Registry: common.HexToAddress("800"), FactRegistry: common.HexToAddress("801"), FullResearch: nativeTestProfile()}
++	if err := lab.CheckConfigForkOrder(); err != nil {
++		t.Fatal(err)
++	}
++	mainnet := &types.Header{Number: new(big.Int), Time: DefaultGenesisBlock().Timestamp}
++	if lab.PQMigrate.T0 <= mainnet.Time {
++		t.Fatal("the bridge laboratory's T0 is not after its genesis")
++	}
++	// On a copy without the exemption only the T0 guard keeps S8 from reading.
++	noRead := func(*types.Header) (*state.StateDB, error) {
++		t.Fatal("the bridge laboratory's genesis state was read")
++		return nil, nil
++	}
++	unexempt := *lab
++	unexempt.PQStateBridge = nil
++	if err := checkPQGenesisImages(&unexempt, rawdb.NewMemoryDatabase(), mainnet, noRead); err != nil {
++		t.Fatal(err)
++	}
++	routeB := *chain.Config()
++	verifiers := *routeB.PQMigrate
++	verifiers.FactVerifiers = map[uint32]params.PQFactVerifierConfig{1: {Address: common.HexToAddress("bb"), CodeHash: common.HexToHash("cc")}}
++	routeB.PQMigrate = &verifiers
++	if err := checkPQGenesisImages(&routeB, chain.db, genesis, chain.StateAt); !errors.Is(err, ErrPQGenesisImages) {
++		t.Fatalf("a statement verifier left unchecked: %v", err)
++	}
++}
++
++// An existing datadir: under the path scheme the state database no longer
++// holds the genesis state once the head is more than 128 blocks past it. S8
++// then reads the allocation stored with the genesis block, accepted only when it
++// hashes to the genesis state root. Editing that copy cannot pass the check, and
++// with neither source the node is refused, never started unchecked.
++func TestPQGenesisImagesPrunedGenesisState(t *testing.T) {
++	p := r1TestChain(0).PQMigrate
++	pruned := func(alloc types.GenesisAlloc) *BlockChain {
++		gspec := s8Genesis(0, 0, alloc)
++		_, blocks, _ := GenerateChainWithGenesis(gspec, beacon.New(ethash.NewFaker()), 140, nil)
++		chain := s8Chain(t, gspec, rawdb.PathScheme)
++		if n, err := chain.InsertChain(blocks); err != nil {
++			t.Fatalf("import failed at %d: %v", n, err)
++		}
++		if _, err := chain.StateAt(chain.Genesis().Header()); err == nil {
++			t.Fatal("the path scheme still holds the genesis state; the case is not reached")
++		}
++		return chain
++	}
++	if err := pruned(types.GenesisAlloc{p.Registry: s8Image(), p.FactRegistry: s8Image()}).CheckPQGenesisImages(); err != nil {
++		t.Fatalf("TB-5 refused on the stored allocation: %v", err)
++	}
++	chain := pruned(types.GenesisAlloc{p.FactRegistry: s8Image()})
++	if err := chain.CheckPQGenesisImages(); !errors.Is(err, ErrPQGenesisImages) || !strings.Contains(err.Error(), "PQ_REGISTRY "+p.Registry.Hex()+" is absent") {
++		t.Fatalf("TB-6 on the stored allocation: %v", err)
++	}
++	hash := chain.Genesis().Hash()
++	alloc, err := getGenesisState(chain.db, hash)
++	if err != nil || alloc == nil {
++		t.Fatal("no stored allocation", err)
++	}
++	edited := maps.Clone(alloc)
++	edited[p.Registry] = s8Image()
++	blob, err := json.Marshal(edited)
++	if err != nil {
++		t.Fatal(err)
++	}
++	rawdb.WriteGenesisStateSpec(chain.db, hash, blob)
++	if err := chain.CheckPQGenesisImages(); !errors.Is(err, ErrPQGenesisImages) || !strings.Contains(err.Error(), "not to the genesis state root") {
++		t.Fatalf("an edited stored allocation passed: %v", err)
++	}
++	rawdb.WriteGenesisStateSpec(chain.db, hash, []byte{})
++	if err := chain.CheckPQGenesisImages(); !errors.Is(err, ErrPQGenesisImages) || !strings.Contains(err.Error(), "genesis state is unavailable") {
++		t.Fatalf("no genesis state and no stored allocation: %v", err)
++	}
++}
++
++// The genesis state opens but a read below its root fails: a hash-scheme
++// database that lost the genesis trie nodes under the root, read without a
++// clean cache. S8 then decides from the stored allocation, never from the
++// failed reads, under which both registries would read as absent; without that
++// allocation the node is refused as undecidable.
++func TestPQGenesisImagesReadErrorFallsBack(t *testing.T) {
++	p := r1TestChain(0).PQMigrate
++	images := func() types.GenesisAlloc { return types.GenesisAlloc{p.Registry: s8Image(), p.FactRegistry: s8Image()} }
++	for _, c := range []struct {
++		name   string
++		alloc  types.GenesisAlloc
++		drop   bool   // also drop the allocation stored with the genesis block
++		refuse string // part of the refusal; none: the client starts
++	}{
++		{name: "TB-5", alloc: images()},
++		{name: "TB-6", alloc: types.GenesisAlloc{p.FactRegistry: s8Image()}, refuse: "PQ_REGISTRY " + p.Registry.Hex() + " is absent"},
++		{name: "TB-5/no-stored-allocation", alloc: images(), drop: true, refuse: "the genesis state is unavailable"},
++	} {
++		t.Run(c.name, func(t *testing.T) {
++			chain := s8Chain(t, s8Genesis(0, 0, c.alloc), rawdb.HashScheme)
++			genesis := chain.Genesis().Header()
++			it := chain.db.NewIterator(nil, nil)
++			var nodes [][]byte
++			for it.Next() {
++				if rawdb.IsLegacyTrieNode(it.Key(), it.Value()) && !bytes.Equal(it.Key(), genesis.Root[:]) {
++					nodes = append(nodes, common.CopyBytes(it.Key()))
++				}
++			}
++			it.Release()
++			for _, key := range nodes {
++				if err := chain.db.Delete(key); err != nil {
++					t.Fatal(err)
++				}
++			}
++			if c.drop {
++				rawdb.WriteGenesisStateSpec(chain.db, genesis.Hash(), []byte{})
++			}
++			stateAt := func(h *types.Header) (*state.StateDB, error) {
++				return state.New(h.Root, state.NewDatabase(triedb.NewDatabase(chain.db, triedb.HashDefaults), state.NewCodeDB(chain.db)))
++			}
++			s, err := stateAt(genesis)
++			if err != nil {
++				t.Fatalf("the case is not reached, the genesis state does not open: %v", err)
++			}
++			s.Exist(p.Registry)
++			s.Exist(p.FactRegistry)
++			if s.Error() == nil {
++				t.Fatalf("the case is not reached, the reads succeed with %d trie nodes deleted", len(nodes))
++			}
++			err = checkPQGenesisImages(chain.Config(), chain.db, genesis, stateAt)
++			if c.refuse == "" {
++				if err != nil {
++					t.Fatalf("refused on a read error although the stored allocation holds the images: %v", err)
++				}
++				return
++			}
++			if !errors.Is(err, ErrPQGenesisImages) || !strings.Contains(err.Error(), c.refuse) {
++				t.Fatalf("refusal %v does not say %q", err, c.refuse)
++			}
++		})
++	}
++}
++
++// TB-5 (T0 = 0, a genesis at 0 holding both images): the client starts on the
++// genesis as written, and block 1 changes neither code nor nonce of the two
++// registries, since no transition block follows a genesis at or after T0
++// (section 24.6 rules 2 and 3). The generator puts block 1 at 10 rather than
++// the vector's 12, which changes nothing after T0; R-1 enables no access list.
++func TestPQGenesisImagesTB5(t *testing.T) {
++	p := r1TestChain(0).PQMigrate
++	gspec := s8Genesis(0, 0, types.GenesisAlloc{p.Registry: s8Image(), p.FactRegistry: s8Image()})
++	_, blocks, _ := GenerateChainWithGenesis(gspec, beacon.New(ethash.NewFaker()), 1, nil)
++	chain := s8Chain(t, gspec, rawdb.HashScheme)
++	if err := chain.CheckPQGenesisImages(); err != nil {
++		t.Fatalf("TB-5 refused: %v", err)
++	}
++	if chain.Genesis().Hash() != gspec.ToBlock().Hash() {
++		t.Fatal("the genesis is not the allocation as written")
++	}
++	if n, err := chain.InsertChain(blocks); err != nil {
++		t.Fatalf("import failed at %d: %v", n, err)
++	}
++	for i, h := range []*types.Header{chain.Genesis().Header(), blocks[0].Header()} {
++		s, err := chain.StateAt(h)
++		if err != nil {
++			t.Fatal(err)
++		}
++		for _, a := range []common.Address{p.Registry, p.FactRegistry} {
++			if code, nonce := s.GetCode(a), s.GetNonce(a); !bytes.Equal(code, []byte{0}) || nonce != 1 {
++				t.Fatalf("block %d: %s holds code %x nonce %d, want 0x00 and nonce 1", i, a, code, nonce)
++			}
++		}
++	}
++}
++
++// TB-8 (T0 = 12, a genesis without the images): S8 does not apply and the
++// client starts; block 1 at 12, the transition block of T0, installs both
++// images and block 2 changes neither (section 24.6 rule 2). The generator
++// spaces blocks 10 seconds apart, so the genesis sits at 2 for block 1 to be
++// at 12; it decides the installation before a callback could move the time.
++func TestPQGenesisImagesTB8(t *testing.T) {
++	gspec := s8Genesis(12, 2, nil)
++	_, blocks, _ := GenerateChainWithGenesis(gspec, beacon.New(ethash.NewFaker()), 2, nil)
++	chain := s8Chain(t, gspec, rawdb.HashScheme)
++	if err := chain.CheckPQGenesisImages(); err != nil {
++		t.Fatalf("TB-8 refused: %v", err)
++	}
++	if n, err := chain.InsertChain(blocks); err != nil {
++		t.Fatalf("import failed at %d: %v", n, err)
++	}
++	if blocks[0].Time() != 12 {
++		t.Fatalf("block 1 at %d", blocks[0].Time())
++	}
++	p := gspec.Config.PQMigrate
++	for i, h := range []*types.Header{chain.Genesis().Header(), blocks[0].Header(), blocks[1].Header()} {
++		s, err := chain.StateAt(h)
++		if err != nil {
++			t.Fatal(err)
++		}
++		for _, a := range []common.Address{p.Registry, p.FactRegistry} {
++			code, nonce := s.GetCode(a), s.GetNonce(a)
++			if installed := bytes.Equal(code, []byte{0}) && nonce == 1; installed != (i > 0) || i == 0 && (len(code) != 0 || nonce != 0) {
++				t.Fatalf("block %d: %s holds code %x nonce %d", i, a, code, nonce)
++			}
++		}
++	}
++}
+diff --git a/eth/backend.go b/eth/backend.go
+index aa445906889ea25a6b9484c5d3c7bc8a39c71d4c..9cea9dbb797ccded9d29c160254a2012759cf530 100644
+--- a/eth/backend.go
++++ b/eth/backend.go
+@@ -357,6 +357,14 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
+ 		if err = core.CheckPQAggregateConfig(cfg); err != nil {
+ 			return nil, err
+ 		}
++		// Start-up check S8 (spec section 24.6 rule 3), after S1-S7: a genesis at
++		// or after T0 must hold the code images. On a refusal the chain is only
++		// stopped, ending its indexers: no block has been processed and nothing
++		// is written into the state.
++		if err = eth.blockchain.CheckPQGenesisImages(); err != nil {
++			eth.blockchain.Stop()
++			return nil, err
++		}
+ 		policy := pqpool.DefaultConfig
+ 		policy.Datadir = stack.ResolvePath("pqpool-full-research")
+ 		eth.pqMigrationPool = pqpool.New(policy, eth.blockchain)
+diff --git a/eth/pq_genesis_images_test.go b/eth/pq_genesis_images_test.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..2f26dc443213aa49c9e604d117476cf7da6cf893
+--- /dev/null
++++ b/eth/pq_genesis_images_test.go
+@@ -0,0 +1,166 @@
++// Copyright 2026 PQ-Migrate contributors
++// SPDX-License-Identifier: LGPL-3.0-or-later
++
++package eth
++
++import (
++	"bytes"
++	"maps"
++	"math/big"
++	"strings"
++	"testing"
++
++	"github.com/ethereum/go-ethereum/common"
++	"github.com/ethereum/go-ethereum/consensus/beacon"
++	"github.com/ethereum/go-ethereum/consensus/ethash"
++	"github.com/ethereum/go-ethereum/core"
++	"github.com/ethereum/go-ethereum/core/rawdb"
++	"github.com/ethereum/go-ethereum/core/state"
++	"github.com/ethereum/go-ethereum/core/types"
++	"github.com/ethereum/go-ethereum/eth/ethconfig"
++	"github.com/ethereum/go-ethereum/ethdb"
++	"github.com/ethereum/go-ethereum/node"
++	"github.com/ethereum/go-ethereum/p2p"
++	"github.com/ethereum/go-ethereum/triedb"
++	"github.com/ethereum/go-ethereum/triedb/pathdb"
++)
++
++// Start-up check S8 (spec section 24.6 rule 3) through the node's real start
++// path, eth.New on a datadir as geth runs it, on the client's F profile with T0
++// at its genesis timestamp 0. TB-6: a genesis whose allocation lacks
++// PQ_REGISTRY is refused with a start-up error naming that address, on a new
++// datadir and again on the existing one, with no block processed and no image
++// written into the genesis state; so is an existing datadir whose path scheme
++// no longer holds the genesis state. TB-5: the genesis holding both images
++// starts. S7 runs first and needs the native F verifier, so this skips without it.
++func TestPQGenesisImagesNodeStart(t *testing.T) {
++	if err := core.CheckPQFullVerifierConfig(pqL2Config().PQMigrate.FullResearch); err != nil {
++		t.Skipf("S7 refuses first without the native F verifier (%v): build with -tags pq_final", err)
++	}
++	p := pqL2Config().PQMigrate
++	registry, facts := p.Registry, p.FactRegistry
++	// A balance, as every genesis file states one: geth cannot read back a
++	// stored allocation whose account has none.
++	image := types.Account{Code: []byte{0}, Nonce: 1, Balance: new(big.Int)}
++	genesis := func(alloc types.GenesisAlloc) *core.Genesis {
++		maps.Copy(alloc, core.SystemContractAllocs())
++		return &core.Genesis{Config: pqL2Config(), GasLimit: 30000000, Alloc: alloc}
++	}
++	refused := func(t *testing.T, err error) {
++		t.Helper()
++		if err == nil || !strings.Contains(err.Error(), "start-up check S8") || !strings.Contains(err.Error(), "PQ_REGISTRY "+registry.Hex()+" is absent") {
++			t.Fatalf("not refused by S8 on PQ_REGISTRY %s: %v", registry.Hex(), err)
++		}
++	}
++
++	t.Run("TB-5", func(t *testing.T) {
++		if err := s8Start(t, t.TempDir(), genesis(types.GenesisAlloc{registry: image, facts: image})); err != nil {
++			t.Fatalf("refused: %v", err)
++		}
++	})
++
++	t.Run("TB-6/new-and-existing-datadir", func(t *testing.T) {
++		datadir := t.TempDir()
++		gspec := genesis(types.GenesisAlloc{facts: image})
++		want := gspec.ToBlock()
++		refused(t, s8Start(t, datadir, gspec))
++		refused(t, s8Start(t, datadir, nil)) // the genesis from the database only, as after geth init
++		s8Datadir(t, datadir, func(db ethdb.Database) {
++			if rawdb.ReadHeadBlockHash(db) != want.Hash() || rawdb.ReadCanonicalHash(db, 1) != (common.Hash{}) {
++				t.Fatal("the head is not the genesis: a block was processed")
++			}
++			stored, err := core.ReadGenesis(db)
++			if err != nil || stored.ToBlock().Hash() != want.Hash() {
++				t.Fatal("the stored genesis is not the one written", err)
++			}
++			if _, ok := stored.Alloc[registry]; ok {
++				t.Fatal("an image was written into the stored allocation")
++			}
++			config := triedb.HashDefaults
++			if rawdb.ReadStateScheme(db) == rawdb.PathScheme {
++				config = &triedb.Config{PathDB: pathdb.ReadOnly}
++			}
++			tdb := triedb.NewDatabase(db, config)
++			defer tdb.Close()
++			s, err := state.New(want.Root(), state.NewDatabase(tdb, state.NewCodeDB(db)))
++			if err != nil {
++				t.Fatal(err)
++			}
++			if len(s.GetCode(registry)) != 0 || s.GetNonce(registry) != 0 || !bytes.Equal(s.GetCode(facts), []byte{0}) || s.Error() != nil {
++				t.Fatal("the genesis state changed: an image was injected")
++			}
++		})
++	})
++
++	t.Run("TB-6/existing-datadir-genesis-state-pruned", func(t *testing.T) {
++		datadir := t.TempDir()
++		gspec := genesis(types.GenesisAlloc{facts: image})
++		_, blocks, _ := core.GenerateChainWithGenesis(gspec, beacon.New(ethash.NewFaker()), 140, nil)
++		head := blocks[len(blocks)-1].Hash()
++		n := s8Node(t, datadir)
++		db, err := n.OpenDatabaseWithOptions("chaindata", node.DatabaseOptions{Cache: 16, Handles: 16})
++		if err != nil {
++			t.Fatal(err)
++		}
++		options := core.DefaultConfig().WithStateScheme(rawdb.PathScheme)
++		options.TrieJournalDirectory = n.ResolvePath("triedb") // where eth.New keeps the journal
++		chain, err := core.NewBlockChain(db, gspec, beacon.New(ethash.NewFaker()), options)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if i, err := chain.InsertChain(blocks); err != nil {
++			t.Fatalf("import failed at %d: %v", i, err)
++		}
++		if _, err := chain.StateAt(chain.Genesis().Header()); err == nil {
++			t.Fatal("the path scheme still holds the genesis state; the case is not reached")
++		}
++		chain.Stop()
++		n.Close()
++		refused(t, s8Start(t, datadir, nil))
++		s8Datadir(t, datadir, func(db ethdb.Database) {
++			if rawdb.ReadHeadBlockHash(db) != head || rawdb.ReadCanonicalHash(db, uint64(len(blocks)+1)) != (common.Hash{}) {
++				t.Fatal("the head moved: a block was processed or rewound")
++			}
++		})
++	})
++}
++
++func s8Node(t *testing.T, datadir string) *node.Node {
++	t.Helper()
++	n, err := node.New(&node.Config{Name: "geth", DataDir: datadir, P2P: p2p.Config{NoDiscovery: true, NoDial: true, MaxPeers: 0}})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return n
++}
++
++// s8Start runs eth.New on datadir; when it succeeds, the node starts and closes.
++func s8Start(t *testing.T, datadir string, genesis *core.Genesis) error {
++	t.Helper()
++	n := s8Node(t, datadir)
++	defer n.Close()
++	cfg := ethconfig.Defaults
++	cfg.Genesis = genesis
++	cfg.SyncMode = ethconfig.FullSync
++	cfg.DatabaseCache, cfg.DatabaseHandles = 16, 16
++	cfg.TrieCleanCache, cfg.TrieDirtyCache, cfg.SnapshotCache = 16, 16, 0
++	if _, err := New(n, &cfg); err != nil {
++		return err
++	}
++	if err := n.Start(); err != nil {
++		t.Fatal(err)
++	}
++	return nil
++}
++
++// s8Datadir opens the chain database of datadir read-only for inspection.
++func s8Datadir(t *testing.T, datadir string, inspect func(ethdb.Database)) {
++	t.Helper()
++	n := s8Node(t, datadir)
++	defer n.Close()
++	db, err := n.OpenDatabaseWithOptions("chaindata", node.DatabaseOptions{ReadOnly: true, Cache: 16, Handles: 16})
++	if err != nil {
++		t.Fatal(err)
++	}
++	inspect(db)
++}

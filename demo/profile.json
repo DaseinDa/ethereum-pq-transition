@@ -1,0 +1,11 @@
+{
+  "protocolVersion": "v1.28",
+  "executionChainId": 13378,
+  "slotSeconds": 12,
+  "verifierVersion": "0x80000008",
+  "proofBytesLimit": 196608,
+  "blockGasLimit": 44999185,
+  "transactionGasLimit": 16777216,
+  "protocolSHA256": "f6dddd5183c63a37478dff2909e4fdc31dfa4bd89c83a4e5bf5212149d33a4fd",
+  "scope": "Local synthetic-state demonstration; no mainnet deployment or acceptance-gate promotion."
+}

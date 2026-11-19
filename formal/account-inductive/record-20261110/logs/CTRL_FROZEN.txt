@@ -1,0 +1,74 @@
+# Usage statistics is OFF. We care about your privacy.
+# If you want to help our project, consider enabling statistics with config --enable-stats=true.
+
+Output directory: /tmp/tmp.Yq5VlEkP6R/out-CTRL_FROZEN/AccountInductive.tla/2026-11-11T00-21-27_12740152804733087806
+# APALACHE version: 0.62.4 | build: 7954daf                       I@00:21:27.786
+Tuning:                                                           I@00:21:27.799
+PASS #0: SanyParser                                               I@00:21:28.250
+PASS #1: TypeCheckerSnowcat                                       I@00:21:28.943
+ > Running Snowcat .::.                                           I@00:21:28.944
+ > Your types are purrfect!                                       I@00:21:29.599
+ > All expressions are typed                                      I@00:21:29.600
+PASS #2: ConfigurationPass                                        I@00:21:29.602
+  > Set the initialization predicate to IndInit                   I@00:21:29.606
+  > Set the transition predicate to Next                          I@00:21:29.607
+  > Set an invariant to NoFrozenRecovery                          I@00:21:29.607
+PASS #3: DesugarerPass                                            I@00:21:29.614
+  > Desugaring...                                                 I@00:21:29.614
+PASS #4: InlinePass                                               I@00:21:29.629
+Leaving only relevant operators: CInitPrimed, IndInit, IndInitPrimed, Next, NoFrozenRecovery I@00:21:29.631
+PASS #5: TemporalPass                                             I@00:21:29.695
+  > Rewriting temporal operators...                               I@00:21:29.696
+  > No temporal property specified, nothing to encode             I@00:21:29.697
+PASS #6: InlinePass                                               I@00:21:29.697
+Leaving only relevant operators: CInitPrimed, IndInit, IndInitPrimed, Next, NoFrozenRecovery I@00:21:29.698
+PASS #7: PrimingPass                                              I@00:21:29.705
+  > Introducing IndInitPrimed for IndInit'                        I@00:21:29.708
+PASS #8: VCGen                                                    I@00:21:29.851
+  > Producing verification conditions from the invariant NoFrozenRecovery I@00:21:29.852
+  > VCGen produced 1 verification condition(s)                    I@00:21:29.856
+PASS #9: PreprocessingPass                                        I@00:21:29.861
+  > Before preprocessing: unique renaming                         I@00:21:29.862
+ > Applying standard transformations:                             I@00:21:29.867
+  > PrimePropagation                                              I@00:21:29.868
+  > Desugarer                                                     I@00:21:29.872
+  > UniqueRenamer                                                 I@00:21:29.875
+  > Normalizer                                                    I@00:21:29.878
+  > SetMembershipSimplifier                                       I@00:21:29.883
+  > Keramelizer                                                   I@00:21:29.887
+  > After preprocessing: UniqueRenamer                            I@00:21:29.895
+PASS #10: TransitionFinderPass                                    I@00:21:29.901
+  > Found 1 initializing transitions                              I@00:21:29.933
+  > Found 7 transitions                                           I@00:21:29.955
+  > No constant initializer                                       I@00:21:29.956
+  > Applying unique renaming                                      I@00:21:29.957
+PASS #11: OptimizationPass                                        I@00:21:29.963
+ > Applying optimizations:                                        I@00:21:29.968
+  > ConstSimplifier                                               I@00:21:29.969
+  > ExprOptimizer                                                 I@00:21:29.979
+  > SetMembershipSimplifier                                       I@00:21:29.983
+  > ConstSimplifier                                               I@00:21:29.985
+PASS #12: AnalysisPass                                            I@00:21:29.993
+ > Marking skolemizable existentials and sets to be expanded...   I@00:21:29.997
+  > Skolemization                                                 I@00:21:29.998
+  > Expansion                                                     I@00:21:29.999
+  > Remove unused let-in defs                                     I@00:21:30.003
+ > Running analyzers...                                           I@00:21:30.009
+  > Introduced expression grades                                  I@00:21:30.014
+PASS #13: BoundedChecker                                          I@00:21:30.015
+State 0: Checking 1 state invariants                              I@00:21:30.403
+State 0: state invariant 0 holds.                                 I@00:21:30.411
+Step 0: picking a transition out of 1 transition(s)               I@00:21:30.415
+State 1: Checking 1 state invariants                              I@00:21:30.427
+State 1: state invariant 0 holds.                                 I@00:21:30.430
+State 1: Checking 1 state invariants                              I@00:21:30.443
+State 1: state invariant 0 holds.                                 I@00:21:30.445
+State 1: Checking 1 state invariants                              I@00:21:30.454
+Check the trace in: /tmp/tmp.Yq5VlEkP6R/out-CTRL_FROZEN/AccountInductive.tla/2026-11-11T00-21-27_12740152804733087806/violation1.tla, /tmp/tmp.Yq5VlEkP6R/out-CTRL_FROZEN/AccountInductive.tla/2026-11-11T00-21-27_12740152804733087806/MCviolation1.out, /tmp/tmp.Yq5VlEkP6R/out-CTRL_FROZEN/AccountInductive.tla/2026-11-11T00-21-27_12740152804733087806/violation1.json, /tmp/tmp.Yq5VlEkP6R/out-CTRL_FROZEN/AccountInductive.tla/2026-11-11T00-21-27_12740152804733087806/violation1.itf.json I@00:21:30.581
+State 1: state invariant 0 violated.                              I@00:21:30.582
+Found 1 error(s)                                                  I@00:21:30.584
+The outcome is: Error                                             I@00:21:30.586
+Checker has found an error                                        I@00:21:30.606
+It took me 0 days  0 hours  0 min  2 sec                          I@00:21:30.607
+Total time: 2.815 sec                                             I@00:21:30.607
+EXITCODE: ERROR (12)

@@ -1,0 +1,27 @@
+{
+  "chainId": 13378,
+  "version": 2147483656,
+  "nativeAlgorithmDigest": "0xead4fbe86b8ecd319816fc7999e0b3d44b8a7756d38744459fd3ab4c277f5afd",
+  "backend": "l5-f-native-v1",
+  "proofLifetime": 604800,
+  "maxProofBytes": 196608,
+  "maxTxBytes": 199332,
+  "txGasCap": 16777216,
+  "verifyGas": 5666000,
+  "imageId": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "guestSha": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "verifierSha": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "w": 31536000,
+  "poolSlotSeconds": 12,
+  "maxPayloadBytes": 131072,
+  "registry": "0x0000000000000000000000000000000000000800",
+  "factRegistry": "0x0000000000000000000000000000000000000801",
+  "finalKeyDigest": "0xed2fcf813b942404729da7827c4743020dae8d89ebbc206e5bee7718503df3f2",
+  "legacySeedProofFromT0": true,
+  "aggregateResearch": {
+    "key": "0x3f84335f8b7301181f37e3080cb81fc5d8444952574e0e90cd2a277d12bd2825",
+    "verifyGas": 11771000,
+    "nMax": 4,
+    "maxTxBytes": 200512
+  }
+}

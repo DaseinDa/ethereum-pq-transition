@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "note": "Adapted from recorded research sources. Digests identify the source inputs; this port requires new validation. Registry source and runtime are unmodified CC0-1.0.",
+  "sources": {
+    "build_registry.py": {
+      "source": "n1-checkpoint-20261102/build_registry.py",
+      "sourceSHA256": "918f9bb134ffbf8d5c066036b0962eec5bcb2263c260ed5370c430ec8bf01d26"
+    },
+    "checkpoint.py": {
+      "source": "n1-checkpoint-20261102/checkpoint.py",
+      "sourceSHA256": "227b64814ab796d13fd018d7585e877e98098daf9d3f156f638a8e1437000e74"
+    },
+    "contracts/N1Registry.bin-runtime": {
+      "license": "CC0-1.0",
+      "source": "n1-checkpoint-20261102/contracts/N1Registry.bin-runtime",
+      "sourceSHA256": "2ad0f2c601c87b4c48fb464005dcac22e67733bdd1f0f983f7eb4dd7daf26ad8",
+      "verbatim": true
+    },
+    "contracts/N1Registry.sol": {
+      "license": "CC0-1.0",
+      "source": "n1-checkpoint-20261102/contracts/N1Registry.sol",
+      "sourceSHA256": "0d1c474d19fda8103b323939b57d9bb818f148111da404da22d2d2bc4c4a34c5",
+      "verbatim": true
+    },
+    "labnet.py": {
+      "source": "n1-checkpoint-20261102/labnet.py",
+      "sourceSHA256": "aa6e34045d32f7ae5d6d516a25a6f0a2d2f7554612241f361b4986d125350227"
+    },
+    "n1lib.py": {
+      "source": "n1-checkpoint-20261102/n1lib.py",
+      "sourceSHA256": "d908ef3e3c34d980860c04dbe73123f879f2dd7939d81e3376a4f84c42d4b3fd"
+    },
+    "register.py": {
+      "source": "n1-checkpoint-20261102/register.py",
+      "sourceSHA256": "117021b2411cd5d6147e6f54f280a03536fad9ed442f184c85367b6c62d69543"
+    },
+    "scenario.py": {
+      "source": "n1-checkpoint-20261102/scenario.py",
+      "sourceSHA256": "653eb97bb5260093d52971a251d1697b0d99471e8113f04e5c99bad1adabb1dc"
+    },
+    "switch.py": {
+      "source": "n1-switch-20261102/n1_switch.py",
+      "sourceSHA256": "d336f63f1d7fc7c79f038c197cbb9f29d908680a5965066fe01d8013de8b4973"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+module sha256: aa1df41d80bcd9caeffa597d30eb23d99778bf279cd907fc63c421e95ee3e7d1 (CR stripped)
+apalache: 0.62.4
+java: openjdk version "21.0.12.1" 2026-08-18
+date (UTC): 2026-11-10T16:21:10Z
+
+job | expected | outcome | as expected | seconds
+INIT | holds | holds | yes | 2
+STEP | holds | holds | yes | 5
+CTRL_OVERRIDE | violated | violated | yes | 3
+CTRL_ADV_ENROLL | violated | violated | yes | 2
+CTRL_ADV_ROTATE | violated | violated | yes | 4
+CTRL_FROZEN | violated | violated | yes | 4
+CTRL_PRE_T | violated | violated | yes | 3
+MUT_ROTATE_IN_WINDOW (rotate no longer needs a final account) | violated | violated | yes | 2
+MUT_FORGED_PROOF (a migration may carry a commitment the owner did not prove) | violated | violated | yes | 5
+MUT_ENROLL_AFTER_T (an enrollment is valid after T) | violated | violated | yes | 2
+MUT_ECDSA_AFTER_ENROLLMENT (an ECDSA transaction is valid for an account that is not LEGACY) | violated | violated | yes | 2
+MUT_UNBOUND_ACTIVATION (an activation may install a key that the commitment does not fix) | violated | violated | yes | 4
+MUT_NONCE_NOT_RAISED (a migration does not raise the migration nonce) | violated | violated | yes | 4

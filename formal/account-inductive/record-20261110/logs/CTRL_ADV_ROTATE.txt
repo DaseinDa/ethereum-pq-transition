@@ -1,0 +1,80 @@
+# Usage statistics is OFF. We care about your privacy.
+# If you want to help our project, consider enabling statistics with config --enable-stats=true.
+
+Output directory: /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ROTATE/AccountInductive.tla/2026-11-11T00-21-23_6764437241756352963
+# APALACHE version: 0.62.4 | build: 7954daf                       I@00:21:23.301
+Tuning:                                                           I@00:21:23.310
+PASS #0: SanyParser                                               I@00:21:23.507
+PASS #1: TypeCheckerSnowcat                                       I@00:21:23.819
+ > Running Snowcat .::.                                           I@00:21:23.821
+ > Your types are purrfect!                                       I@00:21:24.328
+ > All expressions are typed                                      I@00:21:24.329
+PASS #2: ConfigurationPass                                        I@00:21:24.330
+  > Set the initialization predicate to IndInit                   I@00:21:24.336
+  > Set the transition predicate to Next                          I@00:21:24.339
+  > Set an invariant to NoAdvRotate                               I@00:21:24.342
+PASS #3: DesugarerPass                                            I@00:21:24.351
+  > Desugaring...                                                 I@00:21:24.352
+PASS #4: InlinePass                                               I@00:21:24.374
+Leaving only relevant operators: CInitPrimed, IndInit, IndInitPrimed, Next, NoAdvRotate I@00:21:24.380
+PASS #5: TemporalPass                                             I@00:21:24.484
+  > Rewriting temporal operators...                               I@00:21:24.485
+  > No temporal property specified, nothing to encode             I@00:21:24.485
+PASS #6: InlinePass                                               I@00:21:24.486
+Leaving only relevant operators: CInitPrimed, IndInit, IndInitPrimed, Next, NoAdvRotate I@00:21:24.487
+PASS #7: PrimingPass                                              I@00:21:24.499
+  > Introducing IndInitPrimed for IndInit'                        I@00:21:24.505
+PASS #8: VCGen                                                    I@00:21:24.788
+  > Producing verification conditions from the invariant NoAdvRotate I@00:21:24.790
+  > VCGen produced 1 verification condition(s)                    I@00:21:24.799
+PASS #9: PreprocessingPass                                        I@00:21:24.807
+  > Before preprocessing: unique renaming                         I@00:21:24.807
+ > Applying standard transformations:                             I@00:21:24.820
+  > PrimePropagation                                              I@00:21:24.822
+  > Desugarer                                                     I@00:21:24.828
+  > UniqueRenamer                                                 I@00:21:24.835
+  > Normalizer                                                    I@00:21:24.842
+  > SetMembershipSimplifier                                       I@00:21:24.854
+  > Keramelizer                                                   I@00:21:24.863
+  > After preprocessing: UniqueRenamer                            I@00:21:24.880
+PASS #10: TransitionFinderPass                                    I@00:21:24.902
+  > Found 1 initializing transitions                              I@00:21:24.998
+  > Found 7 transitions                                           I@00:21:25.037
+  > No constant initializer                                       I@00:21:25.038
+  > Applying unique renaming                                      I@00:21:25.040
+PASS #11: OptimizationPass                                        I@00:21:25.047
+ > Applying optimizations:                                        I@00:21:25.054
+  > ConstSimplifier                                               I@00:21:25.055
+  > ExprOptimizer                                                 I@00:21:25.068
+  > SetMembershipSimplifier                                       I@00:21:25.075
+  > ConstSimplifier                                               I@00:21:25.084
+PASS #12: AnalysisPass                                            I@00:21:25.126
+ > Marking skolemizable existentials and sets to be expanded...   I@00:21:25.138
+  > Skolemization                                                 I@00:21:25.145
+  > Expansion                                                     I@00:21:25.161
+  > Remove unused let-in defs                                     I@00:21:25.179
+ > Running analyzers...                                           I@00:21:25.215
+  > Introduced expression grades                                  I@00:21:25.255
+PASS #13: BoundedChecker                                          I@00:21:25.266
+State 0: Checking 1 state invariants                              I@00:21:26.115
+State 0: state invariant 0 holds.                                 I@00:21:26.125
+Step 0: picking a transition out of 1 transition(s)               I@00:21:26.129
+State 1: Checking 1 state invariants                              I@00:21:26.147
+State 1: state invariant 0 holds.                                 I@00:21:26.153
+State 1: Checking 1 state invariants                              I@00:21:26.172
+State 1: state invariant 0 holds.                                 I@00:21:26.176
+State 1: Checking 1 state invariants                              I@00:21:26.189
+State 1: state invariant 0 holds.                                 I@00:21:26.192
+State 1: Checking 1 state invariants                              I@00:21:26.202
+State 1: state invariant 0 holds.                                 I@00:21:26.207
+State 1: Checking 1 state invariants                              I@00:21:26.218
+State 1: state invariant 0 holds.                                 I@00:21:26.222
+State 1: Checking 1 state invariants                              I@00:21:26.236
+Check the trace in: /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ROTATE/AccountInductive.tla/2026-11-11T00-21-23_6764437241756352963/violation1.tla, /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ROTATE/AccountInductive.tla/2026-11-11T00-21-23_6764437241756352963/MCviolation1.out, /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ROTATE/AccountInductive.tla/2026-11-11T00-21-23_6764437241756352963/violation1.json, /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ROTATE/AccountInductive.tla/2026-11-11T00-21-23_6764437241756352963/violation1.itf.json I@00:21:26.456
+State 1: state invariant 0 violated.                              I@00:21:26.457
+Found 1 error(s)                                                  I@00:21:26.458
+The outcome is: Error                                             I@00:21:26.462
+Checker has found an error                                        I@00:21:26.491
+It took me 0 days  0 hours  0 min  3 sec                          I@00:21:26.492
+Total time: 3.187 sec                                             I@00:21:26.493
+EXITCODE: ERROR (12)

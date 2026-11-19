@@ -1,0 +1,92 @@
+{
+  "coldKeyNs": 43618631,
+  "negativeControls": "changed PI and proof rejected",
+  "operations": [
+    {
+      "batchMeanNs": [
+        38637938.7,
+        38711312.3,
+        38847907.2,
+        40710265.1,
+        40459570.1,
+        40729245.4,
+        42367774.5,
+        42130559,
+        41614716.9,
+        42544038.7
+      ],
+      "calls": 100,
+      "gas": 0,
+      "inputBytes": 187861,
+      "inputSHA256": "977cdc43e9e3ba5c7d914050b98411e52987b5487f2664660ae520ba0b16b604",
+      "meanNs": 40675332.79,
+      "name": "F",
+      "vector": "mode0-10"
+    },
+    {
+      "batchMeanNs": [
+        27634.2,
+        27585.6,
+        27438.1,
+        26670,
+        30691.1,
+        29123.3,
+        30694.8,
+        26836.6,
+        30363.4,
+        30311.5
+      ],
+      "calls": 100,
+      "gas": 3000,
+      "inputBytes": 128,
+      "inputSHA256": "4c9b4988d3e2da685fb53b44484202256fad76c018397910348eb4387ec891f3",
+      "meanNs": 28734.859999999997,
+      "name": "ecrecover",
+      "vector": "ecRecover/ValidKey"
+    },
+    {
+      "batchMeanNs": [
+        425582.6,
+        424118,
+        452621,
+        423400.2,
+        465953.7,
+        460185.6,
+        461259.2,
+        428758.5,
+        471108.6,
+        495645.3
+      ],
+      "calls": 100,
+      "gas": 113000,
+      "inputBytes": 384,
+      "inputSHA256": "5f4e768d9faaf07a8c7264b937d60ff0b2fd52458e60a235f79c54bea68979dc",
+      "meanNs": 450863.27,
+      "name": "BN254-pairing",
+      "vector": "bn256Pairing/jeff1"
+    },
+    {
+      "batchMeanNs": [
+        694416.6,
+        731899.6,
+        690927.7,
+        712872,
+        726372.9,
+        778261.2,
+        764415.9,
+        722267.7,
+        755146.4,
+        855344.8
+      ],
+      "calls": 100,
+      "gas": 102900,
+      "inputBytes": 768,
+      "inputSHA256": "a2b6f8bd545e249d309a51952747c8a358dc7d9a901e245d1647852eb89e4413",
+      "meanNs": 743192.4800000001,
+      "name": "BLS12-381-pairing",
+      "vector": "blsPairing/bls_pairing_e(2*G1,3*G2)=e(6*G1,G2)"
+    }
+  ],
+  "rep": 10,
+  "scope": "real-backend in-process geth; no result cache; precompile Run and VerifyPQFull"
+}

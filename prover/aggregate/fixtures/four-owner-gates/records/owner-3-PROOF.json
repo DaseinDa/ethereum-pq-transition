@@ -1,0 +1,94 @@
+{
+  "status": "PASS",
+  "review": "loop-internal self-review; not independently reviewed",
+  "publicTestOnly": true,
+  "keepInner": false,
+  "custody": "anonymous-memory; only F exported by default",
+  "commands": [
+    {
+      "name": "leaf-prove",
+      "exit": 0,
+      "seconds": 33.701472373000115,
+      "watchdogPeakKiB": 19226080,
+      "watchdogKilled": false
+    },
+    {
+      "name": "leaf-verify",
+      "exit": 0,
+      "seconds": 1.8133997249999538,
+      "watchdogPeakKiB": 1529244,
+      "watchdogKilled": false
+    },
+    {
+      "name": "b-prove",
+      "exit": 0,
+      "seconds": 32.60998961700011,
+      "watchdogPeakKiB": 25443268,
+      "watchdogKilled": false
+    },
+    {
+      "name": "b-verify",
+      "exit": 0,
+      "seconds": 6.238595514000053,
+      "watchdogPeakKiB": 6465596,
+      "watchdogKilled": false
+    },
+    {
+      "name": "f-prove",
+      "exit": 0,
+      "seconds": 58.522174565000114,
+      "watchdogPeakKiB": 32518568,
+      "watchdogKilled": false
+    },
+    {
+      "name": "f-verify",
+      "exit": 0,
+      "seconds": 6.2361701459999495,
+      "watchdogPeakKiB": 6484860,
+      "watchdogKilled": false
+    },
+    {
+      "name": "standalone",
+      "exit": 0,
+      "seconds": 0.2010357159999785,
+      "watchdogPeakKiB": 0,
+      "watchdogKilled": false
+    },
+    {
+      "name": "reject-changed-pi",
+      "exit": 1,
+      "seconds": 0.2010243059999084,
+      "watchdogPeakKiB": 0,
+      "watchdogKilled": false
+    },
+    {
+      "name": "reject-changed-proof",
+      "exit": 1,
+      "seconds": 0.2010759129998405,
+      "watchdogPeakKiB": 0,
+      "watchdogKilled": false
+    }
+  ],
+  "expiry": 1794830400,
+  "bPublicValuesEqualExpectedPI": true,
+  "layers": {
+    "leaf": {
+      "prove_ms": 30912.897727,
+      "proof_bytes": 1344811,
+      "fresh_verdict": "ACCEPTED"
+    },
+    "b": {
+      "prove_ms": 25837.462454,
+      "proof_bytes": 380665,
+      "fresh_verdict": "ACCEPTED"
+    },
+    "f": {
+      "prove_ms": 52547.302081,
+      "proof_bytes": 186101,
+      "fresh_verdict": "ACCEPTED"
+    }
+  },
+  "proofBytes": 186101,
+  "proofSHA256": "99dbd6a7a36e02dbed8b67fcebfbc1cda6a5f46014a91f1a42054a98a71aea68",
+  "piSHA256": "7d0abddeac3fe584493cf990e7fc38c3a74440d86b50049e6e489688784e0090"
+}

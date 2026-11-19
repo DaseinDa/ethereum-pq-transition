@@ -1,0 +1,148 @@
+{
+ "module": "AccountInductive.tla",
+ "module_sha256_cr_stripped": "aa1df41d80bcd9caeffa597d30eb23d99778bf279cd907fc63c421e95ee3e7d1",
+ "recorded_module_sha256": "aa1df41d80bcd9caeffa597d30eb23d99778bf279cd907fc63c421e95ee3e7d1",
+ "apalache": "0.62.4",
+ "java": "openjdk version \"21.0.12.1\" 2026-08-18",
+ "date_utc": "2026-11-10T16:21:10Z",
+ "bound": "all integers: T0 < T, W >= 1, time, migration nonce; one account; ideal proofs and signatures",
+ "jobs": [
+  {
+   "name": "INIT",
+   "kind": "check",
+   "what": null,
+   "tool": "Apalache",
+   "expected": "holds",
+   "outcome": "holds",
+   "as_expected": true,
+   "seconds": 2
+  },
+  {
+   "name": "STEP",
+   "kind": "check",
+   "what": null,
+   "tool": "Apalache",
+   "expected": "holds",
+   "outcome": "holds",
+   "as_expected": true,
+   "seconds": 5
+  },
+  {
+   "name": "CTRL_OVERRIDE",
+   "kind": "scenario",
+   "what": null,
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 3
+  },
+  {
+   "name": "CTRL_ADV_ENROLL",
+   "kind": "scenario",
+   "what": null,
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 2
+  },
+  {
+   "name": "CTRL_ADV_ROTATE",
+   "kind": "scenario",
+   "what": null,
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 4
+  },
+  {
+   "name": "CTRL_FROZEN",
+   "kind": "scenario",
+   "what": null,
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 4
+  },
+  {
+   "name": "CTRL_PRE_T",
+   "kind": "scenario",
+   "what": null,
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 3
+  },
+  {
+   "name": "MUT_ROTATE_IN_WINDOW",
+   "kind": "mutation",
+   "what": "rotate no longer needs a final account",
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 2
+  },
+  {
+   "name": "MUT_FORGED_PROOF",
+   "kind": "mutation",
+   "what": "a migration may carry a commitment the owner did not prove",
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 5
+  },
+  {
+   "name": "MUT_ENROLL_AFTER_T",
+   "kind": "mutation",
+   "what": "an enrollment is valid after T",
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 2
+  },
+  {
+   "name": "MUT_ECDSA_AFTER_ENROLLMENT",
+   "kind": "mutation",
+   "what": "an ECDSA transaction is valid for an account that is not LEGACY",
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 2
+  },
+  {
+   "name": "MUT_UNBOUND_ACTIVATION",
+   "kind": "mutation",
+   "what": "an activation may install a key that the commitment does not fix",
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 4
+  },
+  {
+   "name": "MUT_NONCE_NOT_RAISED",
+   "kind": "mutation",
+   "what": "a migration does not raise the migration nonce",
+   "tool": "Apalache",
+   "expected": "violated",
+   "outcome": "violated",
+   "as_expected": true,
+   "seconds": 4
+  }
+ ],
+ "all_as_expected": true,
+ "counts": {
+  "checks": 2,
+  "scenarios": 5,
+  "mutations": 6
+ },
+ "status": "in the research repository since 2026-11-11 (code/formal-model-20261027/account-inductive) and rerun from there; the module is the draft of 2026-11-10, byte for byte; an external reviewer read the module and the first run's record twice and did not rerun it"
+}

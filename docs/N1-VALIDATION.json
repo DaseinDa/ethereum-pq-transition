@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "dateUTC": "2026-11-02",
+  "codeCommit": "58d48ca",
+  "review": "loop-internal self-review; not independently reviewed",
+  "samples": 1,
+  "paperBenchmark": false,
+  "scope": "actual Ream consensus, two geth nodes, N1 request gate and seed recovery, restart; synthetic EL state; no stake-ledger claim",
+  "clientBinaries": {
+    "ream": "f3de4a2fd3ba31559f29a92d29b4e5d6f9e401123b67493b6cf369ffd5482f78",
+    "geth": "e740bbb022f03fd144ac1cd17b5613b493b14b8d267c223c2850784f71be8071"
+  },
+  "gethSourceManifestSHA256": "f4705df80cf6e920d00cf07af7cad27ac2d6a762f5b93d078ca43b547e39fd37",
+  "runtimeManifestSHA256": "5ca937d41a63b74d17bfd8821e26a3440e62eb812a08fdd96880d695700776d7",
+  "componentTests": {
+    "pass": 353,
+    "fail": 0,
+    "skip": 47
+  },
+  "network": {
+    "status": "PASS",
+    "samples": 1,
+    "failure": null,
+    "scope": "actual Ream consensus, two geth nodes, N1 request gate and seed recovery, restart; synthetic EL state; no stake-ledger claim",
+    "historyAudits": "PASS; real signatures and append-only restart histories",
+    "transactionCount": 12,
+    "revertedRequests": 4,
+    "successfulTransactions": 8,
+    "signatureCounts": {
+      "A": 51,
+      "B": 96
+    },
+    "historyAppendOnly": true,
+    "processesStopped": true
+  },
+  "proof": {
+    "proofSHA256": "a583ae94310e8bfd61a3deb1c75f3197649858ba0f6030b31688ab8946fa9e15",
+    "piSHA256": "1a5700c0809ee106e993610118b9e8a2f54cca712895b1b3d71526c08b40a783",
+    "proofBytes": 189141,
+    "verifierVersion": "0x80000008",
+    "chainId": 13378,
+    "securityTier": "no P1/P2, hiding or acceptance status raised by this experiment"
+  },
+  "evidenceManifestSHA256": "0b8ba028117c5cb5deaed833d6d50ca1a1c98c46ab5d556ad720e349005d1074",
+  "productionEnabled": false,
+  "stakeLedger": "unfinished; this test proves request authorization and transport, not validator exit/payout/restake",
+  "reproduction": "python3 PREFIX/tools/run_demo.py --scenario n1-requests --work NEW_RUN_DIRECTORY"
+}

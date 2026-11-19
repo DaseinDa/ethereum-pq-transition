@@ -1,0 +1,173 @@
+diff --git a/core/txpool/pqpool/batch.go b/core/txpool/pqpool/batch.go
+index 6cd02c492bc353248423d6e7d25944baafdeaaa2..b02429d472a11d6406a84aded96ac17de43c990a 100644
+--- a/core/txpool/pqpool/batch.go
++++ b/core/txpool/pqpool/batch.go
+@@ -60,6 +60,28 @@ func (p *Pool) batchList(addr common.Address) []*batchEntry {
+ 	sort.Slice(out, func(i, j int) bool { return out[i].tx.Nonce() < out[j].tx.Nonce() })
+ 	return out
+ }
++
++// batchesInSponsorOrder snapshots the batch set by sponsor, sponsor nonce and
++// hash. A pass that defers several batches of one sponsor then stamps them in
++// nonce order, and section 20.17 (b) retries them in that order, not in map order.
++func (p *Pool) batchesInSponsorOrder() []*batchEntry {
++	out := make([]*batchEntry, 0, len(p.batches))
++	for _, e := range p.batches {
++		out = append(out, e)
++	}
++	sort.Slice(out, func(i, j int) bool {
++		bi, _ := out[i].tx.AsPQBatch()
++		bj, _ := out[j].tx.AsPQBatch()
++		if c := bi.Sponsor.Cmp(bj.Sponsor); c != 0 {
++			return c < 0
++		}
++		if ni, nj := out[i].tx.Nonce(), out[j].tx.Nonce(); ni != nj {
++			return ni < nj
++		}
++		return out[i].tx.Hash().Cmp(out[j].tx.Hash()) < 0
++	})
++	return out
++}
+ func (p *Pool) batchNonce(addr common.Address) uint64 {
+ 	if p.state == nil {
+ 		return 0
+@@ -273,7 +295,11 @@ func (p *Pool) addBatchWithProof(tx *types.Transaction, admission bool, verifyPr
+ // surviving obligations can trigger an authorization-lapse or balance ban.
+ func (p *Pool) pruneBatchReset(h *types.Header) {
+ 	slot := txpool.PQPoolSlot(p.chain.Config())
+-	for hash, e := range p.batches {
++	for _, e := range p.batchesInSponsorOrder() {
++		hash := e.tx.Hash()
++		if p.batches[hash] != e {
++			continue
++		}
+ 		b, _ := e.tx.AsPQBatch()
+ 		e.resetReady = false
+ 		if !e.admitted && p.resetCandidateExpired(e.tx, h) {
+@@ -290,8 +316,9 @@ func (p *Pool) pruneBatchReset(h *types.Header) {
+ 			p.dropBatch(hash)
+ 		}
+ 	}
+-	for hash, e := range p.batches {
+-		if !e.admitted {
++	for _, e := range p.batchesInSponsorOrder() {
++		hash := e.tx.Hash()
++		if p.batches[hash] != e || !e.admitted {
+ 			continue
+ 		}
+ 		b, _ := e.tx.AsPQBatch()
+diff --git a/core/txpool/pqpool/batch_reset_regression_test.go b/core/txpool/pqpool/batch_reset_regression_test.go
+index 934a55720783bbd4370bbd5345a7eab11953baca..1b99978132ea7ef8f301cf0295f9aed8bb4c57ad 100644
+--- a/core/txpool/pqpool/batch_reset_regression_test.go
++++ b/core/txpool/pqpool/batch_reset_regression_test.go
+@@ -105,6 +105,63 @@ func TestBatchAndSingleDeferredRetriesShareDeferralOrder(t *testing.T) {
+ 	}
+ }
+ 
++// One reset pass that defers several batches of a sponsor stamps their retry
++// order by sponsor nonce, not by map iteration (F-31). The entries go in in
++// reverse nonce order, which map iteration keeps or rotates, so a pass in
++// map order fails this test.
++func TestBatchResetDeferralOrderFollowsSponsorNonce(t *testing.T) {
++	p, c, batch, _ := realBatchPool(t)
++	b, _ := batch.AsPQBatch()
++	const n = 6
++	for i := n - 1; i >= 0; i-- {
++		tx := batchAtNonce(t, batch, b.SponsorNonce+uint64(i))
++		p.batches[tx.Hash()] = &batchEntry{tx: tx, seen: time.Now(), pending: i == 0, admitted: true, resetReady: true}
++	}
++	c.s.SetExternalError(errors.New("reset-time state fault"))
++	p.state = c.s.Copy()
++	p.pruneBatchReset(p.head)
++	queued := p.deferredRetries()
++	if len(queued) != n {
++		t.Fatalf("deferred %d of %d batches", len(queued), n)
++	}
++	for i, d := range queued {
++		if want := b.SponsorNonce + uint64(i); d.tx.Nonce() != want {
++			t.Fatalf("retry %d has sponsor nonce %d, want %d", i, d.tx.Nonce(), want)
++		}
++	}
++}
++
++// stateUnavailableChain fails every state read, so Reset defers all batches
++// through its state-unavailable branch.
++type stateUnavailableChain struct{ *componentChain }
++
++func (stateUnavailableChain) StateAt(*types.Header) (*state.StateDB, error) {
++	return nil, errors.New("reset-time state unavailable")
++}
++
++// Reset's state-unavailable branch also stamps a sponsor's batches in nonce
++// order, not in map order (F-31).
++func TestBatchResetStateUnavailableDeferralOrderFollowsSponsorNonce(t *testing.T) {
++	p, c, batch, _ := realBatchPool(t)
++	b, _ := batch.AsPQBatch()
++	const n = 6
++	for i := n - 1; i >= 0; i-- {
++		tx := batchAtNonce(t, batch, b.SponsorNonce+uint64(i))
++		p.batches[tx.Hash()] = &batchEntry{tx: tx, seen: time.Now(), pending: true, admitted: true, resetReady: true}
++	}
++	p.chain = stateUnavailableChain{c}
++	p.Reset(nil, p.head)
++	queued := p.deferredRetries()
++	if p.stateErr == nil || len(queued) != n {
++		t.Fatalf("deferred %d of %d batches", len(queued), n)
++	}
++	for i, d := range queued {
++		if want := b.SponsorNonce + uint64(i); d.tx.Nonce() != want {
++			t.Fatalf("retry %d has sponsor nonce %d, want %d", i, d.tx.Nonce(), want)
++		}
++	}
++}
++
+ func resetBranchBlock(parent *types.Block, label string, txs ...*types.Transaction) *types.Block {
+ 	h := types.CopyHeader(parent.Header())
+ 	h.ParentHash = parent.Hash()
+diff --git a/core/txpool/pqpool/pqpool.go b/core/txpool/pqpool/pqpool.go
+index dfed7ba801c8667a7e54fc690682bc780012f050..1252d2e4f388c0ff41395ff47190cbf2ee0ee3b0 100644
+--- a/core/txpool/pqpool/pqpool.go
++++ b/core/txpool/pqpool/pqpool.go
+@@ -1,10 +1,9 @@
+-// Copyright 2026 The go-ethereum Authors
++// Copyright 2026 PQ-Migrate contributors
+ // SPDX-License-Identifier: LGPL-3.0-or-later
+ 
+ // Package pqpool holds nonce-less, payer-keyed Full Route A transactions and
+ // sponsor-nonce-ordered aggregate batches in separate sets. This research
+ // profile excludes Route B lanes. Pool policy never enters block validity.
+-
+ package pqpool
+ 
+ import (
+@@ -691,7 +690,7 @@ func (p *Pool) Reset(old, head *types.Header) {
+ 	p.pruneProofCaches()
+ 	p.state, p.stateErr = p.chain.StateAt(head)
+ 	if p.stateErr != nil {
+-		for _, e := range p.batches {
++		for _, e := range p.batchesInSponsorOrder() {
+ 			p.deferBatch(e.tx)
+ 		}
+ 		for _, tx := range candidates {
+diff --git a/core/txpool/pqpool/reorg.go b/core/txpool/pqpool/reorg.go
+index 2047f8e66441c5373d45a40980075a3761d6d3b0..89561d8f9dca1bb94a5da8ab0081fc73a2c26877 100644
+--- a/core/txpool/pqpool/reorg.go
++++ b/core/txpool/pqpool/reorg.go
+@@ -1,4 +1,4 @@
+-// Copyright 2026 The go-ethereum Authors
++// Copyright 2026 PQ-Migrate contributors
+ // SPDX-License-Identifier: LGPL-3.0-or-later
+ 
+ package pqpool
+diff --git a/internal/pqtest/batch.go b/internal/pqtest/batch.go
+index 1cd656e6841367884ae0f009c4ef20d225241b54..a5c4bb4ef214b23dbad6d07dc8659785f9c1e56e 100644
+--- a/internal/pqtest/batch.go
++++ b/internal/pqtest/batch.go
+@@ -2,7 +2,6 @@
+ // SPDX-License-Identifier: LGPL-3.0-or-later
+ 
+ // Package pqtest loads public aggregate fixtures for component tests.
+-
+ package pqtest
+ 
+ import (

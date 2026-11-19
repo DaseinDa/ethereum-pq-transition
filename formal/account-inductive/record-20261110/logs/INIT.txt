@@ -1,0 +1,76 @@
+# Usage statistics is OFF. We care about your privacy.
+# If you want to help our project, consider enabling statistics with config --enable-stats=true.
+
+Output directory: /tmp/tmp.Yq5VlEkP6R/out-INIT/AccountInductive.tla/2026-11-11T00-21-10_7695756393554924810
+# APALACHE version: 0.62.4 | build: 7954daf                       I@00:21:10.563
+Tuning:                                                           I@00:21:10.572
+PASS #0: SanyParser                                               I@00:21:10.855
+PASS #1: TypeCheckerSnowcat                                       I@00:21:11.193
+ > Running Snowcat .::.                                           I@00:21:11.194
+ > Your types are purrfect!                                       I@00:21:11.606
+ > All expressions are typed                                      I@00:21:11.625
+PASS #2: ConfigurationPass                                        I@00:21:11.627
+  > Set the initialization predicate to Init                      I@00:21:11.631
+  > Set the transition predicate to Next                          I@00:21:11.632
+  > Set an invariant to IndInv                                    I@00:21:11.634
+PASS #3: DesugarerPass                                            I@00:21:11.642
+  > Desugaring...                                                 I@00:21:11.643
+PASS #4: InlinePass                                               I@00:21:11.656
+Leaving only relevant operators: CInitPrimed, IndInv, Init, InitPrimed, Next I@00:21:11.657
+PASS #5: TemporalPass                                             I@00:21:11.717
+  > Rewriting temporal operators...                               I@00:21:11.718
+  > No temporal property specified, nothing to encode             I@00:21:11.718
+PASS #6: InlinePass                                               I@00:21:11.719
+Leaving only relevant operators: CInitPrimed, IndInv, Init, InitPrimed, Next I@00:21:11.719
+PASS #7: PrimingPass                                              I@00:21:11.727
+  > Introducing InitPrimed for Init'                              I@00:21:11.730
+PASS #8: VCGen                                                    I@00:21:11.966
+  > Producing verification conditions from the invariant IndInv   I@00:21:11.967
+  > VCGen produced 11 verification condition(s)                   I@00:21:11.971
+PASS #9: PreprocessingPass                                        I@00:21:11.978
+  > Before preprocessing: unique renaming                         I@00:21:11.979
+ > Applying standard transformations:                             I@00:21:11.985
+  > PrimePropagation                                              I@00:21:11.986
+  > Desugarer                                                     I@00:21:11.990
+  > UniqueRenamer                                                 I@00:21:11.993
+  > Normalizer                                                    I@00:21:11.998
+  > SetMembershipSimplifier                                       I@00:21:12.003
+  > Keramelizer                                                   I@00:21:12.007
+  > After preprocessing: UniqueRenamer                            I@00:21:12.014
+PASS #10: TransitionFinderPass                                    I@00:21:12.020
+  > Found 1 initializing transitions                              I@00:21:12.053
+  > Found 7 transitions                                           I@00:21:12.079
+  > No constant initializer                                       I@00:21:12.082
+  > Applying unique renaming                                      I@00:21:12.085
+PASS #11: OptimizationPass                                        I@00:21:12.090
+ > Applying optimizations:                                        I@00:21:12.094
+  > ConstSimplifier                                               I@00:21:12.095
+  > ExprOptimizer                                                 I@00:21:12.107
+  > SetMembershipSimplifier                                       I@00:21:12.129
+  > ConstSimplifier                                               I@00:21:12.131
+PASS #12: AnalysisPass                                            I@00:21:12.141
+ > Marking skolemizable existentials and sets to be expanded...   I@00:21:12.146
+  > Skolemization                                                 I@00:21:12.149
+  > Expansion                                                     I@00:21:12.155
+  > Remove unused let-in defs                                     I@00:21:12.159
+ > Running analyzers...                                           I@00:21:12.166
+  > Introduced expression grades                                  I@00:21:12.176
+PASS #13: BoundedChecker                                          I@00:21:12.178
+State 0: Checking 11 state invariants                             I@00:21:12.637
+State 0: state invariant 0 holds.                                 I@00:21:12.648
+State 0: state invariant 1 holds.                                 I@00:21:12.652
+State 0: state invariant 2 holds.                                 I@00:21:12.655
+State 0: state invariant 3 holds.                                 I@00:21:12.672
+State 0: state invariant 4 holds.                                 I@00:21:12.680
+State 0: state invariant 5 holds.                                 I@00:21:12.687
+State 0: state invariant 6 holds.                                 I@00:21:12.694
+State 0: state invariant 7 holds.                                 I@00:21:12.699
+State 0: state invariant 8 holds.                                 I@00:21:12.702
+State 0: state invariant 9 holds.                                 I@00:21:12.711
+State 0: state invariant 10 holds.                                I@00:21:12.717
+Step 0: picking a transition out of 1 transition(s)               I@00:21:12.719
+The outcome is: NoError                                           I@00:21:12.738
+Checker reports no error up to computation length 0               I@00:21:12.740
+It took me 0 days  0 hours  0 min  2 sec                          I@00:21:12.744
+Total time: 2.176 sec                                             I@00:21:12.745
+EXITCODE: OK

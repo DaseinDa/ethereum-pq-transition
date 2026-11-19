@@ -1,0 +1,19 @@
+[package]
+name = "pq-final-native"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pq-final-verifier = { path = "../final-verifier" }
+serde_json = "=1.0.154"
+tiny-keccak = { version = "=2.0.2", features = ["keccak"] }
+
+[profile.release]
+opt-level = 3
+panic = "unwind"

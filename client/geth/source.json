@@ -1,0 +1,39 @@
+{
+  "commit": "3d84c6b2e3e9be032f8f2dcd9e900f89391fcdab",
+  "archive": "geth.tar",
+  "sha256": "5b6d3cfa59ce71a08d3a0faa73bfff07e04ffda30312dd34e6ae361b4281ed3a",
+  "url": "https://github.com/ethereum/go-ethereum.git",
+  "patches": [
+    {
+      "file": "0001-pq-migrate.patch",
+      "sha256": "41f7ff59c4f09eba8a14a036f2ac24b9ca91ec2c8b3f6a454f85ad77afa5d714",
+      "description": "Complete PQ-Migrate research adaptation, including early R1 rejection, pre-T gates, single/batch proof paths, active boundary regressions and pool policy."
+    },
+    {
+      "file": "0002-validation-test-fixes.patch",
+      "sha256": "46fb7f2cec91fdf2643a8f87d6a235eab8808ad330bf6b2d4fbc3b23117c0e8b",
+      "description": "Test-only corrections from the 2026-11-10 heavy validation: core tests pass params.Rules to StateDB.Finalise/IntermediateRoot, and the final-state and pre-T pool enrollment fixtures give the Registry the code 0x00 and nonce 1 it holds from T0 on (installed by the T0 transition block, or held by the genesis allocation when T0 is at or before the genesis time), so EIP-158 finalization keeps its records."
+    },
+    {
+      "file": "0003-batch-deferral-order-and-headers.patch",
+      "sha256": "3cbea3ddf28e08e98be2fa166fdf3e87e2cbdd510b64a1aad16df022f4c93be6",
+      "description": "Pool reset stamps a sponsor's held batches by sponsor, sponsor nonce and hash instead of map order, in pruneBatchReset and in Reset's state-unavailable branch, so their retries run in nonce order (two regression tests); PQ-Migrate copyright lines on pqpool.go and reorg.go and attached package doc comments."
+    },
+    {
+      "file": "0004-start-up-check-s8.patch",
+      "sha256": "08b497acd8a219ab354ea25999f8f9052bba1df06a6d00beb3898edd155352ca",
+      "description": "Start-up check S8: when T0 is at or before the genesis timestamp and no state bridge is configured, the node refuses to start unless the genesis state holds code 0x00 and nonce 1 at the Registry and the FactRegistry (read from the genesis trie, or from the stored allocation checked against the genesis root); tests for vectors TB-5 to TB-9 and for the node start path."
+    },
+    {
+      "file": "0005-replay-pq-prologue.patch",
+      "sha256": "964d91d34761e0a031600861be3e21e60c4e5908ccf8da7b4e23954026803ad3",
+      "description": "RPC replays (debug tracing, debug_intermediateRoots, debug_standardTraceBlockToFile, debug_replayBadBlock, eth_simulateV1) run the PQ block prologue before the system calls, as import does; tests compare replays of a T0 transition block with the importer and cover the prologue's refusal. Notice date updated."
+    },
+    {
+      "file": "0006-gate-fixture-tests.patch",
+      "sha256": "445ea8860c79b2fd07b034f06bafda11e39c8bd09d6fd37a59507838f9db6a64",
+      "description": "Gate fixture tests: internal/pqtest loads the second public four-owner C fixture (one early expiry, fee modes 3 and 1, one migration nonce 1) with the sponsor window at the latest expiry, and a two-block core import test carries a real 0x7d by the fourth owner's public legacy key and then the batch, asserting the end-to-end expiry skip 0x0201, the owner-money settlement of fee modes 3 and 1 with native C acceptance, the override of the reachable ENROLLED record with was_override, and the gas formula; the modification inventory lists the two files."
+    }
+  ],
+  "treeManifestSHA256": "7d5b4524c163b97ec1f9a8e8ad0e713f7cab976ce4abfe491662cd8b42298c6f"
+}

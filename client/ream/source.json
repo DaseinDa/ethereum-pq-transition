@@ -1,0 +1,24 @@
+{
+  "commit": "9cd3498b97a5b2dbc54fd5b48c28143b773ca47d",
+  "archive": "ream.tar",
+  "sha256": "4a7c066f8bbc3c95124ef540b71e78761287915dc5359e14ca623e7e121a5ebc",
+  "url": "https://github.com/ReamLabs/ream.git",
+  "patches": [
+    {
+      "file": "0001-pq-migrate.patch",
+      "sha256": "c201898b57b4a6cb8d8f6c1ed9fa2fb3f806af087b5d896bae8454caac8a2f61",
+      "description": "PQ-Migrate research adaptation and ordinary N1 switch/provisioning; paused financial/I-4 profile excluded. Finality regressions included before the monotone correction."
+    },
+    {
+      "file": "0002-monotone-finality.patch",
+      "sha256": "4cf8100661e2442283c383277c2817b0ac23d3f6cda119f345311d32323af78c",
+      "description": "Only update_head: preserve newer imported finality and reject conflicting selected branches; no formatting changes."
+    },
+    {
+      "file": "0003-t6b-duty-retry-and-session-release.patch",
+      "sha256": "a3a5d9af1208ff75a794b8f05c5b6d9331c56db12eab533f7757cab87c73a253",
+      "description": "N1 T6b fixes ported from research commit 86ddedce (code/ream-t6b-port-20261103): an attestation duty revoked inside the signing fence before any signature stays retryable (at most 20 attempts within its slot), and a clean exit releases unquarantined Engine session owners; the scheduler test's retry bound follows (3 to 20)."
+    }
+  ],
+  "treeManifestSHA256": "30659aa9b01651083d329ce727b7aa1fb1969443fe7c76de1e9e3f07985417bd"
+}

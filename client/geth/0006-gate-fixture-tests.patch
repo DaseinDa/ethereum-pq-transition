@@ -1,0 +1,272 @@
+diff --git a/PQ-MIGRATE-MODIFICATIONS.md b/PQ-MIGRATE-MODIFICATIONS.md
+index aab93b76bf15d1be954839fb80e11d1b7a097427..ccd11eb1e7e05c3308fe6ee17f2763d89d84590c 100644
+--- a/PQ-MIGRATE-MODIFICATIONS.md
++++ b/PQ-MIGRATE-MODIFICATIONS.md
+@@ -18,6 +18,7 @@ This source distribution contains the PQ-Migrate research adaptation. Existing u
+ | Added | `core/pq_applied_heads.go` |
+ | Added | `core/pq_batch.go` |
+ | Added | `core/pq_batch_component_test.go` |
++| Added | `core/pq_batch_gates_test.go` |
+ | Added | `core/pq_batch_test.go` |
+ | Added | `core/pq_bridge_runtime_test.go` |
+ | Added | `core/pq_bridge_txindexer_test.go` |
+@@ -188,6 +189,7 @@ This source distribution contains the PQ-Migrate research adaptation. Existing u
+ | Added | `internal/ethapi/pq_unsupported.go` |
+ | Modified | `internal/ethapi/simulate.go` |
+ | Added | `internal/pqtest/batch.go` |
++| Added | `internal/pqtest/gates.go` |
+ | Added | `internal/pqtest/single.go` |
+ | Added | `miner/pq_held_override_test.go` |
+ | Added | `miner/pq_migration.go` |
+diff --git a/core/pq_batch_gates_test.go b/core/pq_batch_gates_test.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..3bd85589c140009bfd9df26b848c62cfba2290e1
+--- /dev/null
++++ b/core/pq_batch_gates_test.go
+@@ -0,0 +1,158 @@
++// Copyright 2026 PQ-Migrate contributors
++// SPDX-License-Identifier: LGPL-3.0-or-later
++
++package core
++
++import (
++	"math/big"
++	"testing"
++
++	"github.com/ethereum/go-ethereum/common"
++	"github.com/ethereum/go-ethereum/consensus/beacon"
++	"github.com/ethereum/go-ethereum/consensus/ethash"
++	"github.com/ethereum/go-ethereum/core/rawdb"
++	"github.com/ethereum/go-ethereum/core/state"
++	"github.com/ethereum/go-ethereum/core/types"
++	"github.com/ethereum/go-ethereum/crypto"
++	"github.com/ethereum/go-ethereum/internal/pqtest"
++	"github.com/ethereum/go-ethereum/params"
++	"github.com/holiman/uint256"
++)
++
++// TestPQBatchRealGateFixtureBlockImport imports two blocks with the public C
++// gate fixture and the real native verifier. Block 1 carries a real 0x7d by the
++// fourth owner's legacy key (the attacker's enrollment of the threat model), so
++// the record the batch then overrides is the ENROLLED, migration-nonce-1 state
++// a 0x7d reaches, not a constructed pre-state. Block 2, after the first entry's
++// expiry and inside the sponsor window, carries the batch: its receipt shows
++// the expiry skip 0x0201 end to end, the owner-money paths of fee modes 3 and 1
++// settled from real C acceptance, and the open override with was_override set
++// and 10,000 of registry writes, and its gas equals the independent formula.
++func TestPQBatchRealGateFixtureBlockImport(t *testing.T) {
++	tx, now := pqtest.BatchGates(t)
++	b, _ := tx.AsPQBatch()
++	cfg := nativeTestChain()
++	cfg.ChainID = new(big.Int).Set(b.ChainID)
++	cfg.PQMigrate.FullResearch = finalTestProfile()
++	cfg.PQMigrate.FullResearch.Sunset = ^uint64(0)
++	// The research binding keeps W at its configured 365 days (at least 180), so the
++	// override window of entry 3's enrollment in block 1 is open at block 2.
++	cfg.PQMigrate.T0, cfg.PQMigrate.ReceivingTime, cfg.PQMigrate.T = now-200, now-200, now-5
++	cfg.PQMigrate.LegacySeedProofFromT0 = true
++	cfg.PQMigrate.AggregateResearch = &params.PQAggregateResearchConfig{Key: params.PQAggregateKey, VerifyGas: params.PQAggregateVerifyGas, NMax: 4, MaxTxBytes: params.PQAggregateMaxTxBytes}
++	if err := cfg.CheckConfigForkOrder(); err != nil {
++		t.Fatal(err)
++	}
++	registry := cfg.PQMigrate.Registry
++	e := b.Entries
++	pk := pqtest.SponsorPublicKey()
++	k, k1 := PQRecordSlots(b.Sponsor)
++	sponsorRecord := PQRecord{Mode: 3, AlgID: 1, MigrationNonce: 1, Commit: PQKeyCommit(1, pk)}
++	owned := new(big.Int).Mul(big.NewInt(2), big.NewInt(params.Ether))
++	alloc := types.GenesisAlloc{
++		b.Sponsor:                  {Balance: new(big.Int).Mul(big.NewInt(10), big.NewInt(params.Ether)), Code: append([]byte{0xef, 1, 1}, pk...)},
++		registry:                   {Balance: new(big.Int), Code: []byte{0}, Nonce: 1, Storage: map[common.Hash]common.Hash{k: pqRecordWord(sponsorRecord), k1: sponsorRecord.Commit}},
++		cfg.PQMigrate.FactRegistry: {Balance: new(big.Int), Code: []byte{0}, Nonce: 1},
++	}
++	for _, entry := range e {
++		alloc[entry.LegacyAddress] = types.Account{Balance: new(big.Int).Set(owned)}
++	}
++	// The real enrollment: entry 3's legacy key enrolls an attacker's ML-DSA-44 key before T.
++	key, err := crypto.HexToECDSA(pqtest.GateOwnerKey)
++	if err != nil {
++		t.Fatal(err)
++	}
++	attacker, attackerSecret := pqSeedKey(0x5a)
++	en := &types.PQEnrollTx{ChainID: cfg.ChainID, GasTipCap: big.NewInt(params.GWei), GasFeeCap: big.NewInt(10 * params.GWei), Gas: 500000, AlgID: 1, PublicKey: attacker.Bytes()}
++	en.PoPSignature = pqSignTag(t, attackerSecret, "ETH-PQ-ENROLL-POP/v1", PQEnrollmentDigest(cfg.ChainID, e[3].LegacyAddress, 0, 1, en.PublicKey))
++	hash := en.SigningHash()
++	sig, err := crypto.Sign(hash[:], key)
++	if err != nil {
++		t.Fatal(err)
++	}
++	en.R, en.S, en.V = new(big.Int).SetBytes(sig[:32]), new(big.Int).SetBytes(sig[32:64]), new(big.Int).SetUint64(uint64(sig[64]))
++	enroll := types.NewTx(en)
++	genesis := &Genesis{Config: cfg, Timestamp: now - 20, GasLimit: 45000000, Alloc: withSystemContracts(alloc)}
++	engine := beacon.New(ethash.NewFaker())
++	db, blocks, builtReceipts := GenerateChainWithGenesis(genesis, engine, 2, func(i int, block *BlockGen) {
++		if i == 0 {
++			block.AddTx(enroll)
++		} else {
++			block.AddTx(tx)
++		}
++	})
++	defer db.Close()
++	if blocks[0].Time() >= cfg.PQMigrate.T || blocks[1].Time() != now {
++		t.Fatal("block times", blocks[0].Time(), blocks[1].Time(), now)
++	}
++	chain, err := NewBlockChain(rawdb.NewMemoryDatabase(), genesis, engine, &BlockChainConfig{ArchiveMode: true})
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer chain.Stop()
++	if _, err := chain.InsertChain(blocks); err != nil {
++		t.Fatal("native C gate fixture import", err)
++	}
++	enrolled, err := chain.StateAt(blocks[0].Header())
++	if err != nil {
++		t.Fatal(err)
++	}
++	if r := ReadPQRecord(enrolled, registry, e[3].LegacyAddress); r != (PQRecord{Mode: 1, AlgID: 1, EnrolledAt: blocks[0].Time(), MigrationNonce: 1, Commit: PQKeyCommit(1, en.PublicKey)}) {
++		t.Fatalf("0x7d did not reach the ENROLLED nonce-1 record: %+v", r)
++	}
++	s, err := chain.StateAt(blocks[1].Header())
++	if err != nil {
++		t.Fatal(err)
++	}
++	if s.GetNonce(b.Sponsor) != b.SponsorNonce+1 {
++		t.Fatal("import did not consume sponsor nonce")
++	}
++	// One skip, two frozen recoveries (44,200 each) and one override (10,000).
++	wantGas := batchExpectedGas(t, b, 2*44200+10000)
++	for _, receipts := range []types.Receipts{builtReceipts[1], chain.GetReceiptsByHash(blocks[1].Hash())} {
++		if len(receipts) != 1 {
++			t.Fatal("receipt count", len(receipts))
++		}
++		receipt := receipts[0]
++		if receipt.Type != types.PQBatchTxType || receipt.Status != types.ReceiptStatusSuccessful || receipt.GasUsed != wantGas || receipt.CumulativeGasUsed != wantGas || len(receipt.Logs) != 4 {
++			t.Fatalf("receipt: %#v, want gas %d", receipt, wantGas)
++		}
++		assertBatchLog(t, receipt.Logs[0], registry, e[0], 0, 0x0201, 0, false, false)
++		assertBatchLog(t, receipt.Logs[1], registry, e[1], 1, 0, 1, false, false)
++		assertBatchLog(t, receipt.Logs[2], registry, e[2], 2, 0, 1, false, false)
++		assertBatchLog(t, receipt.Logs[3], registry, e[3], 3, 0, 2, true, false)
++	}
++	if blocks[1].GasUsed() != wantGas {
++		t.Fatal("header gas", blocks[1].GasUsed(), wantGas)
++	}
++	if r := ReadPQRecord(s, registry, e[0].LegacyAddress); r != (PQRecord{}) {
++		t.Fatalf("expired entry wrote its owner: %+v", r)
++	}
++	for i := 1; i <= 2; i++ {
++		if r := ReadPQRecord(s, registry, e[i].LegacyAddress); r != (PQRecord{Mode: 2, AlgID: 1, MigrationNonce: 1, Commit: e[i].PQPKCommit}) {
++			t.Fatalf("entry %d record: %+v", i, r)
++		}
++	}
++	if r := ReadPQRecord(s, registry, e[3].LegacyAddress); r != (PQRecord{Mode: 2, AlgID: 1, EnrolledAt: blocks[0].Time(), MigrationNonce: 2, Commit: e[3].PQPKCommit}) {
++		t.Fatalf("override record: %+v", r)
++	}
++	// Owner money: fee mode 3 and fee mode 1 naming this sponsor reimburse
++	// min(max_account_fee, balance) before fee_auth_until; fee mode 2 pays nothing.
++	balance := func(st *state.StateDB, a common.Address) *uint256.Int { return new(uint256.Int).Set(st.GetBalance(a)) }
++	fee1, fee2 := uint256.MustFromBig(e[1].MaxAccountFee), uint256.MustFromBig(e[2].MaxAccountFee)
++	if balance(s, e[0].LegacyAddress).Cmp(uint256.MustFromBig(owned)) != 0 || balance(s, e[3].LegacyAddress).Cmp(balance(enrolled, e[3].LegacyAddress)) != 0 {
++		t.Fatal("fee mode 2 owners paid")
++	}
++	if new(uint256.Int).Sub(uint256.MustFromBig(owned), balance(s, e[1].LegacyAddress)).Cmp(fee1) != 0 || new(uint256.Int).Sub(uint256.MustFromBig(owned), balance(s, e[2].LegacyAddress)).Cmp(fee2) != 0 {
++		t.Fatal("owner reimbursements", balance(s, e[1].LegacyAddress), balance(s, e[2].LegacyAddress))
++	}
++	price := new(big.Int).Add(blocks[1].BaseFee(), b.GasTipCap)
++	charge := new(uint256.Int).Mul(uint256.NewInt(wantGas), uint256.MustFromBig(price))
++	wantSponsor := new(uint256.Int).Sub(balance(enrolled, b.Sponsor), charge)
++	wantSponsor.Add(wantSponsor, fee1)
++	wantSponsor.Add(wantSponsor, fee2)
++	if balance(s, b.Sponsor).Cmp(wantSponsor) != 0 {
++		t.Fatal("sponsor balance", balance(s, b.Sponsor), wantSponsor)
++	}
++	t.Logf("real C gate fixture: carrier=%d bytes, gas=%d, reimbursed %s and %s wei", len(b.ProofCarrier.Proof), wantGas, fee1, fee2)
++}
+diff --git a/internal/pqtest/gates.go b/internal/pqtest/gates.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..8fd3cfdcdb545fd3feb97813131580287b5107b2
+--- /dev/null
++++ b/internal/pqtest/gates.go
+@@ -0,0 +1,82 @@
++// Copyright 2026 PQ-Migrate contributors
++// SPDX-License-Identifier: LGPL-3.0-or-later
++
++package pqtest
++
++import (
++	"bytes"
++	"encoding/binary"
++	"math/big"
++	"os"
++	"testing"
++
++	"github.com/ethereum/go-ethereum/common"
++	"github.com/ethereum/go-ethereum/core/types"
++	"github.com/ethereum/go-ethereum/crypto"
++	"github.com/ethereum/go-ethereum/params"
++)
++
++// GateOwnerKey is the secp256k1 key of the gate fixture's fourth owner: the
++// public BIP-39 vector (abandon x11 + about, empty passphrase) at
++// m/44'/60'/0'/0/7. It is public test data, never a real key, and it signs the
++// real 0x7d whose ENROLLED record the override case of the fixture starts from.
++const GateOwnerKey = "dfb0930bcb8f6ca83296c1870e941998c641d3d0d413013c890b8b255dd537b5"
++
++// BatchGates returns the shipped public C gate fixture in a freshly signed
++// carrier. Its four owners belong to one public vector: entry 0 (fee mode 2)
++// expires before the other three, entry 1 is in fee mode 3, entry 2 is in fee
++// mode 1 naming the test sponsor, and entry 3 (fee mode 2) is bound to
++// migration nonce 1, the nonce a 0x7d enrollment leaves. The sponsor window
++// ends at the latest expiry, and the returned timestamp lies after entry 0's
++// expiry and before the others'. This is a fixture replay for component tests,
++// not a live batch or a claim that an expired proof is live.
++func BatchGates(t *testing.T) (*types.Transaction, uint64) {
++	t.Helper()
++	carrier, statement := os.Getenv("PQ_BATCH_GATES_CARRIER"), os.Getenv("PQ_BATCH_GATES_STATEMENT")
++	if carrier == "" || statement == "" {
++		t.Skip("requires the packaged public C gate fixture")
++	}
++	proof, err := os.ReadFile(carrier)
++	if err != nil {
++		t.Fatal(err)
++	}
++	pi, err := os.ReadFile(statement)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if len(pi) != 798 || binary.BigEndian.Uint16(pi[:2]) != 4 || binary.BigEndian.Uint32(pi[2:6]) != params.PQFinalVersion {
++		t.Fatal("wrong four-owner statement")
++	}
++	pk := SponsorPublicKey()
++	b := &types.PQBatchTx{
++		ChainID:   new(big.Int).SetBytes(pi[6:38]),
++		Sponsor:   common.BytesToAddress(crypto.Keccak256([]byte("PQ-ADDR"), []byte{1}, pk)[12:]),
++		GasTipCap: big.NewInt(params.GWei), GasFeeCap: big.NewInt(10 * params.GWei), Gas: 16000000,
++		VerifierVersion: params.PQFinalVersion, ProofCarrier: types.PQMigrationCarrier{Proof: proof},
++	}
++	for i := 0; i < 4; i++ {
++		p := pi[6+198*i : 6+198*(i+1)]
++		e := types.PQBatchEntry{LegacyAddress: common.BytesToAddress(p[64:84]), MigrationNonce: binary.BigEndian.Uint64(p[84:92]),
++			AlgID: p[92], PQPKCommit: common.BytesToHash(p[93:125]), Expiry: binary.BigEndian.Uint64(p[129:137]),
++			MaxAccountFee: new(big.Int).SetBytes(p[137:169]), FeeMode: p[169], FeeSponsor: common.BytesToAddress(p[170:190]), FeeAuthUntil: binary.BigEndian.Uint64(p[190:198])}
++		if !bytes.Equal(e.Migration(b.ChainID, b.VerifierVersion).PublicInputs(), p) {
++			t.Fatal("unexpected public owner fixture")
++		}
++		b.Entries = append(b.Entries, e)
++		b.SponsorValidUntil = max(b.SponsorValidUntil, e.Expiry)
++	}
++	e := b.Entries
++	first, rest := e[0].Expiry, e[1].Expiry
++	layout := e[0].FeeMode == 2 && e[0].MigrationNonce == 0 && first+3600 < rest &&
++		e[1].FeeMode == 3 && e[1].MigrationNonce == 0 && e[1].MaxAccountFee.Sign() > 0 && e[1].FeeAuthUntil == rest &&
++		e[2].FeeMode == 1 && e[2].MigrationNonce == 0 && e[2].MaxAccountFee.Sign() > 0 && e[2].FeeSponsor == b.Sponsor && e[2].FeeAuthUntil == rest && e[2].Expiry == rest &&
++		e[3].FeeMode == 2 && e[3].MigrationNonce == 1 && e[3].Expiry == rest
++	if !layout {
++		t.Fatal("unexpected gate fixture layout")
++	}
++	key, err := crypto.HexToECDSA(GateOwnerKey)
++	if err != nil || crypto.PubkeyToAddress(key.PublicKey) != e[3].LegacyAddress {
++		t.Fatal("gate fixture owner key", err)
++	}
++	return SignBatch(t, b), first + 1800
++}

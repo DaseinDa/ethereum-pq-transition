@@ -1,0 +1,21 @@
+diff --git a/crates/common/fork_choice/lean/src/store.rs b/crates/common/fork_choice/lean/src/store.rs
+index 65d7b4fb96f56ca46d8f4d5ac34c9c8b6cea24b5..39d71054b97663a9d9375e37d0a9037e13e8f045 100644
+--- a/crates/common/fork_choice/lean/src/store.rs
++++ b/crates/common/fork_choice/lean/src/store.rs
+@@ -728,7 +728,15 @@ impl Store {
+                 latest_finalized_checkpoint
+             };
+ 
+-        ensure!(final_finalized_checkpoint.slot >= latest_finalized_checkpoint.slot,"finality regression refused");
++        // A newly selected head can have a lagging post-state after sync.
++        // Keep finality monotone; the ancestry checks below still reject a
++        // conflicting head or a same-height checkpoint on another branch.
++        let final_finalized_checkpoint =
++            if final_finalized_checkpoint.slot >= latest_finalized_checkpoint.slot {
++                final_finalized_checkpoint
++            } else {
++                latest_finalized_checkpoint
++            };
+         ensure!(self.checkpoint_is_ancestor(&latest_finalized_checkpoint,&Checkpoint{root:new_head,slot:new_head_slot}).await?,"selected head conflicts with finalized ancestry");
+         ensure!(self.checkpoint_is_ancestor(&latest_finalized_checkpoint,&final_finalized_checkpoint).await?,"finalized checkpoint changed branch");
+         #[cfg(feature = "reth")]

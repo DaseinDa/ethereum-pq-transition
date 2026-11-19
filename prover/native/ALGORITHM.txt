@@ -1,0 +1,21 @@
+PQ-MIGRATE-RESEARCH-F-NATIVE-v1
+Research integration only. No security or acceptance-gate promotion.
+Route A; PI layout 2, exactly 198 bytes computed from the carrier by geth.
+Chain 13378; verifier_version 0x80000008; MAX_PROOF_BYTES 196608.
+Verifier: pq-final-verifier at 1c209732cd583bb01b9f1c66b4827e09a075d6c5.
+Only TRUSTED_PARAMS is permitted. No caller-supplied key or parameter file.
+F ed2fcf813b942404729da7827c4743020dae8d89ebbc206e5bee7718503df3f2
+B 415bf19b5b55f7acd0b793c2ea45aef7923e3e640fdce2e81fc9fb350fdcf490
+L0primeV2 6537a5af9b10f1599a151c024c549cad3740b95f9bc026b658b927a81ca20372
+Key material 079b3554a854a729cb7d8c6e48682dada7e4ef0fde46fea8de82ca45d9109156
+Periodic RLE 971c157a28b9f796e853bab275b71b431b90be6c4911b2fce220c6aed39b8d08
+Verification order: size, strict Postcard decode, canonical re-encode, canonical PI,
+fixed verifier key and three-layer identity, proof shape, F STARK verification.
+F: KoalaBear EF8; Poseidon2 width16/rate8/digest8; HidingFriPcs; trace2^14,
+blowup2^9, final-poly2^8, max-log-arity4, 29 queries, no grinding,
+cap0, 8 random codewords, 8 salt elements; C3nP batch verifier.
+ABI v1: 0 accepted, 1 InvalidInput, 2 InvalidProof, 3 LocalFault.
+Rust unwinding is required; all ABI execution catches panic as LocalFault.
+Startup rebuilds and checks the embedded verifier key before any admission.
+No subprocess fallback, witness, Groth16, developer proof mode, or receipt substitution.
+Identity is Keccak-256 of these exact UTF-8 bytes, including the final LF.

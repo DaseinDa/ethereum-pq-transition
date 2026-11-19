@@ -1,0 +1,14 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+*.postcard binary
+*.bin binary
+*.ssz binary
+*.png binary
+*.pdf binary
+*.patch -text
+*.rle -text
+/prover/** -text
+/third_party/licenses/** -text -whitespace
+/prover/** -whitespace
+*.patch -whitespace
+/formal/*/record-*/** -text -whitespace

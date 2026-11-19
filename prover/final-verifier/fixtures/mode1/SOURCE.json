@@ -1,0 +1,16 @@
+{
+  "schema": "pq-public-F-fixture/v1",
+  "publicTestOnly": true,
+  "source": "results/l1-client-20261101/proof-mode1",
+  "sourceFStatementSHA256": "a4f836b02fc4306881238f11ad0795f95a2a5a1f1693f222841199fdb2de6bf4",
+  "fVkDigest": "ed2fcf813b942404729da7827c4743020dae8d89ebbc206e5bee7718503df3f2",
+  "proofSHA256": "8afcd8ff27e6af7064d8223b21e3142b335a8967191bd8a5b042067abd0fd9f5",
+  "pi198HexFileSHA256": "78e4eb53fcf70f56179d5074b6dc4df359916754c20f5d07f4148799319167ef",
+  "pi198SHA256": "7888a81728f799581f6a55b7c2222ff5e2d84c417106068ad4d06dfe413d43b5",
+  "proofBytes": 188021,
+  "verifierVersion": "0x80000008",
+  "feeMode": 1,
+  "migrationNonce": 1,
+  "expiry": 1793752081,
+  "scope": "Historical public component fixture. Replayed below expiry; not a new live-chain recovery or a current freshness claim. Only public F proof and public statement are included. Verification must be rerun with the packaged native F verifier."
+}

@@ -1,0 +1,127 @@
+{
+  "blockGasLimit": 44999185,
+  "rows": [
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 189912,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 40900723,
+      "gas": 8755672,
+      "hash": "0x7c5516cf48e06342cc35ef9dec059f119ac4cbe1dd14bcebd8ade49427e6a259",
+      "migrationNonce": 1,
+      "rep": 1,
+      "stateRoot": "0x19e0df9b465c3858b6e51d250492b6a30a2ccebec6f3d3073acc2d028fd45528",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 190872,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 39416637,
+      "gas": 8770396,
+      "hash": "0xdb3aa8125d69666cc5433c8e51ab7c960764ae889b7615f77708ad5425294683",
+      "migrationNonce": 1,
+      "rep": 2,
+      "stateRoot": "0xf74b59e03bd78e463d95e570bdc3b8e110a31ab9e03ed0034401ec2ef6d999aa",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 187512,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 38620244,
+      "gas": 8717476,
+      "hash": "0x17e9af6c5b3a512521c813434b52b4b50d45858d2783f707f23b0b0cc6b4c919",
+      "migrationNonce": 1,
+      "rep": 3,
+      "stateRoot": "0x65e650f9005e73d06b7fa770f9649f16c880d5ba802a2104d80531fc5d0c255e",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 188152,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 38485752,
+      "gas": 8728184,
+      "hash": "0xbec1ef3f7e44a532d6bb78b4ad69a96934bb6b01d8823e1d400a5ad18fa07ad7",
+      "migrationNonce": 1,
+      "rep": 4,
+      "stateRoot": "0x7df10e5afa77bfa0f1487845acae0a71b35c81d85ca334d46bc135391e78424a",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 188152,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 39829924,
+      "gas": 8728352,
+      "hash": "0x854e8087d1b917052e8266d8cb9a0a50d5acba2743c31959e324a488dcc448df",
+      "migrationNonce": 1,
+      "rep": 5,
+      "stateRoot": "0x966728c37fc5c5af108c0c21d99c1116472a3c0d42fa20898b4277babfafb813",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 190232,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 38882901,
+      "gas": 8761188,
+      "hash": "0xef628b34e21e8bfe8321874668a0681f58b53f6552ae2c9852ab2f4cbb3f4793",
+      "migrationNonce": 1,
+      "rep": 6,
+      "stateRoot": "0xc7b3c4351f9d88bd189e0e1d6db88b1f2741d85ab6020f4e59389f7fec000d8f",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 189272,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 37975215,
+      "gas": 8746044,
+      "hash": "0x260c4a2d82a396ec798acf8d477572420ab4a1e667c95c53314bf17d567af59f",
+      "migrationNonce": 1,
+      "rep": 7,
+      "stateRoot": "0xbf7d5bc7b827f949fb62d21beb948194e2cf2550abd16d7c3c4979ed4fb93de9",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 187832,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 38329294,
+      "gas": 8722740,
+      "hash": "0x10e8890ec498f1d82ff2badfae293ac85f02b96e197515c0821e842919056994",
+      "migrationNonce": 1,
+      "rep": 8,
+      "stateRoot": "0xc31b6bf36b50300ab51ff6de1b181ea9892cac1b5d251ba934626f06bf648002",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 188472,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 37931363,
+      "gas": 8732848,
+      "hash": "0xa14463a729c87b4573ab97ff173579fed47753a9a3b8a69242ef7cc8d98b26f7",
+      "migrationNonce": 1,
+      "rep": 9,
+      "stateRoot": "0xb1b88e5511a200fbe57fb3808cc72dedf5265fc832bea7fb15d1ef01380fdfa3",
+      "status": 1
+    },
+    {
+      "blockTimestamp": 1793631367,
+      "bytes": 187992,
+      "commit": "0x9be4ce1ee578f017d1ae2271fe1bfdd811c93f7a6ff6ed6ff441cf3c5453bfbe",
+      "executionNs": 37952213,
+      "gas": 8725468,
+      "hash": "0x631f3bffa0fb8788d5a4e9312e319057e82a169143b30db184e224534c18c080",
+      "migrationNonce": 1,
+      "rep": 10,
+      "stateRoot": "0x6e8b8fd14db2b0b1df55615b939c1d9a9de52747e897f8c4b98f7ebe96818da0",
+      "status": 1
+    }
+  ],
+  "txGasCap": 16777216,
+  "verifyGas": 5666000
+}

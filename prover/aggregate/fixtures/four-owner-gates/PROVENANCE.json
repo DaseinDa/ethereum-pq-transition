@@ -1,0 +1,93 @@
+{
+  "format": 1,
+  "purpose": "Second genuine public C fixture for the client's end-to-end entry-gate tests: entry 0 expires before the other three, entry 1 is in fee mode 3, entry 2 in fee mode 1 naming the public test sponsor, and entry 3 is bound to migration nonce 1 (the nonce a 0x7d enrollment leaves). Generated on 2026-11-10 with this package's frozen prover and aggregate builds from the public inputs shipped beside it; its expiries are historical, not a live-chain submission.",
+  "publicTestOnly": true,
+  "credential": "public BIP-39 test vector (abandon x11 + about, empty passphrase), paths m/44'/60'/0'/0/4 to /7",
+  "sponsor": "demo/public-sponsor.json (ML-DSA-44 seed 0x53 x 32, address 0x1c128b257dbe0311896a5e177f5d8db8cbdbd21b)",
+  "sourceIdentity": "d36f1c696e6e3d80d925cfaa0588ff63f6fd1558",
+  "aggregateBuildSHA256": "2f203b22f902f0d6ce4aebbdae6d8ad1726a5eb848f8aa244b1776579661bc12",
+  "aggregateKey": "3f84335f8b7301181f37e3080cb81fc5d8444952574e0e90cd2a277d12bd2825",
+  "files": {
+    "carrier.bin": {
+      "sha256": "783088f4ace8ce1309fa00e0693c0b1f8b0c8f24ba7d17b045b7d30becd4ade0",
+      "bytes": 189077
+    },
+    "statement.bin": {
+      "sha256": "e2700889d0c9b32846f865d581edf737ee7f4457c687068209f53982eb3088ab",
+      "bytes": 798
+    }
+  },
+  "owners": [
+    {
+      "input": "inputs/owner-0.json",
+      "name": "gates-owner-0-expired-mode2",
+      "path": "m/44'/60'/0'/0/4",
+      "legacyAddress": "0x51ca8ff9f1c0a99f88e86b8112ea3237f55374ca",
+      "migrationNonce": 0,
+      "feeMode": 2,
+      "expiry": 1794330000,
+      "maxAccountFeeWei": "0",
+      "feeSponsor": "0x0000000000000000000000000000000000000000",
+      "feeAuthUntil": 0,
+      "pi198SHA256": "3845419cdfe81768fd31f2f90b18bdb4cfb28b9e8f23a29fb5ba9cddbe35e754",
+      "fProofSHA256": "d356e918061f2dade8668e4874e28a7cf712b833e9d1af44a76206a3077a04eb",
+      "fProofBytes": 190421,
+      "record": "records/owner-0-PROOF.json"
+    },
+    {
+      "input": "inputs/owner-1.json",
+      "name": "gates-owner-1-mode3-reimburses",
+      "path": "m/44'/60'/0'/0/5",
+      "legacyAddress": "0xa40cfbfc8534ffc84e20a7d8bbc3729b26a35f6f",
+      "migrationNonce": 0,
+      "feeMode": 3,
+      "expiry": 1794830400,
+      "maxAccountFeeWei": "10000000000000000",
+      "feeSponsor": "0x0000000000000000000000000000000000000000",
+      "feeAuthUntil": 1794830400,
+      "pi198SHA256": "448ea14c5c9e0183eda1204426621911bdf335f0b51abce45a5665f0e3cac15d",
+      "fProofSHA256": "ce77e1576394f56389dbc5c2fec3256dc796a16ee5a6a34aeac0f47b353a63d7",
+      "fProofBytes": 189621,
+      "record": "records/owner-1-PROOF.json"
+    },
+    {
+      "input": "inputs/owner-2.json",
+      "name": "gates-owner-2-mode1-names-sponsor",
+      "path": "m/44'/60'/0'/0/6",
+      "legacyAddress": "0xb191a13bfe648b61002f2e2135867015b71816a6",
+      "migrationNonce": 0,
+      "feeMode": 1,
+      "expiry": 1794830400,
+      "maxAccountFeeWei": "20000000000000000",
+      "feeSponsor": "0x1c128b257dbe0311896a5e177f5d8db8cbdbd21b",
+      "feeAuthUntil": 1794830400,
+      "pi198SHA256": "e4f2c31ac23bae7688ba5e97b68a428c75c2397f9f8405dd3c575bc465d04cc7",
+      "fProofSHA256": "2e84acb3790a7b036594d39a861a8865ff89519454077b20db8df7d5bb418cdf",
+      "fProofBytes": 189141,
+      "record": "records/owner-2-PROOF.json"
+    },
+    {
+      "input": "inputs/owner-3.json",
+      "name": "gates-owner-3-override-nonce1-mode2",
+      "path": "m/44'/60'/0'/0/7",
+      "legacyAddress": "0x593814d3309e2df31d112824f0bb5aa7cb0d7d47",
+      "migrationNonce": 1,
+      "feeMode": 2,
+      "expiry": 1794830400,
+      "maxAccountFeeWei": "0",
+      "feeSponsor": "0x0000000000000000000000000000000000000000",
+      "feeAuthUntil": 0,
+      "pi198SHA256": "7d0abddeac3fe584493cf990e7fc38c3a74440d86b50049e6e489688784e0090",
+      "fProofSHA256": "99dbd6a7a36e02dbed8b67fcebfbc1cda6a5f46014a91f1a42054a98a71aea68",
+      "fProofBytes": 186101,
+      "record": "records/owner-3-PROOF.json"
+    }
+  ],
+  "records": {
+    "aggregate": "records/AGGREGATE.json"
+  },
+  "proving": {
+    "prover": "prover/prove.py --expiry (leaf, B, F) per owner, then prover/aggregate.py --public-test-data",
+    "aggregateProveSeconds": 409.3898137499998
+  }
+}

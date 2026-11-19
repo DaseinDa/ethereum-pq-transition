@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "sourceCommit": "8a7bb99949427a7795aa051457464a0a5159f622",
+  "sourceDirectory": "results/l5-agg-followup-20261103/raw/aggregate/mode2-proof1",
+  "publicTestOnly": true,
+  "purpose": "Frozen genuine C fixture for native verification; expiry is historical, not a live-chain submission.",
+  "files": {
+    "carrier.bin": {
+      "sha256": "1803f6e744554a8e9794940b9f39c464e41a90005bad353431d1e65560479da7",
+      "bytes": 187797
+    },
+    "statement.bin": {
+      "sha256": "1af7a4381356e6975d788ee454dda05caa47a9dfcbae6b54ab5fdaca1f1e9b7a",
+      "bytes": 798
+    }
+  }
+}

@@ -1,0 +1,51 @@
+# pq-final-verifier: the verifier of the final layer F of the PQ-Migrate migration proof (L5 candidate tree
+# L0' v2 -> B -> F), packaged for client integration. Research packaging; loop-internal self-review; not independently
+# reviewed. Build offline with the pinned Cargo.lock (see README.md): `cargo build --release --offline --locked`.
+[package]
+name = "pq-final-verifier"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96"
+publish = false
+description = "Verifier of F, the final layer of the PQ-Migrate migration proof (research packaging)"
+
+[workspace]
+
+[lib]
+name = "pq_final_verifier"
+path = "src/lib.rs"
+
+[[bin]]
+name = "pq-final-verify"
+path = "src/bin/pq-final-verify.rs"
+
+[features]
+# Off by default: verification is single-threaded. The L5 F2 record (2026-10-31, built with -C target-cpu=native)
+# measured 20.2 ms with one thread and 23.3 ms with 24; the portable x86-64 build of record verifies in about 40 ms.
+parallel = ["p3-maybe-rayon/parallel", "p3-batch-stark-c3np/parallel", "p3-merkle-tree-ps/parallel"]
+
+[dependencies]
+p3-air = "=0.9.0-rc.1"
+p3-batch-stark-c3np = { path = "crates/p3-batch-stark-c3np" }
+p3-challenger = "=0.9.0-rc.1"
+p3-commit = "=0.9.0-rc.1"
+p3-dft = "=0.9.0-rc.1"
+p3-field = "=0.9.0-rc.1"
+p3-fri = "=0.9.0-rc.1"
+p3-koala-bear = "=0.9.0-rc.1"
+p3-lookup = "=0.9.0-rc.1"
+p3-matrix = "=0.9.0-rc.1"
+p3-maybe-rayon = "=0.9.0-rc.1"
+p3-merkle-tree-ps = { path = "crates/p3-merkle-tree-ps" }
+p3-poseidon2-air = "=0.9.0-rc.1"
+p3-symmetric = "=0.9.0-rc.1"
+p3-uni-stark = "=0.9.0-rc.1"
+postcard = { version = "=1.1.3", default-features = false, features = ["alloc"] }
+rand = { version = "=0.10.3", default-features = false, features = ["std_rng"] }
+serde_json = "=1.0.154"
+sha2 = "=0.10.9"
+tiny-keccak = { version = "=2.0.2", features = ["keccak"] }
+
+[profile.release]
+opt-level = 3
+debug = false

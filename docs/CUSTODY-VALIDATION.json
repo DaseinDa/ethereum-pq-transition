@@ -1,0 +1,261 @@
+{
+  "status": "PASS",
+  "date": "2026-11-02",
+  "review": "loop-internal self-review; not independently reviewed",
+  "baselineCommit": "dd9c55af92dea6afb53f531a98f03cafac5c1a2a",
+  "branch": "codex/prover-custody-bundle-integrity",
+  "scope": "Prover custody, stdin credential decoding, upstream notices and Git dependency content verification",
+  "hardware": {
+    "cpu": "Intel Core i9-12950HX",
+    "physicalCores": 16,
+    "logicalProcessors": 24,
+    "hostMemoryBytes": 68388900864,
+    "linuxMemoryKiB": 53457020,
+    "environment": "Ubuntu on WSL2; Linux x86-64"
+  },
+  "unitAndIntegrationRegressions": {
+    "passed": 21,
+    "failed": 0,
+    "skipped": 0
+  },
+  "fullProofRuns": [
+    {
+      "case": "owner-default",
+      "status": "PASS",
+      "seconds": 116.40995175798889,
+      "proofBytes": 189301,
+      "proofSHA256": "fa2c4a4da6ba5393a81febc549c7f8df5f6b2ed281b5104b1ebbab75a7be3c2b",
+      "piSHA256": "afcd1e658ea06517aeece4ae2a83558200d2d6461b2e298f2ca97e1bdeba8efc",
+      "layers": {
+        "leaf": {
+          "prove_ms": 22077.949466,
+          "proof_bytes": 1344619,
+          "fresh_verdict": "ACCEPTED"
+        },
+        "b": {
+          "prove_ms": 24094.310923999998,
+          "proof_bytes": 377689,
+          "fresh_verdict": "ACCEPTED"
+        },
+        "f": {
+          "prove_ms": 41956.594213000004,
+          "proof_bytes": 189301,
+          "fresh_verdict": "ACCEPTED"
+        }
+      },
+      "retainedFiles": [
+        "PROOF.json",
+        "f/proof.postcard",
+        "logs/b-prove.time",
+        "logs/b-verify.time",
+        "logs/f-prove.time",
+        "logs/f-verify.time",
+        "logs/leaf-prove.time",
+        "logs/leaf-verify.time",
+        "logs/reject-changed-pi.time",
+        "logs/reject-changed-proof.time",
+        "logs/standalone.time",
+        "statement/pi198.hex",
+        "statement/pq-key.json",
+        "statement/statement.json"
+      ]
+    },
+    {
+      "case": "public-keep-inner",
+      "status": "PASS",
+      "seconds": 116.69464876200072,
+      "proofBytes": 186741,
+      "proofSHA256": "cf98495fb7e08d25f083c591be6a023c71d3a631da9847aa9a7950536555a323",
+      "piSHA256": "3baf221191a520e804a6dae2d0daf7dc4bdeceee185e1be329eaff48e6d091d1",
+      "layers": {
+        "leaf": {
+          "prove_ms": 21984.789626,
+          "proof_bytes": 1343755,
+          "fresh_verdict": "ACCEPTED"
+        },
+        "b": {
+          "prove_ms": 23082.629611,
+          "proof_bytes": 387289,
+          "fresh_verdict": "ACCEPTED"
+        },
+        "f": {
+          "prove_ms": 42539.56319,
+          "proof_bytes": 186741,
+          "fresh_verdict": "ACCEPTED"
+        }
+      },
+      "retainedFiles": [
+        "PROOF.json",
+        "b/breakdown.json",
+        "b/proof.postcard",
+        "b/report.json",
+        "b/statement.json",
+        "b/verification.json",
+        "f/breakdown.json",
+        "f/proof.postcard",
+        "f/report.json",
+        "f/statement.json",
+        "f/verification.json",
+        "leaf/l0p2.postcard",
+        "leaf/metrics.json",
+        "leaf/statement.json",
+        "leaf/verification.json",
+        "leaf/vk.json",
+        "logs/b-prove.err",
+        "logs/b-prove.out",
+        "logs/b-prove.time",
+        "logs/b-verify.err",
+        "logs/b-verify.out",
+        "logs/b-verify.time",
+        "logs/f-prove.err",
+        "logs/f-prove.out",
+        "logs/f-prove.time",
+        "logs/f-verify.err",
+        "logs/f-verify.out",
+        "logs/f-verify.time",
+        "logs/leaf-prove.err",
+        "logs/leaf-prove.out",
+        "logs/leaf-prove.time",
+        "logs/leaf-verify.err",
+        "logs/leaf-verify.out",
+        "logs/leaf-verify.time",
+        "logs/reject-changed-pi.err",
+        "logs/reject-changed-pi.out",
+        "logs/reject-changed-pi.time",
+        "logs/reject-changed-proof.err",
+        "logs/reject-changed-proof.out",
+        "logs/reject-changed-proof.time",
+        "logs/standalone.err",
+        "logs/standalone.out",
+        "logs/standalone.time",
+        "statement/pi198.hex",
+        "statement/pq-key.json",
+        "statement/statement.json"
+      ]
+    }
+  ],
+  "runtime": {
+    "status": "PASS",
+    "commands": [
+      {
+        "name": "abi",
+        "exit": 0
+      },
+      {
+        "name": "wallet",
+        "exit": 0
+      },
+      {
+        "name": "go-carriers",
+        "exit": 0
+      }
+    ],
+    "abi": {
+      "proof": 0,
+      "changed-pi": 2,
+      "truncated": 1,
+      "trailing": 1,
+      "over-bound": 1
+    },
+    "carrierBytes": 186872,
+    "carrierSHA256": "d4f15fab466b04fbefdcc0a512daa48d9877b7c0db5d81738ffb5c57bd915327",
+    "walletEqualsGoCarrier": true,
+    "publicMetadataAdapter": "new recovery plus unchanged legacy public sponsor outputs",
+    "scope": "packaged adapters and native verifier; no fresh consensus/network run",
+    "review": "loop-internal self-review; not independently reviewed"
+  },
+  "benchmarkCompatibility": {
+    "status": "PASS",
+    "summaryExactlyEqual": true,
+    "scope": "format compatibility only; existing measurements reused, no additional performance samples"
+  },
+  "cache": {
+    "gitCrates": 168,
+    "gitCheckouts": 13,
+    "bundleFiles": 7983,
+    "export": "PASS",
+    "copyRecheck": "PASS",
+    "offlineCargoMetadataAndSourceRecheck": "PASS",
+    "gitManifestSHA256": "aaf77759162bcb5d60b353ea8b55da3b14eaba0bae89f39e7e362ba29dbabbc0",
+    "bundleManifestSHA256": "9861fd79e515cc9bc4b648fd6a91a3c4fcb97690560d198dc06c89cbf1ef180c"
+  },
+  "licenses": {
+    "directories": [
+      "prover/pinned-deps/p3-batch-stark",
+      "prover/pinned-deps/p3-merkle-tree",
+      "prover/crates/p3-batch-stark-c3",
+      "prover/crates/p3-batch-stark-c3n"
+    ],
+    "sourceCommit": "2ba5dfb3c4423f68165928983b3e09b694b15dc5",
+    "textSHA256": {
+      "LICENSE-MIT": "d6543a1b0a0a51d10b5f8c389324c7dfeba556b7f39815efd292927bde808700",
+      "LICENSE-APACHE": "3708458dee7f359ac6c9c5558023ed481be87e5372c43ebd7f2ca7ad23c12026"
+    },
+    "modifiedCrateNotices": "MODIFICATIONS.md plus notices in changed Rust files and Cargo.toml"
+  },
+  "unchanged": [
+    "Trusted F/B/L0-prime key files",
+    "AIR/program digest-bound source text",
+    "Proof parameters and 196608-byte cap",
+    "geth/Ream source and consensus rules"
+  ],
+  "sourceSHA256": {
+    "prover/prove.py": "c8e5217c1d1470490ae55361b2e22cf62001605d8cb176b98a4c78af6fb84d04",
+    "prover/statement.py": "4bc8b0abdd326ff748b23e2b5108e29bcdb14c2afef30226d1f76f480eead2a8",
+    "prover/custody.py": "77d2d986c711e2aeb3363a6961f0882bb2ebbaec8fcb902f66c9ecc0c520a1cc",
+    "prover/memory_io.rs": "4c821f5bd0e2e66986167afc560ea41d89b2524a64258a3ece10ce8c8587e607",
+    "prover/air-source.sha256.json": "f6d0e72889f76c4b6bddfe9ba63ddbe58bcf438ee03613d2375af989a53bc85b",
+    "prover/leaf/src/main.rs": "e7634034320a724521cecad9005aec7b50fccf05eebba573efcedd64f782213d",
+    "prover/leaf/src/pipeline.rs": "4adc3bf0010d44063a2008cce93faef3bde30c9253fb028e67c2f90c9f99fab0",
+    "prover/tree/src/main.rs": "3a1a016fa94ea300bb462b7866c8bab15472cd0bb3fb064c19e3685688650b05",
+    "prover/tree/src/pipeline.rs": "67586ebf8164334bf6b802da18191e09e00b68f95908d82c7718d6bc082bf462",
+    "prover/tree/src/fprove.rs": "f66d56d997fd6dfb9155e947d0e6d35b7598acdb8c7f147910873b4fa454cc1f",
+    "demo/run.py": "cca8609231d791967575ed7b67cc5bb7679430f397ba1269c50227ffdd546ce5",
+    "demo/assemble.py": "76d95427e40003e575be84a459130fcc001e9142cdd32e6bc8830033a262c289",
+    "wallet/cli.py": "3537ef22ae9de7e65b85ef6e57451bf0cc2b7e77a3e4eae36a2aea49bc36b61a",
+    "bench/run.py": "adfe7573afedd0b457c40dabd57cfad0c1d9f290b31816205837decc59c43a89",
+    "bench/carriers.py": "69359acd3d3f3d7077172d4587971899392502e0689ed048164732b1889110f4",
+    "bench/summarize.py": "673c937caeacfe37f72601b8883b445a480615d536a91060f33066778f49563c",
+    "tools/cache.py": "f50aff282bd02b5891d990a5572a2b3afca8a9724aab726560865bcb79ac1cde",
+    "tools/dependency_integrity.py": "c0ba69ac600e31e07135e36d3477a20910465837fa683f3a11a85c628cea8abd",
+    "tools/build.py": "5ebf79971e71ed7d9fed1c9bb29e5e9edf078c55f3fa79037322b9615471b530",
+    "tools/build_demo_tools.py": "4a6d60698084290a63d65004e19c7b1f3639bdd86a17dd90bce27a0ed4e72481",
+    "tools/release.py": "ed3df007ba1bf63e2435bd11d50f5627738dda1b7fab3308f1c141629d418e3f",
+    "tests/replay_bench_custody.py": "e6fc9e349ed618bde6aa70e324c3653307d92f7cf6a46fcdded72ead629f876e",
+    "tests/run_custody_proofs.py": "6f157eef55ee12ec332a93075dad739c86004e4013165fe95e56c456da74afc8",
+    "tests/run_runtime_custody.py": "12762f56d27648990b85738924467df5e5e2034dfd23f634295784648435d338",
+    "tests/test_dependency_integrity.py": "08784c613af315114dfde627b0268af14a5bde0b29153a5e02363463b9457aa6",
+    "tests/test_prover_custody.py": "6e4d39fcb7bbafbfb171cb5d39176f3f460419ce8a1507d2de80d5f0b30c294f"
+  },
+  "rawArtifactSHA256": {
+    "tests3.log": "2e8b257abd10b72675941447fccb28a499e61ec7d9c6a78af80227a74b1d8671",
+    "build3/BUILD.json": "c531b7e0e97d6b7c5fb3b16a8fe650ae78ae766e61d37b4f7f4e1acf9fa7f7d7",
+    "proofs1/SUMMARY.json": "3fa60fd939dac35966fd00fb7198b2477665b79b313499c2e713f373539f2b28",
+    "proofs1/owner-default/PROOF.json": "f170e296ee5f963f662450d8f4e08fa51c956a40442ecbb1f72a3606490b2f42",
+    "proofs1/public-keep-inner/PROOF.json": "a81747d6269e8106d4e7a03ee327f8503567f67ab0566df5562b78ee37ee3ba9",
+    "runtime-smoke/SUMMARY.json": "d46b0b2ccca1eb6f08348baf89d0a060c090bc5d4f8461252c7e90bdf574ccf6",
+    "bench-replay/REPLAY.json": "07caede9c1b363ef832fa5634fe15fa2658f0e6b7db8b00159f29ab24356929d",
+    "cache-copy.json": "1e3696512f32c0a600b0862677fe02ae83a0f1059f5ff72a628c4c81b26b754b",
+    "cargo-metadata-check.json": "16b685beed47911f9e933752a3f28ef0de7ac479e9b9e06c5e9fad7f6f94fbdb",
+    "assemble2.log": "fa3c39fc3557020dabe0a0e9ba4766b17fb067971382cbb1d1b44a9ea24bbf45",
+    "install2.log": "286a32935b185324bb7b48c80a8dc76a428c1f836f93602813fc74dcf553b5b2"
+  },
+  "commands": [
+    "python3 -B tools/build_prover.py --out prover-build",
+    "PQ_TEST_PROVER_BUILD=\"$PWD/prover-build\" python3 -B -m unittest discover -s tests -v",
+    "python3 -B tests/run_custody_proofs.py --build prover-build --out runs/custody",
+    "python3 -B tools/cache.py --sources prepared --out dependencies",
+    "python3 -B demo/assemble.py --client-build build --prover-build prover-build --out runtime",
+    "python3 -B demo/install.py install --package runtime --prefix installed",
+    "python3 -B tests/run_runtime_custody.py --runtime installed --proof runs/custody/public-keep-inner --legacy-proofs EXISTING_PUBLIC_PROOFS --out runs/runtime-check",
+    "python3 -B tests/replay_bench_custody.py --cohort EXISTING_PUBLIC_COHORT --out runs/bench-replay"
+  ],
+  "limits": [
+    "Only public synthetic credentials were used, including the owner-policy test with public=false.",
+    "Application-level no-file-persistence does not guarantee locked/zeroized memory or prevent OS swap/hibernation.",
+    "No new security/hiding acceptance or protocol gate is claimed.",
+    "Native ABI and wallet/Go carrier compatibility checked; unchanged clients were reused and a full consensus run was not repeated.",
+    "Benchmark replay reuses prior observations and is not a new performance sample.",
+    "Private repository visibility unchanged; no push or merge to main."
+  ]
+}

@@ -1,0 +1,623 @@
+{
+  "format": 1,
+  "sourceRepository": "post-quantum",
+  "sourceCommit": "8a7bb99949427a7795aa051457464a0a5159f622",
+  "sourceDirectory": "code/l5-agg-c-20261103/src",
+  "importedSourceCount": 58,
+  "importedSourceBytes": 2308562,
+  "imports": {
+    "src/agg.rs": {
+      "sha256": "01785cf831fcb36dfc6fbf7aa2a44ab6f1e08e307647c42b2bdd2249a65675ba",
+      "bytes": 9886,
+      "gitBlob": "9dc2b92ad7b727c44856d08fcdec32dba047fc2d"
+    },
+    "src/aggregate-key/c-material.json": {
+      "sha256": "caa9f09f17e893c6b13b15cf3a9c8f190a72f1440ae4a9134461a76b5b7fc325",
+      "bytes": 98937,
+      "gitBlob": "d144361babd01e4a57a132a3c28ee65af4c3aac7"
+    },
+    "src/aggregate-key/c-periodic.rle": {
+      "sha256": "93f2a031f8ced8be9b039e8b37fdf8b86a49b47f480ab19a06a46a858424ac40",
+      "bytes": 298437,
+      "gitBlob": "f6f2a377534256a9cc9966d6d1cb02c483b2cbbc"
+    },
+    "src/aggregate-key/pins.rs": {
+      "sha256": "6b07f684fe69e0138186e606b8c0c927c3291c66925415855f4801a7bae43e50",
+      "bytes": 470,
+      "gitBlob": "6a569cf4b26c7115e19cc4579ecabe557b014cbe"
+    },
+    "src/aggregate_native.rs": {
+      "sha256": "e625e3ca6de7f94cad1aec3fdf9b7406e39c6fa601c373e47956f53d3a3b3d6e",
+      "bytes": 8228,
+      "gitBlob": "bb7f85ab06c2fdfa56501e4b679dcc136e83ad84"
+    },
+    "src/agprove.rs": {
+      "sha256": "2433b05953ebdb627996fc72b7d788d6052fab8d30f17ddcad06fa7d2cebf43e",
+      "bytes": 13338,
+      "gitBlob": "ebc08361a6a861d16bf3420cab775f5be9c50679"
+    },
+    "src/anegative.rs": {
+      "sha256": "bc1e0952260d629f94b20c833cf9f5388a293bf559b61ec41bfdbef8625e9351",
+      "bytes": 10995,
+      "gitBlob": "3f8bde2a31c2123509a5e0c473508b47c86c2bf4"
+    },
+    "src/areplay.rs": {
+      "sha256": "057d4e77e587c9d8f0c936de0db84aa85c5d6ecfe1adb4fa3db907fb968c3859",
+      "bytes": 8977,
+      "gitBlob": "cbde238cd3b7cd8d7233cc9f9ff26a9a831e111e"
+    },
+    "src/awitness.rs": {
+      "sha256": "b8d598bcc3fcdd51546302067d5d3d608f5f5e1e2e3c7183164f56aad3cf1ac8",
+      "bytes": 9046,
+      "gitBlob": "581a68f3a1e910f5d9d7bef12779bfcd26ca6e9f"
+    },
+    "src/bin/aggregate-corpus.rs": {
+      "sha256": "77c6e4f24c5cdd230e8d330b781b25d27f692ddbbe402488a0e67124d763a3a0",
+      "bytes": 252,
+      "gitBlob": "7b351cf2b6c453089df13582fce059ca66b43e52"
+    },
+    "src/bin/aggregate-periodic-check.rs": {
+      "sha256": "a8c284b06e2535b8142923b91d8d72524729f215d1a142208d87b6f36d441705",
+      "bytes": 188,
+      "gitBlob": "f56ab03483ba8bae084f95418ce9f0339ca3aa61"
+    },
+    "src/bin/aggregate-verify.rs": {
+      "sha256": "95820dd2f4e2b7aa0917dfabaf9ee0103604e15e797972a22e040fc30faa9d67",
+      "bytes": 1004,
+      "gitBlob": "eef14be1578288dc3e55ad72cf7b3f953053c854"
+    },
+    "src/breakdown.rs": {
+      "sha256": "2c7a8311b0c0f919d3f45ed35db42ebbab1c63da7e9bc0411cf4430c93b99563",
+      "bytes": 24216,
+      "gitBlob": "ad384591e27f5ed2dd7043a83d4c41712bf53f33"
+    },
+    "src/child.rs": {
+      "sha256": "fa51db9b6e38aecbcb09a0947adb6ebc8af310f58b26f70acc6a8a816c7e6526",
+      "bytes": 11107,
+      "gitBlob": "082e1bcc5485b105541642bbc6b528d4134380b6"
+    },
+    "src/childpin/error.rs": {
+      "sha256": "ba503d6125b2d6d202f4374320ddc2f75b70522366a0206aad51a27340b38dd9",
+      "bytes": 6814,
+      "gitBlob": "6582fd4823e104b0e00a17ff0eaf61a83f10369e"
+    },
+    "src/childpin/fkernel.rs": {
+      "sha256": "fc54f44626abe7db69b6e060f7763811326491663167241cb6c4ef6276bc5b65",
+      "bytes": 34129,
+      "gitBlob": "f0d3d9a2b8334601b8c1bdf31953cc0ed398d1a0"
+    },
+    "src/childpin/key.rs": {
+      "sha256": "82b966074a5b62ecab80ba281a64df9dd6ab96e06c08d458849ceaa73de61c0e",
+      "bytes": 15410,
+      "gitBlob": "ce3295ae85996d555fecb2d6b8323003e1038fb0"
+    },
+    "src/childpin/material.rs": {
+      "sha256": "07359f5299e7e1aa76adf75b80efc9d268824e218e9bf3cc59349a9d5f2e5e2e",
+      "bytes": 28911,
+      "gitBlob": "6283a27eec6728379733fccb80514d633d53ccb7"
+    },
+    "src/childpin/mod.rs": {
+      "sha256": "c379453280b3f0d77ef7aa5a399d4931df88d83d8037cfd40265d5575c39ead8",
+      "bytes": 75,
+      "gitBlob": "fd25249ac22820ce19a5e5597751d4a8b038ba01"
+    },
+    "src/childpin/pi.rs": {
+      "sha256": "e706b6f5d50a0af6eb93d144c01eb7500083f9a72cc38559a6f25fcb17da0bb8",
+      "bytes": 6223,
+      "gitBlob": "ba6d01a4d51f41d6a9198a0e0e440cbb0ece7afd"
+    },
+    "src/combine.rs": {
+      "sha256": "39a06dd55f51ca7b715b0d495a40347a1888ee51429d7a30c40590323e562eee",
+      "bytes": 5282,
+      "gitBlob": "8fdcf17ef14e72817f9e0a70dce7b114b4108777"
+    },
+    "src/compiler.rs": {
+      "sha256": "8e1d1d0b3512a6a8e6f35fe1e56348e9733ffcc22cf96f5555a29b6e136b2044",
+      "bytes": 47677,
+      "gitBlob": "30f596f95d68becf145997b3de17e67b181c7fba"
+    },
+    "src/corpus.rs": {
+      "sha256": "ffd48bc37066ad98ca01360cb01be7cd35fec9c725334a2d49059b765fc97320",
+      "bytes": 5499,
+      "gitBlob": "00ace9407d07b461d5ea0c3567bdb8a971a59eab"
+    },
+    "src/fbreakdown.rs": {
+      "sha256": "d628352640b3a990978194d242b60646510a8488e333331e891355eaf62369e2",
+      "bytes": 26512,
+      "gitBlob": "5e9b80b2263a83ca3bebb7fcbf9b78daa57961e5"
+    },
+    "src/fchild.rs": {
+      "sha256": "dacccdc8eb3be8c89e8e30f569c75433681802949e960142f3b7316773d5e8f6",
+      "bytes": 40040,
+      "gitBlob": "47ae496ef4e8d5a55d671b6f07f1b6532f7a591e"
+    },
+    "src/fixtures/pi198.hex": {
+      "sha256": "0eda443c3e42d05e4dda09606633a0f4ba0b347e86c279819ebe794023e1d1f8",
+      "bytes": 397,
+      "gitBlob": "9a5990cd5a946506cce5574172892196a9c84345"
+    },
+    "src/fkernel.rs": {
+      "sha256": "fc54f44626abe7db69b6e060f7763811326491663167241cb6c4ef6276bc5b65",
+      "bytes": 34129,
+      "gitBlob": "f0d3d9a2b8334601b8c1bdf31953cc0ed398d1a0"
+    },
+    "src/flcheck.rs": {
+      "sha256": "2cccd14cbfd02f75913f2be91188fb45daa9ef113def725f716669781c8f9c34",
+      "bytes": 10069,
+      "gitBlob": "460e5ba1f9c6f23edd53080ace99a32c2e1370a1"
+    },
+    "src/fmodes.rs": {
+      "sha256": "2ec5f26315b1fc8f0f41cbbb4370eb6814c422be66de2a8a9f18e6f404e219a3",
+      "bytes": 62183,
+      "gitBlob": "40297c1b2deb2072a8adef57a33cb33758c78f41"
+    },
+    "src/fprove.rs": {
+      "sha256": "f66d56d997fd6dfb9155e947d0e6d35b7598acdb8c7f147910873b4fa454cc1f",
+      "bytes": 30567,
+      "gitBlob": "c8139289e1737b6af239ad46c38d9a4de4193801"
+    },
+    "src/fschedule.rs": {
+      "sha256": "2bae8da530b40f7d27a4cd62013e5f1204dbb04a9693952d440e61761b9bc3e6",
+      "bytes": 106979,
+      "gitBlob": "fc52f88b22db0bd4dfbcb0b14a7501d5b664ca90"
+    },
+    "src/ftracegen.rs": {
+      "sha256": "d7b7799c6ec6a5b8bbbdba074961895d75ab1615ff87934be11f75fd0a82e1a8",
+      "bytes": 48125,
+      "gitBlob": "9177d520c8fe647bc0de4a9d09d943383f1153f9"
+    },
+    "src/fvariants.rs": {
+      "sha256": "c09ce4f5690b3190f632d8b20bc9646d21c789bfab1ddc4eabe1759c974e552f",
+      "bytes": 20467,
+      "gitBlob": "a47da733b2306ff1531c1ce856938366361e3f87"
+    },
+    "src/kernel.rs": {
+      "sha256": "097d6c7baed8f3cd0b34faadc1a8c69178c37640f624aa7b822d307cd5cd682d",
+      "bytes": 35389,
+      "gitBlob": "796b5264bca09c3d323b088d27a06b7ca437bc23"
+    },
+    "src/key/f-key-material.json": {
+      "sha256": "079b3554a854a729cb7d8c6e48682dada7e4ef0fde46fea8de82ca45d9109156",
+      "bytes": 84837,
+      "gitBlob": "0c4c5026e87ccbbdd5edb544d409cf461b651b3e"
+    },
+    "src/key/f-periodic.rle": {
+      "sha256": "971c157a28b9f796e853bab275b71b431b90be6c4911b2fce220c6aed39b8d08",
+      "bytes": 263385,
+      "gitBlob": "86a09a5fdb76efd5d1fd4835d7f95dccbe92d648"
+    },
+    "src/key/sources/compiler.rs": {
+      "sha256": "5d375f5ec0437eb8dc8d0e3ced9b37b395a77680a87ac8f056b65fb7b9849489",
+      "bytes": 47661,
+      "gitBlob": "22669ce3d2e4bbba528e9c95ea1c5885d9157b45"
+    },
+    "src/key/sources/fchild.rs": {
+      "sha256": "b107687d91e65acb5643c1149a0449bd00049cd57c55c042768b68f1f516b4ea",
+      "bytes": 39936,
+      "gitBlob": "314d48d390b3338767129c71a4a3deb8cbe22b58"
+    },
+    "src/key/sources/fmodes.rs": {
+      "sha256": "048c607a98ec42eb8fd136cbf5259ec8f2e620cee2801a723c528989d949dd39",
+      "bytes": 62184,
+      "gitBlob": "b13651b3c1a794b0a9c7a4e15f9f723eb629bf00"
+    },
+    "src/key/sources/fschedule.rs": {
+      "sha256": "1f2f204986411b9d9ede2d71ea8c3e180ecea27820d6f30041620beb544d1287",
+      "bytes": 106871,
+      "gitBlob": "d83e5d88e50289b6b8e0c70a14901568b9435ae7"
+    },
+    "src/key/sources/kernel.rs": {
+      "sha256": "8250f631083581631b1499dd9f859bb9885d059906fdcd4b8d28db78c3b3e449",
+      "bytes": 34186,
+      "gitBlob": "602d51a0ef1b17c6ed256af370670fd945fa32c5"
+    },
+    "src/key/sources/schedule.rs": {
+      "sha256": "89619973361187f488d36cc0452f50af5357d225e06223655cafbf9df5818b02",
+      "bytes": 108130,
+      "gitBlob": "6479466b0220e23a76550a0a6de8f6a2cc33c7da"
+    },
+    "src/l0p2/air.rs": {
+      "sha256": "abeeb9b0c86d555cf3b8e74baf004e8d8fd968a6bb9dc1f8f04c9d58b3591a87",
+      "bytes": 15561,
+      "gitBlob": "86fab2d33c3fa18c483ce50358e10ec70f132f1f"
+    },
+    "src/l0p2/instance.rs": {
+      "sha256": "84bc26801ddec59abb115e31a86903447ce2d207fdc32219456cbf4fcfba1f1f",
+      "bytes": 3294,
+      "gitBlob": "b3ee4f007d24d8ee65abb9e41473c1260595e8d3"
+    },
+    "src/l0p2/keccak.rs": {
+      "sha256": "7aec037805c56c956cefd7f4675215b9f85227b028fa337647404c52b7f194fb",
+      "bytes": 4782,
+      "gitBlob": "5d1e720f341fe2c456b4571c6d0f5ef8c0d5bac4"
+    },
+    "src/l0p2/program.rs": {
+      "sha256": "5fcda053259d83c65c4acbe0e270babeebeb14da36a40e3aa4daf368ce62234f",
+      "bytes": 30010,
+      "gitBlob": "b648ae4ea4c7069d3184cbe9368003e1d5a8bf4f"
+    },
+    "src/l0p2/sha.rs": {
+      "sha256": "f0e4b6039709cf398de20a98ff954d23a7300c5d5f5ccceb8a6ddaf4f8de8e75",
+      "bytes": 31018,
+      "gitBlob": "352d59fe240816cd9a35bfe0b5fe1d5efd209b76"
+    },
+    "src/l0p2.rs": {
+      "sha256": "0c7d4a264166d09e3794e1341186e9fc2e9d6f4fda4cbd2e4e2b017e40a0fd06",
+      "bytes": 13663,
+      "gitBlob": "8842b40229a1d83ba52e4ddd5804f8ed39ceee5f"
+    },
+    "src/lcheck.rs": {
+      "sha256": "920ea38cb35e907ea866984e8cb1d25f6935cae3fa1da097c66aaab815f17e68",
+      "bytes": 9606,
+      "gitBlob": "e4cc5cbc903b6b982cb080c6845b599deefe7392"
+    },
+    "src/lib.rs": {
+      "sha256": "bccb2f2851a4d9e7f858c9202eee1f78e1144d8cd036ca5f74da34f4c58b4d68",
+      "bytes": 312,
+      "gitBlob": "b61bb39e1ef07ce82c80b6a61d74e95efaee3289"
+    },
+    "src/main.rs": {
+      "sha256": "7ab0389fa8b22e6960fb7210db166ff38e084a8f7a15ce56a0b15cf7f2af5373",
+      "bytes": 139917,
+      "gitBlob": "69c94f8d5c19b31dbece80d1dc8802f77ec3b4fa"
+    },
+    "src/material.rs": {
+      "sha256": "69bb945444e635a03122fb784ffe6caa7b2248019f44c33d6795d388b1baef56",
+      "bytes": 28901,
+      "gitBlob": "69dede437157c736d8704881551aba03dc16ccdf"
+    },
+    "src/pipeline.rs": {
+      "sha256": "67586ebf8164334bf6b802da18191e09e00b68f95908d82c7718d6bc082bf462",
+      "bytes": 22721,
+      "gitBlob": "53dae1fdf3b3adb1b0e86c84422d593d943f61f2"
+    },
+    "src/replay.rs": {
+      "sha256": "36f110efcf89fff3329bea0ec7fe96a9178323db2146c8e88ec5ef344784a8f8",
+      "bytes": 8604,
+      "gitBlob": "261fc0b999a3a42859fd95ef572fc6bc51d3e1a7"
+    },
+    "src/schedule.rs": {
+      "sha256": "3c65ca12d0ea8510af4612d88f56f7e861ab78bc526cecce8721fd9062bfbff6",
+      "bytes": 112921,
+      "gitBlob": "87bb8e47b539988b73a7f4a32d0ecfe16dfb4f95"
+    },
+    "src/sparse_periodic.rs": {
+      "sha256": "a2d9ee7f39262aca34e45223414a535977dabae75cd14c7f8c9998581aa5d0cf",
+      "bytes": 5250,
+      "gitBlob": "2eb320c5621d00d4442a8f9a2fcc2d8e4fcc8ee2"
+    },
+    "src/tracegen.rs": {
+      "sha256": "412dea30576131b996a9d11e8355c87daa2f4b2fc9e6957c5f3628c4c2498e14",
+      "bytes": 48081,
+      "gitBlob": "b95dfbb84fd81d48a6c86cb2582df81525f5a27c"
+    },
+    "src/variants.rs": {
+      "sha256": "78f204ea56056ccb8356f0bf8527bc37da1724c1dfbb5042034508fb36f102a7",
+      "bytes": 26773,
+      "gitBlob": "1def1ff363a217edaa0a91bc8a7e8654f393523a"
+    },
+    "Cargo.toml": {
+      "sha256": "72b56a9d2152bb42f8b137099664bbdab733f6b2ce92e4d557e142dfd6b447d9",
+      "bytes": 1727,
+      "origin": "prepared research followup workspace"
+    },
+    "Cargo.lock": {
+      "sha256": "ab3d86b23f6ab97d380dc21c239fc567eeab43699752d4912f579c9404941051",
+      "bytes": 24868,
+      "origin": "prepared research followup workspace"
+    }
+  },
+  "sharedInputs": {
+    "prover/pinned-deps/p3-batch-stark/benches/lookup.rs": "27e0a6fc278b408d094d6c8c488a131afcc3cb544aaa04dc31676d62305fb86c",
+    "prover/pinned-deps/p3-batch-stark/benches/prove_batch.rs": "86b9dcad133a137e54eadad63279a3b6b80bf7bbb41783aba469d74277b0cf67",
+    "prover/pinned-deps/p3-batch-stark/Cargo.toml": "5705e66822b6a308f94fe9e7e2295ec64891baa9014d61799c2264ef4916f6d5",
+    "prover/pinned-deps/p3-batch-stark/src/check_constraints.rs": "199c6dedd321597e060aa295da397dfffc6fd52dff806f68695c09498033b561",
+    "prover/pinned-deps/p3-batch-stark/src/common.rs": "9abd65969336fb1ce7bbfdc89fbf79db7203a77d940d0e6a3446050e33e3e04d",
+    "prover/pinned-deps/p3-batch-stark/src/config.rs": "7b8002f142be30b67703dd8435fae9c5e13d5b21b0c730c3c22542371d860b4a",
+    "prover/pinned-deps/p3-batch-stark/src/error.rs": "6b306ce7f6866c4dc4e6edac7459c84d98ac21f249ebe3b017213957669ded26",
+    "prover/pinned-deps/p3-batch-stark/src/folder.rs": "400f28352b6429229897b77b9e751c3ac4f7fa07a8aea536c03ee74e682bc3df",
+    "prover/pinned-deps/p3-batch-stark/src/lib.rs": "a132fac420a3daac14028a1ba8aeb3f7f9a6df58632af5ed879a2f55b06da543",
+    "prover/pinned-deps/p3-batch-stark/src/proof.rs": "dcad6f9531a2e1356cfa47cadf57d82274f9656d6697e7248a330e96530b4eb9",
+    "prover/pinned-deps/p3-batch-stark/src/prover.rs": "6e04dec65cf3eb67b2a78c843df46eb3523aec28b0152f969bdf647b65aac317",
+    "prover/pinned-deps/p3-batch-stark/src/security.rs": "926545659f3e85811c1af890a05756fe59297725ba1be3815c47fc7cba54ab34",
+    "prover/pinned-deps/p3-batch-stark/src/symbolic.rs": "ef21486e329bcc0ca26f946e9ec47738be89a3f46fca58386711295e794a0028",
+    "prover/pinned-deps/p3-batch-stark/src/transcript.rs": "9a4e1c8967f3f1bf513e3f8c1240dcdf35b1f42c850fdaf277fd1fc541f5928c",
+    "prover/pinned-deps/p3-batch-stark/src/verifier/data.rs": "5673d4d5a6b0cea604aa3552b2d5db57b736a48c0604a1c3777ed85f2f689b29",
+    "prover/pinned-deps/p3-batch-stark/src/verifier/mod.rs": "72ee495d8be6f775b362558059ac6405c7a9720b693f1d36324fea6d3f865241",
+    "prover/pinned-deps/p3-batch-stark/tests/common/config.rs": "2b9102fa4e6b679fc45cbc72a9edd461c3402077e948b9eb3da9dd95e0669ae7",
+    "prover/pinned-deps/p3-batch-stark/tests/simple.rs": "a983d9ffe79a919ffef81c454043de11f3f9840aa8039bd50859ce9a7b4f9f7a",
+    "prover/pinned-deps/p3-merkle-tree/benches/blake2s_verify.rs": "afa93db4d781a0f470f9f98e9b18f30f92403b6ff91974eec75e63d5be4dc837",
+    "prover/pinned-deps/p3-merkle-tree/benches/leaf_pass.rs": "8d00258801a2a93a469456005f0156335a25af715909128965c0662d2db8af81",
+    "prover/pinned-deps/p3-merkle-tree/benches/merkle_tree.rs": "7dbe305deba9937f7dbefd8adda37a70a4ff094850916165c35db94c0af921fd",
+    "prover/pinned-deps/p3-merkle-tree/benches/multi_matrix.rs": "4e4af2450c050cd538bcace9466bce5cdf46daef1096dc832e4a4779b8e51e78",
+    "prover/pinned-deps/p3-merkle-tree/benches/pruned_verify.rs": "820e51ea1af504bcdf3daa7dada21c4194ceac29b890e463160ef978e2237af1",
+    "prover/pinned-deps/p3-merkle-tree/benches/verify_batch.rs": "5e3777b2cb09d0d2b0d9862317977e6b72dc6b205da090e54c44d069cf9def9f",
+    "prover/pinned-deps/p3-merkle-tree/benches/wide_rows.rs": "bb8f72811689aee44050d08815bbe6b35966b312a72f1b99110488b77d2160c5",
+    "prover/pinned-deps/p3-merkle-tree/Cargo.toml": "267d7d186ac13a0dd7cca4a86dad4773a0d3af51a2ab2295cccaa9663c1ec31d",
+    "prover/pinned-deps/p3-merkle-tree/src/builder.rs": "c57a0ea1b77d4a4e084560effcaaf16aa0e745f962b8fa0f75553fd445844d31",
+    "prover/pinned-deps/p3-merkle-tree/src/hiding_mmcs.rs": "7631c5bceaea53b4ab5b549ca5fd5c51af61c8aa6f5d9e98586edcc7e3351571",
+    "prover/pinned-deps/p3-merkle-tree/src/lib.rs": "a69ca804ec436978d99149aa01c22849b7633aed4ea124296bfff8c551442abe",
+    "prover/pinned-deps/p3-merkle-tree/src/merkle_tree.rs": "145701e39d04170840d3ec4d25362be89198a92b7a99ff6f4fea93ed759b9d96",
+    "prover/pinned-deps/p3-merkle-tree/src/mmcs/batch.rs": "49ab1fac63ab04fad2a96db874291c4a01bc2668a9c0bd8ae8af80958bc97c7c",
+    "prover/pinned-deps/p3-merkle-tree/src/mmcs/error.rs": "ad91971212cecf6eb8cc4d9a1e7d4a80eccde719e28d16ef92e7a2923c2196dc",
+    "prover/pinned-deps/p3-merkle-tree/src/mmcs/geometry.rs": "ee359d63f2badd8195a4c125fea49f4225c87e68180a3e6477a357f08742374a",
+    "prover/pinned-deps/p3-merkle-tree/src/mmcs/mod.rs": "5d2f10354d086b988d440ad1f999840e46ecda515df44a6b9be14e73fea19d99",
+    "prover/pinned-deps/p3-merkle-tree/src/mmcs/pruned.rs": "7b6bf996320371b413b889070353fb50d297f47bb1b5365dfc6e57188542417d",
+    "prover/pinned-deps/p3-merkle-tree/src/packed_row_tests.rs": "d7e230a889aef78f541bd2c60034b1c1aba59fa06f0e4836962d6632fb10956e",
+    "prover/pinned-deps/p3-merkle-tree/src/pruning.rs": "ae09ad2377b6bf3166ebbb4ef6402b9d09fb642b9dbafe749b075e0c9c2b2da5",
+    "prover/crates/p3-batch-stark-c3/benches/lookup.rs": "27e0a6fc278b408d094d6c8c488a131afcc3cb544aaa04dc31676d62305fb86c",
+    "prover/crates/p3-batch-stark-c3/benches/prove_batch.rs": "86b9dcad133a137e54eadad63279a3b6b80bf7bbb41783aba469d74277b0cf67",
+    "prover/crates/p3-batch-stark-c3/Cargo.toml": "70a0025a647cb79513e17729d51f661fc422bf300b53b8005ab8c3916d4c8db8",
+    "prover/crates/p3-batch-stark-c3/src/check_constraints.rs": "199c6dedd321597e060aa295da397dfffc6fd52dff806f68695c09498033b561",
+    "prover/crates/p3-batch-stark-c3/src/common.rs": "9abd65969336fb1ce7bbfdc89fbf79db7203a77d940d0e6a3446050e33e3e04d",
+    "prover/crates/p3-batch-stark-c3/src/config.rs": "7b8002f142be30b67703dd8435fae9c5e13d5b21b0c730c3c22542371d860b4a",
+    "prover/crates/p3-batch-stark-c3/src/error.rs": "6b306ce7f6866c4dc4e6edac7459c84d98ac21f249ebe3b017213957669ded26",
+    "prover/crates/p3-batch-stark-c3/src/folder.rs": "400f28352b6429229897b77b9e751c3ac4f7fa07a8aea536c03ee74e682bc3df",
+    "prover/crates/p3-batch-stark-c3/src/lib.rs": "b2b3ab61d111b2b4626231e918ba24e7fc32a627e283499f5e48b9d15d672a10",
+    "prover/crates/p3-batch-stark-c3/src/proof.rs": "dcad6f9531a2e1356cfa47cadf57d82274f9656d6697e7248a330e96530b4eb9",
+    "prover/crates/p3-batch-stark-c3/src/prover.rs": "be2d534c371a6684b5cafa1c7f7395edf6523d4a2be6a8d3bbfb9f72f0daec3b",
+    "prover/crates/p3-batch-stark-c3/src/security.rs": "926545659f3e85811c1af890a05756fe59297725ba1be3815c47fc7cba54ab34",
+    "prover/crates/p3-batch-stark-c3/src/symbolic.rs": "ef21486e329bcc0ca26f946e9ec47738be89a3f46fca58386711295e794a0028",
+    "prover/crates/p3-batch-stark-c3/src/transcript.rs": "b322186c0c3dc2ee0070e0d81f39267386ec85d15f90b6e98cb34dfa7757f02a",
+    "prover/crates/p3-batch-stark-c3/src/verifier/data.rs": "5673d4d5a6b0cea604aa3552b2d5db57b736a48c0604a1c3777ed85f2f689b29",
+    "prover/crates/p3-batch-stark-c3/src/verifier/mod.rs": "9d04d375e244f0e99b7adfe24810e43ec03f011cf9eff833448009b892486245",
+    "prover/crates/p3-batch-stark-c3/tests/common/config.rs": "2b9102fa4e6b679fc45cbc72a9edd461c3402077e948b9eb3da9dd95e0669ae7",
+    "prover/crates/p3-batch-stark-c3/tests/simple.rs": "a983d9ffe79a919ffef81c454043de11f3f9840aa8039bd50859ce9a7b4f9f7a",
+    "prover/crates/p3-batch-stark-c3n/benches/lookup.rs": "27e0a6fc278b408d094d6c8c488a131afcc3cb544aaa04dc31676d62305fb86c",
+    "prover/crates/p3-batch-stark-c3n/benches/prove_batch.rs": "86b9dcad133a137e54eadad63279a3b6b80bf7bbb41783aba469d74277b0cf67",
+    "prover/crates/p3-batch-stark-c3n/Cargo.toml": "c3c8d6ede0f31ca6e766122dc18c5fe1909645e88ecfc1b3336a4e6daa0b8088",
+    "prover/crates/p3-batch-stark-c3n/src/check_constraints.rs": "199c6dedd321597e060aa295da397dfffc6fd52dff806f68695c09498033b561",
+    "prover/crates/p3-batch-stark-c3n/src/common.rs": "9abd65969336fb1ce7bbfdc89fbf79db7203a77d940d0e6a3446050e33e3e04d",
+    "prover/crates/p3-batch-stark-c3n/src/config.rs": "7b8002f142be30b67703dd8435fae9c5e13d5b21b0c730c3c22542371d860b4a",
+    "prover/crates/p3-batch-stark-c3n/src/error.rs": "d1c93858b551266f6091cbedf21833e41858a156d43d78708b115ab7bcd234eb",
+    "prover/crates/p3-batch-stark-c3n/src/folder.rs": "400f28352b6429229897b77b9e751c3ac4f7fa07a8aea536c03ee74e682bc3df",
+    "prover/crates/p3-batch-stark-c3n/src/lib.rs": "69571c72893668fbd46bf1d8033bb9e8cbcdea263ec98fe9a5e9bf20341e045b",
+    "prover/crates/p3-batch-stark-c3n/src/next_row.rs": "da5b78ec515961362ada081662d07fdf5d22bfcbcc334e21f62b3a8489c44ceb",
+    "prover/crates/p3-batch-stark-c3n/src/proof.rs": "dcad6f9531a2e1356cfa47cadf57d82274f9656d6697e7248a330e96530b4eb9",
+    "prover/crates/p3-batch-stark-c3n/src/prover.rs": "dadf4fc9d6053b9803bc1da2610680b2b8a8d8c2566fff10da1e0fccdf5bb2fd",
+    "prover/crates/p3-batch-stark-c3n/src/security.rs": "926545659f3e85811c1af890a05756fe59297725ba1be3815c47fc7cba54ab34",
+    "prover/crates/p3-batch-stark-c3n/src/symbolic.rs": "ef21486e329bcc0ca26f946e9ec47738be89a3f46fca58386711295e794a0028",
+    "prover/crates/p3-batch-stark-c3n/src/transcript.rs": "b1d2acab91b067bb9c277d2cf284f0a8d50cf9e68bf28c7fc48f5d1a62c253e4",
+    "prover/crates/p3-batch-stark-c3n/src/verifier/data.rs": "5673d4d5a6b0cea604aa3552b2d5db57b736a48c0604a1c3777ed85f2f689b29",
+    "prover/crates/p3-batch-stark-c3n/src/verifier/mod.rs": "94e1e971b31765eda9c4fdbd9d8588416273ac6384c196763229a951d214e59b",
+    "prover/crates/p3-batch-stark-c3n/tests/common/config.rs": "2b9102fa4e6b679fc45cbc72a9edd461c3402077e948b9eb3da9dd95e0669ae7",
+    "prover/crates/p3-batch-stark-c3n/tests/simple.rs": "a983d9ffe79a919ffef81c454043de11f3f9840aa8039bd50859ce9a7b4f9f7a",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/Cargo.toml": "b280b0e0d74dfa40010206129b370e9e983b08c4d3b61c4d6987818ce2ffb3c1",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/check_constraints.rs": "199c6dedd321597e060aa295da397dfffc6fd52dff806f68695c09498033b561",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/common.rs": "9abd65969336fb1ce7bbfdc89fbf79db7203a77d940d0e6a3446050e33e3e04d",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/config.rs": "7b8002f142be30b67703dd8435fae9c5e13d5b21b0c730c3c22542371d860b4a",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/error.rs": "cd69165eb719d5b16dda1af726655402950e254100acb18f3f8d65b652b3d592",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/folder.rs": "400f28352b6429229897b77b9e751c3ac4f7fa07a8aea536c03ee74e682bc3df",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/lib.rs": "604e700dd9caa5b20527546a22af1137634a972063d9ae6d96e56d1de2100db2",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/next_row.rs": "cac56c4d7823ea76f03cd68caec7141b0b313f408099d95de095176cb8b6b0b5",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/periodic_logup.rs": "bcd1ad581972ecdd8c4f3708e0b460c7a89193ac1982aa622e6673788911ea12",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/proof.rs": "dcad6f9531a2e1356cfa47cadf57d82274f9656d6697e7248a330e96530b4eb9",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/prover.rs": "5f65bdf495b3f28a9148b450237a1a3ed60cd4841cdf02a86c8503fda9d1858f",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/security.rs": "926545659f3e85811c1af890a05756fe59297725ba1be3815c47fc7cba54ab34",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/symbolic.rs": "ef21486e329bcc0ca26f946e9ec47738be89a3f46fca58386711295e794a0028",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/transcript.rs": "eb659a01565932750819509a6bc8a1949c2650cb41408973ac555b2bac4bf51c",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/verifier/data.rs": "5673d4d5a6b0cea604aa3552b2d5db57b736a48c0604a1c3777ed85f2f689b29",
+    "prover/final-verifier/crates/p3-batch-stark-c3np/src/verifier/mod.rs": "c358f2851e53e5a347f6cd095feb7d7309ff326daf862740edebfc75ee7b9858",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/Cargo.toml": "a700225d93cd56a51d8eadb5221ea03982c370a0defc0e28a98725930776b2d4",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/builder.rs": "c57a0ea1b77d4a4e084560effcaaf16aa0e745f962b8fa0f75553fd445844d31",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/hiding_mmcs.rs": "12aeed1b01d374d4514f5b7ce4176a8083bb75d68e95198553c43c249197b073",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/lib.rs": "a69ca804ec436978d99149aa01c22849b7633aed4ea124296bfff8c551442abe",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/merkle_tree.rs": "145701e39d04170840d3ec4d25362be89198a92b7a99ff6f4fea93ed759b9d96",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/mmcs/batch.rs": "49ab1fac63ab04fad2a96db874291c4a01bc2668a9c0bd8ae8af80958bc97c7c",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/mmcs/error.rs": "ad91971212cecf6eb8cc4d9a1e7d4a80eccde719e28d16ef92e7a2923c2196dc",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/mmcs/geometry.rs": "ee359d63f2badd8195a4c125fea49f4225c87e68180a3e6477a357f08742374a",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/mmcs/mod.rs": "5d2f10354d086b988d440ad1f999840e46ecda515df44a6b9be14e73fea19d99",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/mmcs/pruned.rs": "7b6bf996320371b413b889070353fb50d297f47bb1b5365dfc6e57188542417d",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/packed_row_tests.rs": "d7e230a889aef78f541bd2c60034b1c1aba59fa06f0e4836962d6632fb10956e",
+    "prover/final-verifier/crates/p3-merkle-tree-ps/src/pruning.rs": "ae09ad2377b6bf3166ebbb4ef6402b9d09fb642b9dbafe749b075e0c9c2b2da5",
+    "prover/memory_io.rs": "4c821f5bd0e2e66986167afc560ea41d89b2524a64258a3ece10ce8c8587e607"
+  },
+  "identities": {
+    "aggregateC": "3f84335f8b7301181f37e3080cb81fc5d8444952574e0e90cd2a277d12bd2825",
+    "aggregateAG": "790f551415f1b212850720463e0be2cbfb76268e163cf3591a3bd99485f1e654",
+    "inputF": "ed2fcf813b942404729da7827c4743020dae8d89ebbc206e5bee7718503df3f2"
+  },
+  "profile": {
+    "owners": 4,
+    "verifierVersion": "0x80000008",
+    "statementBytes": 798,
+    "maxCarrierBytes": 196608,
+    "rustc": "1.96.0",
+    "rustcCommit": "ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96"
+  },
+  "fixture": {
+    "carrier.bin": {
+      "sha256": "1803f6e744554a8e9794940b9f39c464e41a90005bad353431d1e65560479da7",
+      "bytes": 187797
+    },
+    "statement.bin": {
+      "sha256": "1af7a4381356e6975d788ee454dda05caa47a9dfcbae6b54ab5fdaca1f1e9b7a",
+      "bytes": 798
+    }
+  },
+  "localSharedInputChanges": [
+    {
+      "reason": "Gate optional process-memory and matrix-shape diagnostics; no proof arithmetic, transcript, AIR or key changes.",
+      "enabledBy": "PQ_PROVER_DIAGNOSTICS=1",
+      "files": {
+        "prover/pinned-deps/p3-batch-stark/src/prover.rs": {
+          "researchSHA256": "92cb2fcf6447269ae4675ea3b5231ea8afab2c0dc82181189721c61a2c4eb3bd",
+          "packagedSHA256": "6e04dec65cf3eb67b2a78c843df46eb3523aec28b0152f969bdf647b65aac317",
+          "directPrintSitesGated": 2
+        },
+        "prover/pinned-deps/p3-merkle-tree/src/hiding_mmcs.rs": {
+          "researchSHA256": "7b0ea66a39c60fcd2ad86aeb0bd1546d314532e07beecc328787add12333d714",
+          "packagedSHA256": "7631c5bceaea53b4ab5b549ca5fd5c51af61c8aa6f5d9e98586edcc7e3351571",
+          "directPrintSitesGated": 1
+        },
+        "prover/crates/p3-batch-stark-c3/src/prover.rs": {
+          "researchSHA256": "1d321fe295b9d605635af6eeac0f335344757937b8eb06a67c458d16c89b0ffb",
+          "packagedSHA256": "be2d534c371a6684b5cafa1c7f7395edf6523d4a2be6a8d3bbfb9f72f0daec3b",
+          "directPrintSitesGated": 2
+        },
+        "prover/crates/p3-batch-stark-c3n/src/prover.rs": {
+          "researchSHA256": "482942f03ff47831f17dc1e5894861fc7a5f5b6a7990c1995a5f90b45bc8beb0",
+          "packagedSHA256": "dadf4fc9d6053b9803bc1da2610680b2b8a8d8c2566fff10da1e0fccdf5bb2fd",
+          "directPrintSitesGated": 3
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/prover.rs": {
+          "researchSHA256": "be22648accb13fc9b6fa8fa28d0c2184011c067966c96c44ec4246487e0b5bac",
+          "packagedSHA256": "5f65bdf495b3f28a9148b450237a1a3ed60cd4841cdf02a86c8503fda9d1858f",
+          "directPrintSitesGated": 3
+        },
+        "prover/final-verifier/crates/p3-merkle-tree-ps/src/hiding_mmcs.rs": {
+          "researchSHA256": "ee8ab235f98d61f6abcc7399a191a85c8d58ac6faf109abb366772b281690f73",
+          "packagedSHA256": "12aeed1b01d374d4514f5b7ce4176a8083bb75d68e95198553c43c249197b073",
+          "directPrintSitesGated": 2
+        }
+      }
+    },
+    {
+      "reason": "Merged Phase 1 attribution notices and Cargo comment headers only; no source semantics or proof identity changes.",
+      "notice": "// Modified by the PQ-Migrate contributors; see MODIFICATIONS.md (2026-11-07 notice).",
+      "baseCommit": "d01284b0",
+      "files": {
+        "prover/pinned-deps/p3-batch-stark/src/prover.rs": {
+          "priorSHA256": "f9fdc19d8606e664f278dc61b5bca39c0d2f9bda0e4d2697eedc34155f5616e4",
+          "packagedSHA256": "6e04dec65cf3eb67b2a78c843df46eb3523aec28b0152f969bdf647b65aac317",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/pinned-deps/p3-merkle-tree/src/builder.rs": {
+          "priorSHA256": "9793f4d452b0f422f2b7f6bdec52d40b279c278a9ccfc60ba0be58f9eeab8f60",
+          "packagedSHA256": "c57a0ea1b77d4a4e084560effcaaf16aa0e745f962b8fa0f75553fd445844d31",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/pinned-deps/p3-merkle-tree/src/hiding_mmcs.rs": {
+          "priorSHA256": "cb7098b865c0b06d8e7ce44aca1cff28372bd90ddf6ab76d80810ff9c6388bd8",
+          "packagedSHA256": "7631c5bceaea53b4ab5b549ca5fd5c51af61c8aa6f5d9e98586edcc7e3351571",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/pinned-deps/p3-merkle-tree/src/merkle_tree.rs": {
+          "priorSHA256": "27bf0375a0a6e1927560777ff1cee6f7cf7d135e14431dd014216510fee42980",
+          "packagedSHA256": "145701e39d04170840d3ec4d25362be89198a92b7a99ff6f4fea93ed759b9d96",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/pinned-deps/p3-merkle-tree/src/mmcs/batch.rs": {
+          "priorSHA256": "6771b1221e18c625a5f463ea0e190b8d060e241bf6cc1a10e174358747abf584",
+          "packagedSHA256": "49ab1fac63ab04fad2a96db874291c4a01bc2668a9c0bd8ae8af80958bc97c7c",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/pinned-deps/p3-merkle-tree/src/mmcs/mod.rs": {
+          "priorSHA256": "e2747b53cf2e0bb2159a6184182b64bba6b0af0f752f09a2699ef56341a496c9",
+          "packagedSHA256": "5d2f10354d086b988d440ad1f999840e46ecda515df44a6b9be14e73fea19d99",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/Cargo.toml": {
+          "priorSHA256": "9617baec2ccfcde887aec5039a7e9b2d7aef25aad8f70a0b7ead85f54390dc9c",
+          "packagedSHA256": "b280b0e0d74dfa40010206129b370e9e983b08c4d3b61c4d6987818ce2ffb3c1",
+          "allowedChanges": [
+            "leading Cargo comment header"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/error.rs": {
+          "priorSHA256": "d34dc44e8628380b8e096bb2d8f8168a4c5b8edf9b2ff10c5d6f4afffbcf5013",
+          "packagedSHA256": "cd69165eb719d5b16dda1af726655402950e254100acb18f3f8d65b652b3d592",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/lib.rs": {
+          "priorSHA256": "82a7a557739653868c74bdc9b6d5df8dbcb2ed92bf0f2bf7cd4e2a0633c9f286",
+          "packagedSHA256": "604e700dd9caa5b20527546a22af1137634a972063d9ae6d96e56d1de2100db2",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/next_row.rs": {
+          "priorSHA256": "2bed5c9aec2f0abdee54dfef8a3f7e3529bed848f321c52b3b01d0f8d918c32a",
+          "packagedSHA256": "cac56c4d7823ea76f03cd68caec7141b0b313f408099d95de095176cb8b6b0b5",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/periodic_logup.rs": {
+          "priorSHA256": "2c1c1f32f67b426f4ffd87d4da0a667801a8f6814184d1e91c8a925495f2485a",
+          "packagedSHA256": "bcd1ad581972ecdd8c4f3708e0b460c7a89193ac1982aa622e6673788911ea12",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/prover.rs": {
+          "priorSHA256": "2b21a7e810cff57a2f0444f681f1cf940a89a1a641a6a785f477d9a3eda305aa",
+          "packagedSHA256": "5f65bdf495b3f28a9148b450237a1a3ed60cd4841cdf02a86c8503fda9d1858f",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/transcript.rs": {
+          "priorSHA256": "f817b4783c960988a72b67af66eb0eb4983a61c97b952e1eb3134471c6b674a5",
+          "packagedSHA256": "eb659a01565932750819509a6bc8a1949c2650cb41408973ac555b2bac4bf51c",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-batch-stark-c3np/src/verifier/mod.rs": {
+          "priorSHA256": "b7de136ddd1c091c4f84a2ecdacdb8c419d4f9dfcd9d8a84f2ff93d76f694aa7",
+          "packagedSHA256": "c358f2851e53e5a347f6cd095feb7d7309ff326daf862740edebfc75ee7b9858",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-merkle-tree-ps/Cargo.toml": {
+          "priorSHA256": "325a613a6a7f32df117fca27944a6243b42310bfc5959912a9222bf66ce8b8f7",
+          "packagedSHA256": "a700225d93cd56a51d8eadb5221ea03982c370a0defc0e28a98725930776b2d4",
+          "allowedChanges": [
+            "leading Cargo comment header"
+          ]
+        },
+        "prover/final-verifier/crates/p3-merkle-tree-ps/src/builder.rs": {
+          "priorSHA256": "9793f4d452b0f422f2b7f6bdec52d40b279c278a9ccfc60ba0be58f9eeab8f60",
+          "packagedSHA256": "c57a0ea1b77d4a4e084560effcaaf16aa0e745f962b8fa0f75553fd445844d31",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-merkle-tree-ps/src/hiding_mmcs.rs": {
+          "priorSHA256": "cc074a6273c72749a2db9b18bcd106d5aa27493179799b8ffef3cb681fa476a5",
+          "packagedSHA256": "12aeed1b01d374d4514f5b7ce4176a8083bb75d68e95198553c43c249197b073",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-merkle-tree-ps/src/merkle_tree.rs": {
+          "priorSHA256": "27bf0375a0a6e1927560777ff1cee6f7cf7d135e14431dd014216510fee42980",
+          "packagedSHA256": "145701e39d04170840d3ec4d25362be89198a92b7a99ff6f4fea93ed759b9d96",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-merkle-tree-ps/src/mmcs/batch.rs": {
+          "priorSHA256": "6771b1221e18c625a5f463ea0e190b8d060e241bf6cc1a10e174358747abf584",
+          "packagedSHA256": "49ab1fac63ab04fad2a96db874291c4a01bc2668a9c0bd8ae8af80958bc97c7c",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        },
+        "prover/final-verifier/crates/p3-merkle-tree-ps/src/mmcs/mod.rs": {
+          "priorSHA256": "e2747b53cf2e0bb2159a6184182b64bba6b0af0f752f09a2699ef56341a496c9",
+          "packagedSHA256": "5d2f10354d086b988d440ad1f999840e46ecda515df44a6b9be14e73fea19d99",
+          "allowedChanges": [
+            "one attribution notice line"
+          ]
+        }
+      }
+    }
+  ]
+}

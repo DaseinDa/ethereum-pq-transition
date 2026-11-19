@@ -1,0 +1,146 @@
+diff --git a/bin/ream/src/main.rs b/bin/ream/src/main.rs
+index 17caae804c3daf2151332dbbc430e7728f98438f..c1963c7987eccb308445083812a245e75532394f 100644
+--- a/bin/ream/src/main.rs
++++ b/bin/ream/src/main.rs
+@@ -215,6 +215,10 @@ fn main() {
+ 
+     executor_clone.shutdown_runtime();
+ 
++    // N1 lab (2026-11-02): release clean Engine sessions; Drop does not run under process::exit.
++    #[cfg(feature = "reth")]
++    ream_reth_engine::external::release_owned_sessions();
++
+     process::exit(0);
+ }
+ 
+diff --git a/crates/common/chain/lean/src/coordinator.rs b/crates/common/chain/lean/src/coordinator.rs
+index 6c4a1d0350c30e1e0ad0317363d998fe7fd7c984..24684153cbc13efc70e949edb530a541f2dbdadd 100644
+--- a/crates/common/chain/lean/src/coordinator.rs
++++ b/crates/common/chain/lean/src/coordinator.rs
+@@ -86,6 +86,9 @@ impl LeanChainService {
+         let finalized=store.store.lock().await.latest_finalized_provider().get()?.root;
+         let targets=store.execution_targets(data.head.root,finalized).await?;
+         let root=data.tree_hash_root();let revision=self.duty_revision;
++        // N1 T6b (2026-11-02): a duty revoked inside the fence before any signature is the same pre-signing
++        // deferral as the check above, so it stays retryable; after a signature it is not.
++        let signed_any=std::sync::atomic::AtomicBool::new(false);
+         handle.with_signing_fence(targets,|request,generation| {
+             self.check_duty(slot)?;
+             let mut output=Vec::new();
+@@ -96,10 +99,13 @@ impl LeanChainService {
+                     request_id:request,role:Role::Attestation,validator_index:index,slot,message_root:root,
+                 });
+                 let signature=signer.sign_with_permit(&mut permit)?.signature;
++                signed_any.store(true,std::sync::atomic::Ordering::SeqCst);
+                 output.push(SignedAttestation{validator_id:index,message:data.clone(),signature});
+             }
+             tracing::info!(slot,?root,revision,count=output.len(),"COORDINATED_XMSS_ATTESTATIONS_RESERVED");
+             Ok(output)
+-        }).await.map_err(|e|anyhow!("attestation signing boundary failed: {e:#}"))
++        }).await.map_err(|e| if !signed_any.load(std::sync::atomic::Ordering::SeqCst)
++            && e.is::<crate::messages::PendingDutyRecomputation>() {e}
++            else {anyhow!("attestation signing boundary failed: {e:#}")})
+     }
+ }
+diff --git a/crates/common/reth/src/external.rs b/crates/common/reth/src/external.rs
+index 10f519a85871373d57d8ec21810ec9631548a6d8..d78c93c9e78b421363fe93eabd3a154b5fe0b03e 100644
+--- a/crates/common/reth/src/external.rs
++++ b/crates/common/reth/src/external.rs
+@@ -85,10 +85,10 @@ struct Inner {
+     observed_instance: Mutex<Option<B256>>,
+ }
+ 
+-impl Drop for Inner {
+-    fn drop(&mut self) {
+-        // Preserve both blockers after uncertainty, even if writing quarantine
+-        // failed. A clean completed session alone may release local ownership.
++impl Inner {
++    // Preserve both blockers after uncertainty, even if writing quarantine
++    // failed. A clean completed session alone may release local ownership.
++    fn release_owner(&self) {
+         if !self.quarantine.load(Ordering::SeqCst)
+             && !self.config.session_path.with_extension("quarantine").exists() {
+             if fs::remove_file(&self.owner_path).is_ok() {
+@@ -98,6 +98,32 @@ impl Drop for Inner {
+     }
+ }
+ 
++impl Drop for Inner {
++    fn drop(&mut self) { self.release_owner(); }
++}
++
++// N1 lab (2026-11-02): Engines alive in this process, so that a clean exit can release their owner files
++// even when the runtime could not be shut down and Drop never runs.
++static LIVE_ENGINES: std::sync::Mutex<Vec<std::sync::Weak<Inner>>> = std::sync::Mutex::new(Vec::new());
++
++/// Called by the binary just before `process::exit` after a clean shutdown. For each Engine still alive it
++/// takes the writer lock that the signing fence holds, keeps the lock and the Engine until the process exits,
++/// and applies Drop's rule to the owner file. An Engine whose writer is busy keeps its owner file.
++pub fn release_owned_sessions() {
++    let live = LIVE_ENGINES.lock().map(|engines| engines.clone()).unwrap_or_default();
++    for engine in live.iter().filter_map(std::sync::Weak::upgrade) {
++        // The guard is forgotten, so the writer stays locked until the process exits.
++        let locked = match engine.writer.try_lock() {
++            Ok(guard) => { std::mem::forget(guard); true }
++            Err(_) => false,
++        };
++        if locked {
++            engine.release_owner();
++            std::mem::forget(engine);
++        }
++    }
++}
++
+ #[derive(Clone)]
+ pub struct ExternalEngine(Arc<Inner>);
+ 
+@@ -217,6 +243,10 @@ impl ExternalEngine {
+         let this = Self(Arc::new(Inner {config, client, key: EncodingKey::from_secret(&secret),
+             session_hash: Sha256::digest(&session).into(), quarantine: AtomicBool::new(false),
+             next_id: AtomicU64::new(1), writer: Mutex::new(()), builds: Mutex::new(HashMap::new()), owner_path, observed_instance: Mutex::new(None)}));
++        if let Ok(mut engines) = LIVE_ENGINES.lock() {
++            engines.retain(|engine| engine.strong_count() > 0);
++            engines.push(Arc::downgrade(&this.0));
++        }
+         let _writer = this.0.writer.lock().await;
+         let chain = this.rpc(false, "eth_chainId", json!([])).await?;
+         ensure!(chain == json!(format!("0x{:x}", this.0.config.chain_id)), "unexpected execution chain");
+diff --git a/crates/common/validator/lean/src/service.rs b/crates/common/validator/lean/src/service.rs
+index ee8a455ea82913d8728ae058c78327cf3f3c09ce..18e64aeddbbfe4ca60cc08ea46acb6246266dcf8 100644
+--- a/crates/common/validator/lean/src/service.rs
++++ b/crates/common/validator/lean/src/service.rs
+@@ -214,17 +214,18 @@ async fn request_coordinated_duty<T: Send+'static>(
+     chain:&mpsc::UnboundedSender<LeanChainServiceMessage>,slot:u64,
+     make:impl Fn(oneshot::Sender<ServiceResponse<T>>)->LeanChainServiceMessage + Send + Sync,
+ ) -> anyhow::Result<ServiceResponse<T>> {
+-    for attempt in 0..3 {
++    const ATTEMPTS: u32 = 20; // N1 T6b (2026-11-02): was 3
++    for attempt in 0..ATTEMPTS {
+         let (tx,rx)=oneshot::channel();
+         chain.send(make(tx)).map_err(|_|anyhow!("chain service closed"))?;
+         let response=rx.await.map_err(|e|anyhow!("chain duty response closed: {e}"))?;
+         if matches!(&response,ServiceResponse::Err(e) if e.is::<PendingDutyRecomputation>())
+-            && attempt<2 && get_current_slot()==slot {
++            && attempt<ATTEMPTS-1 && get_current_slot()==slot {
+             info!(slot,attempt,"RETRY_PRE_SIGNING_DEFERRAL");
+             sleep(Duration::from_millis(100)).await;
+             continue;
+         }
+         return Ok(response);
+     }
+-    unreachable!("bounded loop always returns its third result")
++    unreachable!("bounded loop always returns its last result")
+ }
+diff --git a/crates/common/validator/lean/tests/duty_retry.rs b/crates/common/validator/lean/tests/duty_retry.rs
+index 470a1c3a713a3bf7953798d0d0f449a042478e7e..32c2613c006cdbc34e9167167b08b1efef7982f5 100644
+--- a/crates/common/validator/lean/tests/duty_retry.rs
++++ b/crates/common/validator/lean/tests/duty_retry.rs
+@@ -31,7 +31,7 @@ async fn refused_case(slot:u64,kind:u8)->usize {
+ async fn retry_only_typed_presigning_deferral_and_never_past_the_bound_or_slot() {
+  let now=SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+  let mut spec=LeanNetworkSpec::default();spec.genesis_time=now-600;spec.seconds_per_slot=60;spec.num_validators=1;set_lean_network_spec(Arc::new(spec));
+- assert_eq!(refused_case(10,0).await,3,"a persistent scheduling deferral has a finite request bound");
++ assert_eq!(refused_case(10,0).await,20,"the approved T6b scheduling deferral bound is exactly 20 attempts");
+  assert_eq!(refused_case(10,1).await,1,"uncertain Engine failures are not retried");
+  assert_eq!(refused_case(10,2).await,1,"a partly signed boundary cannot expose retryability");
+  assert_eq!(refused_case(9,0).await,1,"expired duties are not retried");

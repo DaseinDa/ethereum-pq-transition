@@ -1,0 +1,38 @@
+# Modified by the PQ-Migrate contributors; see MODIFICATIONS.md (2026-11-07 notice).
+# Copy of p3-batch-stark 0.9.0-rc.1 with the prover-side diagnostics of prover/pinned-deps/p3-batch-stark and the C3,
+# C3n and C3nP changes, packaged as its own crate for the final proof F. The dependency list and the lints are
+# upstream's; dev-dependencies and benches are dropped.
+[package]
+name = "p3-batch-stark-c3np"
+version = "0.9.0-rc.1"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+description = "Copy of p3-batch-stark 0.9.0-rc.1 with the C3, C3n and C3nP changes of the PQ-Migrate L5 records (research)"
+
+[lib]
+name = "p3_batch_stark_c3np"
+path = "src/lib.rs"
+
+[features]
+parallel = ["p3-maybe-rayon/parallel"]
+
+[dependencies]
+hashbrown = "0.17.1"
+p3-air = "0.9.0-rc.1"
+p3-challenger = "0.9.0-rc.1"
+p3-commit = "0.9.0-rc.1"
+p3-field = "0.9.0-rc.1"
+p3-lookup = "0.9.0-rc.1"
+p3-matrix = "0.9.0-rc.1"
+p3-maybe-rayon = "0.9.0-rc.1"
+p3-uni-stark = "0.9.0-rc.1"
+p3-util = "0.9.0-rc.1"
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+thiserror = { version = "2.0", default-features = false }
+tracing = { version = "0.1.44", default-features = false, features = ["attributes"] }
+
+[lints.rust]
+rust_2024_incompatible_pat = "warn"
+unused_must_use = "deny"
+rust_2018_idioms = { level = "deny", priority = -1 }

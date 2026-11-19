@@ -1,0 +1,22 @@
+{
+  "name": "gates-owner-0-expired-mode2",
+  "credential": {
+    "mnemonic": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+    "passphrase": "",
+    "public": true
+  },
+  "path": "m/44'/60'/0'/0/4",
+  "pq_key": {
+    "epoch": 0
+  },
+  "pi": {
+    "chain_id": 13378,
+    "migration_nonce": 0,
+    "alg_id": 1,
+    "verifier_version": "0x80000008",
+    "max_account_fee_wei": "0",
+    "fee_mode": 2,
+    "fee_sponsor": "0x0000000000000000000000000000000000000000",
+    "fee_auth_until": 0
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "companions": {
+    "docs/N1-CHECKPOINT.md": {
+      "bytes": 16039,
+      "sha256": "dbb1367b268caeba43adb2762ba9b564fc2d052f1ca4590337adc82d8a4def35"
+    },
+    "tools/n1_dependencies.py": {
+      "bytes": 8259,
+      "sha256": "a9493e3f7df048686222cd69b913689fa886d315b8e85843d0e6ef86e0e2a9b8"
+    }
+  },
+  "files": {
+    "DEPENDENCIES.json": {
+      "bytes": 85345,
+      "sha256": "07b315f4e45ccad34deecf03689008a884052ccdd4ece198a498e6dac22eda57"
+    },
+    "PORT-SOURCES.json": {
+      "bytes": 1925,
+      "sha256": "d515accbae40af1089f561d95d14fb702e2b074262f9c3133368316b34189368"
+    },
+    "build_registry.py": {
+      "bytes": 5919,
+      "sha256": "c07f049d3f5a5914776f960ca493607c6b1e17d4084f6ba320499c29d00e69b0"
+    },
+    "checkpoint.py": {
+      "bytes": 29335,
+      "sha256": "1535f5cfdd8d76411b28ae5687e6812d3c79e10d2c7a97b3c878ed0559e0c648"
+    },
+    "contracts/N1Registry.bin-runtime": {
+      "bytes": 1436,
+      "sha256": "2ad0f2c601c87b4c48fb464005dcac22e67733bdd1f0f983f7eb4dd7daf26ad8"
+    },
+    "contracts/N1Registry.sol": {
+      "bytes": 1119,
+      "sha256": "0d1c474d19fda8103b323939b57d9bb818f148111da404da22d2d2bc4c4a34c5"
+    },
+    "labnet.py": {
+      "bytes": 13153,
+      "sha256": "5b09dd3eed6acf95777fb0a1cbb4225c78412f4e7480b3fa37bfd7b9ad10f2e9"
+    },
+    "n1lib.py": {
+      "bytes": 10812,
+      "sha256": "e70217cbe1eb626d26a6941405857190743a9ddddf9bc87ff859c72b7ee8678f"
+    },
+    "proof_input.py": {
+      "bytes": 8145,
+      "sha256": "91711b072155c58c1c4693e8ace1ab112c8223b9cc34b5f270eace3e58aa8555"
+    },
+    "register.py": {
+      "bytes": 6643,
+      "sha256": "40fea0a3c5517451591e999e4e53e1fd19cf6e272091338d9a276a9fc0597584"
+    },
+    "requirements.txt": {
+      "bytes": 317,
+      "sha256": "8249b39e8688dd1ecdc6a2f4a4f8dde131ef6e18807982b8cab9cb25f2ef3053"
+    },
+    "rules.py": {
+      "bytes": 3387,
+      "sha256": "850ccee7f11323dd9ef73034ad0b0169ed79f89cc42b140946d047d50ec67205"
+    },
+    "scenario.py": {
+      "bytes": 9812,
+      "sha256": "629a26d5c452af3dd2ea16e2320e0cab8ef8ff4ec519712b1000688237327ce3"
+    },
+    "switch.py": {
+      "bytes": 78031,
+      "sha256": "fe3561af6b7c9834c6e74747047f5e252ef85fc351ae140d44d6df2d6fe9f956"
+    },
+    "tests/test_checkpoint.py": {
+      "bytes": 14071,
+      "sha256": "69199f9b23f244e2634f0eb9da05a0fb01991e08202e4640f787d55cffb298c1"
+    },
+    "tests/test_dependencies.py": {
+      "bytes": 3555,
+      "sha256": "fb781c457e00161f25b56416cd9e5b1416cc691b161a4b0ad01ccdc7a2caf835"
+    },
+    "tests/test_proof_input.py": {
+      "bytes": 7633,
+      "sha256": "62fb2c73025e5ebf325542c96ba22ebdf713b3a0676699891ab9e5fc0748a782"
+    },
+    "tests/test_rules.py": {
+      "bytes": 5045,
+      "sha256": "6990fe3e031e7afe485ed37fff5f93c6f9baad915d255d895402689fc7f95606"
+    },
+    "tests/test_switch.py": {
+      "bytes": 7060,
+      "sha256": "441a39a9d425811e13f584ce6828925e854a2d521c10a88f829589bce42f1119"
+    }
+  },
+  "format": 1,
+  "note": "Paths in files are relative to demo/n1 (installed tools/n1); companion paths are relative to source repository. Not a substitute for the externally trusted release manifest."
+}

@@ -1,0 +1,110 @@
+{
+  "status": "PASS",
+  "review": "loop-internal self-review; not independently reviewed",
+  "task": "Author assignment 1: portable F gas calibration",
+  "evidence": "real-backend in-process geth; component state transitions, not network throughput",
+  "pricing": {
+    "review": "loop-internal self-review; not independently reviewed",
+    "status": "measured",
+    "timingsNs": {
+      "F": {
+        "n": 10,
+        "mean": 39680159.617,
+        "sd": 736682.8245677128,
+        "min": 38699673.940000005,
+        "max": 40675332.79,
+        "median": 39666479.230000004
+      },
+      "ecrecover": {
+        "n": 10,
+        "mean": 29131.264,
+        "sd": 1625.4833742148471,
+        "min": 27742.54,
+        "max": 33523.799999999996,
+        "median": 28769.009999999995
+      },
+      "BN254-pairing": {
+        "n": 10,
+        "mean": 434270.405,
+        "sd": 7917.079778560667,
+        "min": 424080.88,
+        "max": 450863.27,
+        "median": 433556.24000000005
+      },
+      "BLS12-381-pairing": {
+        "n": 10,
+        "mean": 724925.614,
+        "sd": 19859.640151106123,
+        "min": 700178.17,
+        "max": 766242.85,
+        "median": 720425.59
+      }
+    },
+    "coldKeyNs": {
+      "n": 10,
+      "mean": 45199287.4,
+      "sd": 1625349.0788099235,
+      "min": 43618631,
+      "max": 48460068,
+      "median": 44559530.0
+    },
+    "anchorGasPerNs": {
+      "ecrecover": 0.10427887508120719,
+      "BN254-pairing": 0.26063516004290466,
+      "BLS12-381-pairing": 0.14283223892699315
+    },
+    "medianGasPerNs": 0.14283223892699315,
+    "FVerifyGas": 5666000,
+    "rounding": "ceil to 1000 gas",
+    "calibrationBinarySHA256": "e0cf9d9786088abc0100fdd3c9872779f269388c62024de5748b9e8d76126d42",
+    "samples": 10
+  },
+  "recovery": {
+    "gas": {
+      "n": 10,
+      "mean": 8738836.8,
+      "sd": 18209.647630979696,
+      "min": 8717476,
+      "max": 8770396,
+      "median": 8730600.0
+    },
+    "bytes": {
+      "n": 10,
+      "mean": 188840,
+      "sd": 1153.899668274692,
+      "min": 187512,
+      "max": 190872,
+      "median": 188312.0
+    },
+    "executionNs": {
+      "n": 10,
+      "mean": 38832426.6,
+      "sd": 963589.9880157881,
+      "min": 37931363,
+      "max": 40900723,
+      "median": 38552998.0
+    }
+  },
+  "regression": {
+    "status": "PASS",
+    "testCasesIncludingSubtests": {
+      "pass": 43,
+      "fail": 0,
+      "skip": 17
+    },
+    "gethSHA256": "266b71d0027dc5da4569cc2a93de2dcf6c0748fa24a34588ea8ce64f2fdd6c49"
+  },
+  "binariesSHA256": {
+    "calibration.test": "e0cf9d9786088abc0100fdd3c9872779f269388c62024de5748b9e8d76126d42",
+    "recovery.test": "ed20c2c330cc4d4841ae271ba90e55da062e42cf954607c538a644087dc35a6e",
+    "geth-calibrated": "266b71d0027dc5da4569cc2a93de2dcf6c0748fa24a34588ea8ce64f2fdd6c49"
+  },
+  "configSHA256": "20c5e77899d894d5644ed5877fb499b503e291321daf1db241239ddd345cf848",
+  "clientSourceManifestSHA256": "d420682cd6f8ae34c9fdf84deafaa1260b4e4bcd6dc0b1f758bb8aae7cf20672",
+  "nativeLibrarySHA256": "3b073c6dcde075e1cfdcb5072774a42ad4fb58a67795b68f9b251515f63d2633",
+  "security": "F keys, relation, PI198, proof parameters and acceptance gates unchanged; calibrated gas is not a security proof",
+  "scope": "Price changed only for F research profile; legacy Succinct charge preserved",
+  "openProductionRequirements": [
+    "Host coverage and adversarial cost bounds remain required if used for production; this measurement does not waive them."
+  ]
+}

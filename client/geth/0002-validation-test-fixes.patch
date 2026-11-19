@@ -1,0 +1,54 @@
+diff --git a/core/pq_batch_component_test.go b/core/pq_batch_component_test.go
+index 2ffd150d53da4725eaee061f9934844d7d116c89..ff6569adda4bacb3095e5b4192f8f0119c13fce9 100644
+--- a/core/pq_batch_component_test.go
++++ b/core/pq_batch_component_test.go
+@@ -358,13 +358,13 @@ func TestPQBatchReimbursementBalanceDeadlineAndRecipient(t *testing.T) {
+ 			for i, entry := range b.Entries {
+ 				assertBatchLog(t, logs[i], cfg.PQMigrate.Registry, entry, i, 0, 1, false, false)
+ 			}
+-			s.Finalise(true)
++			s.Finalise(params.Rules{IsEIP158: true})
+ 			if tc.absent {
+-				legacyZeroTransfer.Finalise(true)
++				legacyZeroTransfer.Finalise(params.Rules{IsEIP158: true})
+ 				if s.Exist(e.LegacyAddress) || legacyZeroTransfer.Exist(e.LegacyAddress) {
+ 					t.Fatal("absent owner survived empty-account finalization")
+ 				}
+-				if current, legacy := s.IntermediateRoot(true), legacyZeroTransfer.IntermediateRoot(true); current != legacy {
++				if current, legacy := s.IntermediateRoot(params.Rules{IsEIP158: true}), legacyZeroTransfer.IntermediateRoot(params.Rules{IsEIP158: true}); current != legacy {
+ 					t.Fatal("omitting zero reimbursement changed final state root", current, legacy)
+ 				}
+ 			}
+diff --git a/core/pq_final_state_test.go b/core/pq_final_state_test.go
+index 1cc75ab1ce28085e9a79c0463637ade93fac0131..6f06556229b731bc8566dcba985f69d255374a24 100644
+--- a/core/pq_final_state_test.go
++++ b/core/pq_final_state_test.go
+@@ -42,6 +42,11 @@ func finalStateEnv(t *testing.T, coinbase common.Address) (*state.StateDB, *vm.E
+ 	if err != nil {
+ 		t.Fatal(err)
+ 	}
++	// From T0 on the Registry holds code 0x00 and nonce 1 (section 24.6 rules 2-3,
++	// InstallPQSystemImages). This fixture starts after T0 without that transition block,
++	// so it sets them; otherwise EIP-158 finalization in IntermediateRoot deletes the records.
++	s.SetCode(cfg.PQMigrate.Registry, []byte{0}, tracing.CodeChangeUnspecified)
++	s.SetNonce(cfg.PQMigrate.Registry, 1, tracing.NonceChangeUnspecified)
+ 	s.SetBalance(finalStateLegacy, uint256.NewInt(2000000000000000000), tracing.BalanceChangeUnspecified)
+ 	for i, a := range []common.Address{finalStateSponsor, finalStateOther} {
+ 		pk, _ := pqSeedKey(byte(0x22 + i*0x11))
+diff --git a/core/txpool/pqpool/pq_pret_test.go b/core/txpool/pqpool/pq_pret_test.go
+index 7c9e2b5c3f93303fc05cf6a32271fd2866b03719..53c8f0781fc5de22e3d9ba66b0f5890744215f71 100644
+--- a/core/txpool/pqpool/pq_pret_test.go
++++ b/core/txpool/pqpool/pq_pret_test.go
+@@ -91,6 +91,12 @@ func TestPQPoolPreTEnrollmentPrunesPendingProof(t *testing.T) {
+ 			random := common.Hash{}
+ 			evm := vm.NewEVM(vm.BlockContext{CanTransfer: core.CanTransfer, Transfer: core.Transfer, GetHash: func(uint64) common.Hash { return common.Hash{} }, BlockNumber: head.Number, Time: head.Time, BaseFee: head.BaseFee, GasLimit: head.GasLimit, Difficulty: head.Difficulty, Random: &random}, chain.s, cfg, vm.Config{})
+ 			defer evm.Release()
++			// From T0 on the Registry holds code 0x00 and nonce 1: the genesis allocation holds them
++			// when T0 <= genesis time, otherwise the T0 transition block installs them (section 24.6
++			// rules 2-3). This fixture processes no block, so it sets them; otherwise EIP-158
++			// finalization of the enrollment deletes the Registry together with the record.
++			chain.s.SetCode(cfg.PQMigrate.Registry, []byte{0}, tracing.CodeChangeUnspecified)
++			chain.s.SetNonce(cfg.PQMigrate.Registry, 1, tracing.NonceChangeUnspecified)
+ 			chain.s.SetTxContext(enroll.Hash(), 0, 0)
+ 			receipt, _, err := core.ApplyTransaction(context.Background(), evm, core.NewGasPool(head.GasLimit), chain.s, head, enroll)
+ 			if err != nil || receipt.Status != types.ReceiptStatusSuccessful {

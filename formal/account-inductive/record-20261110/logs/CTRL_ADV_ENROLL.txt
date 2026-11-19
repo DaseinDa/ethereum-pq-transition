@@ -1,0 +1,72 @@
+# Usage statistics is OFF. We care about your privacy.
+# If you want to help our project, consider enabling statistics with config --enable-stats=true.
+
+Output directory: /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ENROLL/AccountInductive.tla/2026-11-11T00-21-20_15339087028716165086
+# APALACHE version: 0.62.4 | build: 7954daf                       I@00:21:20.578
+Tuning:                                                           I@00:21:20.585
+PASS #0: SanyParser                                               I@00:21:20.808
+PASS #1: TypeCheckerSnowcat                                       I@00:21:21.142
+ > Running Snowcat .::.                                           I@00:21:21.143
+ > Your types are purrfect!                                       I@00:21:21.589
+ > All expressions are typed                                      I@00:21:21.591
+PASS #2: ConfigurationPass                                        I@00:21:21.592
+  > Set the initialization predicate to IndInit                   I@00:21:21.597
+  > Set the transition predicate to Next                          I@00:21:21.598
+  > Set an invariant to NoAdvEnroll                               I@00:21:21.599
+PASS #3: DesugarerPass                                            I@00:21:21.606
+  > Desugaring...                                                 I@00:21:21.606
+PASS #4: InlinePass                                               I@00:21:21.621
+Leaving only relevant operators: CInitPrimed, IndInit, IndInitPrimed, Next, NoAdvEnroll I@00:21:21.622
+PASS #5: TemporalPass                                             I@00:21:21.706
+  > Rewriting temporal operators...                               I@00:21:21.707
+  > No temporal property specified, nothing to encode             I@00:21:21.707
+PASS #6: InlinePass                                               I@00:21:21.708
+Leaving only relevant operators: CInitPrimed, IndInit, IndInitPrimed, Next, NoAdvEnroll I@00:21:21.709
+PASS #7: PrimingPass                                              I@00:21:21.717
+  > Introducing IndInitPrimed for IndInit'                        I@00:21:21.720
+PASS #8: VCGen                                                    I@00:21:21.886
+  > Producing verification conditions from the invariant NoAdvEnroll I@00:21:21.888
+  > VCGen produced 1 verification condition(s)                    I@00:21:21.893
+PASS #9: PreprocessingPass                                        I@00:21:21.900
+  > Before preprocessing: unique renaming                         I@00:21:21.901
+ > Applying standard transformations:                             I@00:21:21.907
+  > PrimePropagation                                              I@00:21:21.909
+  > Desugarer                                                     I@00:21:21.912
+  > UniqueRenamer                                                 I@00:21:21.915
+  > Normalizer                                                    I@00:21:21.921
+  > SetMembershipSimplifier                                       I@00:21:21.927
+  > Keramelizer                                                   I@00:21:21.933
+  > After preprocessing: UniqueRenamer                            I@00:21:21.943
+PASS #10: TransitionFinderPass                                    I@00:21:21.953
+  > Found 1 initializing transitions                              I@00:21:21.988
+  > Found 7 transitions                                           I@00:21:22.011
+  > No constant initializer                                       I@00:21:22.013
+  > Applying unique renaming                                      I@00:21:22.015
+PASS #11: OptimizationPass                                        I@00:21:22.022
+ > Applying optimizations:                                        I@00:21:22.027
+  > ConstSimplifier                                               I@00:21:22.029
+  > ExprOptimizer                                                 I@00:21:22.039
+  > SetMembershipSimplifier                                       I@00:21:22.046
+  > ConstSimplifier                                               I@00:21:22.049
+PASS #12: AnalysisPass                                            I@00:21:22.059
+ > Marking skolemizable existentials and sets to be expanded...   I@00:21:22.062
+  > Skolemization                                                 I@00:21:22.063
+  > Expansion                                                     I@00:21:22.066
+  > Remove unused let-in defs                                     I@00:21:22.069
+ > Running analyzers...                                           I@00:21:22.076
+  > Introduced expression grades                                  I@00:21:22.084
+PASS #13: BoundedChecker                                          I@00:21:22.085
+State 0: Checking 1 state invariants                              I@00:21:22.458
+State 0: state invariant 0 holds.                                 I@00:21:22.467
+Step 0: picking a transition out of 1 transition(s)               I@00:21:22.470
+State 1: Checking 1 state invariants                              I@00:21:22.484
+State 1: state invariant 0 holds.                                 I@00:21:22.486
+State 1: Checking 1 state invariants                              I@00:21:22.503
+Check the trace in: /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ENROLL/AccountInductive.tla/2026-11-11T00-21-20_15339087028716165086/violation1.tla, /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ENROLL/AccountInductive.tla/2026-11-11T00-21-20_15339087028716165086/MCviolation1.out, /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ENROLL/AccountInductive.tla/2026-11-11T00-21-20_15339087028716165086/violation1.json, /tmp/tmp.Yq5VlEkP6R/out-CTRL_ADV_ENROLL/AccountInductive.tla/2026-11-11T00-21-20_15339087028716165086/violation1.itf.json I@00:21:22.659
+State 1: state invariant 0 violated.                              I@00:21:22.660
+Found 1 error(s)                                                  I@00:21:22.661
+The outcome is: Error                                             I@00:21:22.664
+Checker has found an error                                        I@00:21:22.686
+It took me 0 days  0 hours  0 min  2 sec                          I@00:21:22.687
+Total time: 2.106 sec                                             I@00:21:22.687
+EXITCODE: ERROR (12)

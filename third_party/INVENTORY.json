@@ -1,0 +1,9 @@
+{
+  "rustPackages": 1249,
+  "goModules": 130,
+  "rustWithoutBundledNotice": 194,
+  "rustWithoutSPDX": 47,
+  "goWithoutBundledNotice": 0,
+  "noticeFiles": 615,
+  "scope": "Dependency metadata and verbatim notices; not a legal compatibility opinion."
+}

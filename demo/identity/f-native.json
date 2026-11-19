@@ -1,0 +1,15 @@
+{
+  "abi": 1,
+  "algorithm_digest": "0xead4fbe86b8ecd319816fc7999e0b3d44b8a7756d38744459fd3ab4c277f5afd",
+  "algorithm_digest_hash": "keccak256",
+  "b_vk_digest": "0x415bf19b5b55f7acd0b793c2ea45aef7923e3e640fdce2e81fc9fb350fdcf490",
+  "backend": "l5-f-native-v1",
+  "chain_id": 13378,
+  "dev_mode": false,
+  "f_vk_digest": "0xed2fcf813b942404729da7827c4743020dae8d89ebbc206e5bee7718503df3f2",
+  "groth16": false,
+  "l0p2_vk_digest": "0x6537a5af9b10f1599a151c024c549cad3740b95f9bc026b658b927a81ca20372",
+  "max_proof_bytes": 196608,
+  "pi_bytes": 198,
+  "verifier_version": 2147483656
+}

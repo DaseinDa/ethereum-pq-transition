@@ -1,0 +1,39 @@
+# Modified by the PQ-Migrate contributors; see MODIFICATIONS.md (2026-11-07 notice).
+# Copy of p3-merkle-tree 0.9.0-rc.1 with the prover-side node cache and diagnostics of prover/pinned-deps/p3-merkle-tree
+# and salts drawn from a per-matrix ChaCha20 seed (the verifier path is unchanged), packaged as its own crate for the
+# final proof F. The dependency list and the lints are upstream's, plus chacha20 0.10.2; dev-dependencies and benches
+# are dropped.
+[package]
+name = "p3-merkle-tree-ps"
+version = "0.9.0-rc.1"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+description = "Copy of p3-merkle-tree 0.9.0-rc.1 with PRG salts, from the PQ-Migrate L5 record F2 (research)"
+
+[lib]
+name = "p3_merkle_tree_ps"
+path = "src/lib.rs"
+
+[features]
+parallel = ["p3-maybe-rayon/parallel"]
+
+[dependencies]
+chacha20 = { version = "0.10.2", default-features = false, features = ["rng"] }
+itertools = { version = "0.15.0", default-features = false, features = ["use_alloc"] }
+p3-commit = "0.9.0-rc.1"
+p3-field = "0.9.0-rc.1"
+p3-matrix = "0.9.0-rc.1"
+p3-maybe-rayon = "0.9.0-rc.1"
+p3-symmetric = "0.9.0-rc.1"
+p3-util = "0.9.0-rc.1"
+rand = { version = "0.10.1", default-features = false, features = ["std_rng"] }
+serde = { version = "1.0", default-features = false, features = ["alloc"] }
+spin = "0.12.0"
+thiserror = { version = "2.0", default-features = false }
+tracing = { version = "0.1.44", default-features = false, features = ["attributes"] }
+
+[lints.rust]
+rust_2024_incompatible_pat = "warn"
+unused_must_use = "deny"
+rust_2018_idioms = { level = "deny", priority = -1 }

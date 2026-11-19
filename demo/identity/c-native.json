@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "backend": "c-native-v1",
+  "version": 2147483656,
+  "key": "0x3f84335f8b7301181f37e3080cb81fc5d8444952574e0e90cd2a277d12bd2825",
+  "owners": 4,
+  "statementBytes": 798,
+  "maxProofBytes": 196608,
+  "verifyGas": 11771000,
+  "maxTxBytes": 200512
+}

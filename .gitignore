@@ -1,0 +1,25 @@
+# build outputs
+/build/
+target/
+*.o
+*.a
+*.so
+__pycache__/
+*.pyc
+
+# local runs and data
+/runs/
+/data/
+*.log
+/formal/*/apalache-out/
+
+# secrets never belong here; every key in this repository is a public test key
+*.key
+*.pem
+.env
+/.build/
+/.cache/
+/dist/
+/prepared/
+/dependencies/
+/cache/
