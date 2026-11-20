@@ -1,4 +1,4 @@
-# Correctable Enrollment and One-Transaction Seed Proofs for Ethereum's Post-Quantum Transition
+# Correctable Enrollment and One-Transaction Seed Proofs for Ethereum's Post-Quantum Migration
 
 Code for the paper of the same title, [arXiv:2611.25663](https://arxiv.org/abs/2611.25663).
 
