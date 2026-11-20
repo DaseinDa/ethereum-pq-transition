@@ -1,6 +1,6 @@
 # Correctable Enrollment and One-Transaction Seed Proofs for Ethereum's Post-Quantum Transition
 
-Code for the paper of the same title (the arXiv link will be added here).
+Code for the paper of the same title, [arXiv:2611.25663](https://arxiv.org/abs/2611.25663).
 
 A research prototype of a post-quantum migration path for Ethereum accounts and validators.
 
