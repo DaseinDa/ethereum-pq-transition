@@ -1,0 +1,2497 @@
+{
+  "mainnet_limits": {
+    "read_at_unix": 1795719217,
+    "rpc": "https://api.mainnet-beta.solana.com",
+    "genesis_hash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+    "rpc_node_version": {
+      "feature-set": 2681577653,
+      "solana-core": "4.4.0"
+    },
+    "finalized_slot": 474255589,
+    "epoch": 1097,
+    "source": {
+      "repository": "https://github.com/anza-xyz/agave",
+      "tag": "v4.4.1",
+      "commit": "5bb304027fe1a166b02cb26dc8c161593f416fca",
+      "files": [
+        "runtime/src/slot_params.rs",
+        "cost-model/src/block_cost_limits.rs",
+        "core/src/banking_stage/consumer.rs",
+        "runtime/src/bank/entry_bytes_budget.rs"
+      ]
+    },
+    "features": {
+      "reduce_slot_time_to_350ms": {
+        "id": "iBRL5RuWhw4yqaAZu96RUULHckHTZAoe2b77qaV38JZ",
+        "activated_at_slot": 440208000
+      },
+      "reduce_slot_time_to_300ms": {
+        "id": "iBRLL3k18HST852F1Mf3Lv83waTNQmmqvKDxvYGwQFL",
+        "activated_at_slot": 441936000
+      },
+      "reduce_slot_time_to_250ms": {
+        "id": "iBRLMc81UjRa8fn8A6eE8bJTnRbgQoPTynM51akENCV",
+        "activated_at_slot": 447552000
+      },
+      "reduce_slot_time_to_200ms": {
+        "id": "iBRLjhJnkmDZgNoZRDMW11d8ZV7HvsL3vAyRjZB5npW",
+        "activated_at_slot": 454464000
+      },
+      "raise_block_limits_to_100m": {
+        "id": "P1BCUMpAC7V2GRBRiJCNUgpMyWZhoqt3LKo712ePqsz",
+        "activated_at_slot": 435888000
+      },
+      "alpenglow": {
+        "id": "A1pengvuM6JEcyNuTnMqepBKhwHE3N6PmUrdATGawhJS",
+        "activated_at_slot": 459648000
+      },
+      "enable_tx_v1": {
+        "id": "txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL",
+        "activated_at_slot": 447120000
+      }
+    },
+    "slot_regime": {
+      "ns_per_slot": 200000000,
+      "cost_tracker_limits": [
+        12000000,
+        30000000,
+        50000000
+      ],
+      "max_entry_bytes_per_slot": 10485760,
+      "selected_by": "reduce_slot_time_to_200ms"
+    },
+    "max_entry_bytes_per_slot": 10485760,
+    "block_cost_limit": 50000000,
+    "writable_account_cost_limit": 20000000,
+    "allocated_account_data_bytes_per_block": 50000000,
+    "entry_overhead_bytes": 56,
+    "cost_units_per_microsecond": 30,
+    "signature_cost_units": 720,
+    "ed25519_precompile_signature_cost_units": 2400,
+    "write_lock_cost_units": 300,
+    "instruction_data_bytes_per_cost_unit": 4,
+    "max_v1_transaction_bytes": 4096,
+    "record_bytes_enrolled": 42,
+    "record_bytes_activated": 1354,
+    "rent_exempt_lamports_enrolled_record": 863600,
+    "rent_exempt_lamports_activated_record": 7528560,
+    "recent_performance_samples": [
+      {
+        "slot": 474255581,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 131925
+      },
+      {
+        "slot": 474255304,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 127542
+      },
+      {
+        "slot": 474255023,
+        "slots": 270,
+        "seconds": 60,
+        "transactions": 94191
+      },
+      {
+        "slot": 474254753,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 100244
+      },
+      {
+        "slot": 474254469,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 90960
+      },
+      {
+        "slot": 474254195,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 83186
+      },
+      {
+        "slot": 474253915,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 103000
+      },
+      {
+        "slot": 474253637,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 117269
+      },
+      {
+        "slot": 474253359,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 101707
+      },
+      {
+        "slot": 474253081,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 105276
+      },
+      {
+        "slot": 474252803,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 120341
+      },
+      {
+        "slot": 474252524,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 119030
+      },
+      {
+        "slot": 474252243,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 105225
+      },
+      {
+        "slot": 474251962,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 104565
+      },
+      {
+        "slot": 474251685,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 92919
+      },
+      {
+        "slot": 474251409,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 107552
+      },
+      {
+        "slot": 474251128,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 139953
+      },
+      {
+        "slot": 474250845,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 131600
+      },
+      {
+        "slot": 474250561,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 101194
+      },
+      {
+        "slot": 474250278,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 81162
+      },
+      {
+        "slot": 474250003,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 88815
+      },
+      {
+        "slot": 474249726,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 95041
+      },
+      {
+        "slot": 474249448,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 121369
+      },
+      {
+        "slot": 474249171,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 117581
+      },
+      {
+        "slot": 474248891,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 121646
+      },
+      {
+        "slot": 474248612,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 123722
+      },
+      {
+        "slot": 474248331,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 111479
+      },
+      {
+        "slot": 474248051,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 126088
+      },
+      {
+        "slot": 474247775,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 154706
+      },
+      {
+        "slot": 474247500,
+        "slots": 285,
+        "seconds": 60,
+        "transactions": 149875
+      },
+      {
+        "slot": 474247215,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 132963
+      },
+      {
+        "slot": 474246943,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 125339
+      },
+      {
+        "slot": 474246662,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 133776
+      },
+      {
+        "slot": 474246390,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 133590
+      },
+      {
+        "slot": 474246112,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 112628
+      },
+      {
+        "slot": 474245833,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 123348
+      },
+      {
+        "slot": 474245554,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 84378
+      },
+      {
+        "slot": 474245272,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 109929
+      },
+      {
+        "slot": 474244993,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 117547
+      },
+      {
+        "slot": 474244715,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 111701
+      },
+      {
+        "slot": 474244439,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 102880
+      },
+      {
+        "slot": 474244163,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 101440
+      },
+      {
+        "slot": 474243882,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 104135
+      },
+      {
+        "slot": 474243606,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 108179
+      },
+      {
+        "slot": 474243324,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 85784
+      },
+      {
+        "slot": 474243041,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 121558
+      },
+      {
+        "slot": 474242768,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 143478
+      },
+      {
+        "slot": 474242489,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 126171
+      },
+      {
+        "slot": 474242216,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 114386
+      },
+      {
+        "slot": 474241935,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 117681
+      },
+      {
+        "slot": 474241654,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 109569
+      },
+      {
+        "slot": 474241374,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 113156
+      },
+      {
+        "slot": 474241090,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 125772
+      },
+      {
+        "slot": 474240812,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 126116
+      },
+      {
+        "slot": 474240535,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 110167
+      },
+      {
+        "slot": 474240257,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 107487
+      },
+      {
+        "slot": 474239984,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 98449
+      },
+      {
+        "slot": 474239704,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 113248
+      },
+      {
+        "slot": 474239423,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 124247
+      },
+      {
+        "slot": 474239142,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 108484
+      },
+      {
+        "slot": 474238861,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 117143
+      },
+      {
+        "slot": 474238585,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 112994
+      },
+      {
+        "slot": 474238303,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 110699
+      },
+      {
+        "slot": 474238027,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 132297
+      },
+      {
+        "slot": 474237750,
+        "slots": 287,
+        "seconds": 60,
+        "transactions": 134271
+      },
+      {
+        "slot": 474237463,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 143658
+      },
+      {
+        "slot": 474237184,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 122197
+      },
+      {
+        "slot": 474236907,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 129382
+      },
+      {
+        "slot": 474236624,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 138318
+      },
+      {
+        "slot": 474236341,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 141524
+      },
+      {
+        "slot": 474236066,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 153772
+      },
+      {
+        "slot": 474235790,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 164283
+      },
+      {
+        "slot": 474235515,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 124301
+      },
+      {
+        "slot": 474235235,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 112426
+      },
+      {
+        "slot": 474234953,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 105494
+      },
+      {
+        "slot": 474234676,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 114210
+      },
+      {
+        "slot": 474234400,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 94502
+      },
+      {
+        "slot": 474234121,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 128063
+      },
+      {
+        "slot": 474233845,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 128040
+      },
+      {
+        "slot": 474233571,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 94846
+      },
+      {
+        "slot": 474233297,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 105225
+      },
+      {
+        "slot": 474233019,
+        "slots": 286,
+        "seconds": 60,
+        "transactions": 112641
+      },
+      {
+        "slot": 474232733,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 110204
+      },
+      {
+        "slot": 474232453,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 104395
+      },
+      {
+        "slot": 474232170,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 106429
+      },
+      {
+        "slot": 474231891,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 131656
+      },
+      {
+        "slot": 474231608,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 109323
+      },
+      {
+        "slot": 474231325,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 110922
+      },
+      {
+        "slot": 474231043,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 116474
+      },
+      {
+        "slot": 474230770,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 102965
+      },
+      {
+        "slot": 474230496,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 91286
+      },
+      {
+        "slot": 474230214,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 91598
+      },
+      {
+        "slot": 474229941,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 110787
+      },
+      {
+        "slot": 474229666,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 122578
+      },
+      {
+        "slot": 474229389,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 119146
+      },
+      {
+        "slot": 474229109,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 116779
+      },
+      {
+        "slot": 474228827,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 122071
+      },
+      {
+        "slot": 474228548,
+        "slots": 285,
+        "seconds": 60,
+        "transactions": 116044
+      },
+      {
+        "slot": 474228263,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 123230
+      },
+      {
+        "slot": 474227981,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 132253
+      },
+      {
+        "slot": 474227703,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 150929
+      },
+      {
+        "slot": 474227422,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 132873
+      },
+      {
+        "slot": 474227142,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 107615
+      },
+      {
+        "slot": 474226861,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 101454
+      },
+      {
+        "slot": 474226580,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 117580
+      },
+      {
+        "slot": 474226306,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 116198
+      },
+      {
+        "slot": 474226030,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 119107
+      },
+      {
+        "slot": 474225751,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 140978
+      },
+      {
+        "slot": 474225473,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 105281
+      },
+      {
+        "slot": 474225196,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 97092
+      },
+      {
+        "slot": 474224917,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 112681
+      },
+      {
+        "slot": 474224633,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 116155
+      },
+      {
+        "slot": 474224352,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 131623
+      },
+      {
+        "slot": 474224071,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 123582
+      },
+      {
+        "slot": 474223790,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 114045
+      },
+      {
+        "slot": 474223510,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 117571
+      },
+      {
+        "slot": 474223230,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 122426
+      },
+      {
+        "slot": 474222952,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 117325
+      },
+      {
+        "slot": 474222673,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 112419
+      },
+      {
+        "slot": 474222394,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 91370
+      },
+      {
+        "slot": 474222117,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 117547
+      },
+      {
+        "slot": 474221837,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 124361
+      },
+      {
+        "slot": 474221565,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 125943
+      },
+      {
+        "slot": 474221289,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 124714
+      },
+      {
+        "slot": 474221011,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 129904
+      },
+      {
+        "slot": 474220731,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 104787
+      },
+      {
+        "slot": 474220451,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 119902
+      },
+      {
+        "slot": 474220170,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 135246
+      },
+      {
+        "slot": 474219887,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 107842
+      },
+      {
+        "slot": 474219607,
+        "slots": 288,
+        "seconds": 60,
+        "transactions": 130055
+      },
+      {
+        "slot": 474219319,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 124326
+      },
+      {
+        "slot": 474219047,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 119474
+      },
+      {
+        "slot": 474218765,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 115045
+      },
+      {
+        "slot": 474218489,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 130275
+      },
+      {
+        "slot": 474218212,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 120575
+      },
+      {
+        "slot": 474217934,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 118527
+      },
+      {
+        "slot": 474217651,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 147479
+      },
+      {
+        "slot": 474217373,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 128543
+      },
+      {
+        "slot": 474217100,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 149829
+      },
+      {
+        "slot": 474216822,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 159464
+      },
+      {
+        "slot": 474216543,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 130921
+      },
+      {
+        "slot": 474216266,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 158556
+      },
+      {
+        "slot": 474215987,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 139158
+      },
+      {
+        "slot": 474215714,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 122287
+      },
+      {
+        "slot": 474215442,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 130450
+      },
+      {
+        "slot": 474215162,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 128696
+      },
+      {
+        "slot": 474214885,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 107561
+      },
+      {
+        "slot": 474214605,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 118880
+      },
+      {
+        "slot": 474214323,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 139750
+      },
+      {
+        "slot": 474214043,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 141728
+      },
+      {
+        "slot": 474213762,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 124452
+      },
+      {
+        "slot": 474213480,
+        "slots": 286,
+        "seconds": 60,
+        "transactions": 128456
+      },
+      {
+        "slot": 474213194,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 116727
+      },
+      {
+        "slot": 474212915,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 131602
+      },
+      {
+        "slot": 474212634,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 144693
+      },
+      {
+        "slot": 474212354,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 113117
+      },
+      {
+        "slot": 474212074,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 112475
+      },
+      {
+        "slot": 474211795,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 108820
+      },
+      {
+        "slot": 474211521,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 119945
+      },
+      {
+        "slot": 474211247,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 129687
+      },
+      {
+        "slot": 474210965,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 119972
+      },
+      {
+        "slot": 474210690,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 123162
+      },
+      {
+        "slot": 474210408,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 118139
+      },
+      {
+        "slot": 474210129,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 126273
+      },
+      {
+        "slot": 474209852,
+        "slots": 286,
+        "seconds": 60,
+        "transactions": 127348
+      },
+      {
+        "slot": 474209566,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 127295
+      },
+      {
+        "slot": 474209286,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 114663
+      },
+      {
+        "slot": 474209009,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 137641
+      },
+      {
+        "slot": 474208733,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 134227
+      },
+      {
+        "slot": 474208451,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 132950
+      },
+      {
+        "slot": 474208174,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 140092
+      },
+      {
+        "slot": 474207900,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 145825
+      },
+      {
+        "slot": 474207622,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 146322
+      },
+      {
+        "slot": 474207345,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 113498
+      },
+      {
+        "slot": 474207065,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 101291
+      },
+      {
+        "slot": 474206785,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 115369
+      },
+      {
+        "slot": 474206509,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 98078
+      },
+      {
+        "slot": 474206229,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 111633
+      },
+      {
+        "slot": 474205945,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 117969
+      },
+      {
+        "slot": 474205670,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 127274
+      },
+      {
+        "slot": 474205391,
+        "slots": 270,
+        "seconds": 60,
+        "transactions": 106411
+      },
+      {
+        "slot": 474205121,
+        "slots": 267,
+        "seconds": 60,
+        "transactions": 105073
+      },
+      {
+        "slot": 474204854,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 98552
+      },
+      {
+        "slot": 474204572,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 83861
+      },
+      {
+        "slot": 474204296,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 94559
+      },
+      {
+        "slot": 474204017,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 104556
+      },
+      {
+        "slot": 474203741,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 129251
+      },
+      {
+        "slot": 474203464,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 125182
+      },
+      {
+        "slot": 474203185,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 134190
+      },
+      {
+        "slot": 474202906,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 99096
+      },
+      {
+        "slot": 474202631,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 101700
+      },
+      {
+        "slot": 474202352,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 100138
+      },
+      {
+        "slot": 474202070,
+        "slots": 271,
+        "seconds": 60,
+        "transactions": 104791
+      },
+      {
+        "slot": 474201799,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 95163
+      },
+      {
+        "slot": 474201515,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 87165
+      },
+      {
+        "slot": 474201237,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 96118
+      },
+      {
+        "slot": 474200955,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 107262
+      },
+      {
+        "slot": 474200674,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 106960
+      },
+      {
+        "slot": 474200398,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 131382
+      },
+      {
+        "slot": 474200119,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 99431
+      },
+      {
+        "slot": 474199839,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 117280
+      },
+      {
+        "slot": 474199558,
+        "slots": 269,
+        "seconds": 60,
+        "transactions": 105127
+      },
+      {
+        "slot": 474199289,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 93538
+      },
+      {
+        "slot": 474199017,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 114478
+      },
+      {
+        "slot": 474198739,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 106615
+      },
+      {
+        "slot": 474198460,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 111912
+      },
+      {
+        "slot": 474198181,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 105436
+      },
+      {
+        "slot": 474197902,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 129605
+      },
+      {
+        "slot": 474197623,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 125977
+      },
+      {
+        "slot": 474197343,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 95703
+      },
+      {
+        "slot": 474197065,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 85992
+      },
+      {
+        "slot": 474196789,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 87626
+      },
+      {
+        "slot": 474196508,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 108244
+      },
+      {
+        "slot": 474196231,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 102218
+      },
+      {
+        "slot": 474195952,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 104072
+      },
+      {
+        "slot": 474195674,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 114881
+      },
+      {
+        "slot": 474195392,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 127093
+      },
+      {
+        "slot": 474195120,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 120876
+      },
+      {
+        "slot": 474194842,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 133604
+      },
+      {
+        "slot": 474194561,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 127763
+      },
+      {
+        "slot": 474194289,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 128489
+      },
+      {
+        "slot": 474194008,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 120306
+      },
+      {
+        "slot": 474193724,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 130034
+      },
+      {
+        "slot": 474193448,
+        "slots": 286,
+        "seconds": 60,
+        "transactions": 125498
+      },
+      {
+        "slot": 474193162,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 173106
+      },
+      {
+        "slot": 474192883,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 169750
+      },
+      {
+        "slot": 474192602,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 160665
+      },
+      {
+        "slot": 474192324,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 165722
+      },
+      {
+        "slot": 474192052,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 188055
+      },
+      {
+        "slot": 474191775,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 197517
+      },
+      {
+        "slot": 474191499,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 146207
+      },
+      {
+        "slot": 474191227,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 114949
+      },
+      {
+        "slot": 474190951,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 127644
+      },
+      {
+        "slot": 474190669,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 117198
+      },
+      {
+        "slot": 474190393,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 130157
+      },
+      {
+        "slot": 474190121,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 151124
+      },
+      {
+        "slot": 474189841,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 131509
+      },
+      {
+        "slot": 474189559,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 126788
+      },
+      {
+        "slot": 474189277,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 136233
+      },
+      {
+        "slot": 474189002,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 133302
+      },
+      {
+        "slot": 474188724,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 143079
+      },
+      {
+        "slot": 474188450,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 144308
+      },
+      {
+        "slot": 474188177,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 148109
+      },
+      {
+        "slot": 474187893,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 139149
+      },
+      {
+        "slot": 474187612,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 126441
+      },
+      {
+        "slot": 474187336,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 101514
+      },
+      {
+        "slot": 474187058,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 102080
+      },
+      {
+        "slot": 474186779,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 89714
+      },
+      {
+        "slot": 474186496,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 84094
+      },
+      {
+        "slot": 474186216,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 83778
+      },
+      {
+        "slot": 474185935,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 89117
+      },
+      {
+        "slot": 474185651,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 93082
+      },
+      {
+        "slot": 474185371,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 87860
+      },
+      {
+        "slot": 474185091,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 88730
+      },
+      {
+        "slot": 474184819,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 83464
+      },
+      {
+        "slot": 474184536,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 74688
+      },
+      {
+        "slot": 474184259,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 91904
+      },
+      {
+        "slot": 474183979,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 92307
+      },
+      {
+        "slot": 474183703,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 112727
+      },
+      {
+        "slot": 474183429,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 87429
+      },
+      {
+        "slot": 474183145,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 82162
+      },
+      {
+        "slot": 474182863,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 107813
+      },
+      {
+        "slot": 474182581,
+        "slots": 271,
+        "seconds": 60,
+        "transactions": 98689
+      },
+      {
+        "slot": 474182310,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 95149
+      },
+      {
+        "slot": 474182032,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 91924
+      },
+      {
+        "slot": 474181754,
+        "slots": 272,
+        "seconds": 60,
+        "transactions": 103880
+      },
+      {
+        "slot": 474181482,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 85657
+      },
+      {
+        "slot": 474181205,
+        "slots": 282,
+        "seconds": 60,
+        "transactions": 121583
+      },
+      {
+        "slot": 474180923,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 96226
+      },
+      {
+        "slot": 474180642,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 101469
+      },
+      {
+        "slot": 474180361,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 92777
+      },
+      {
+        "slot": 474180077,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 91890
+      },
+      {
+        "slot": 474179796,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 81831
+      },
+      {
+        "slot": 474179515,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 85859
+      },
+      {
+        "slot": 474179235,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 96612
+      },
+      {
+        "slot": 474178957,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 98241
+      },
+      {
+        "slot": 474178678,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 106257
+      },
+      {
+        "slot": 474178402,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 104116
+      },
+      {
+        "slot": 474178119,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 87842
+      },
+      {
+        "slot": 474177838,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 74395
+      },
+      {
+        "slot": 474177563,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 73499
+      },
+      {
+        "slot": 474177287,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 86093
+      },
+      {
+        "slot": 474177010,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 77794
+      },
+      {
+        "slot": 474176732,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 68421
+      },
+      {
+        "slot": 474176454,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 74705
+      },
+      {
+        "slot": 474176177,
+        "slots": 286,
+        "seconds": 60,
+        "transactions": 78139
+      },
+      {
+        "slot": 474175891,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 79763
+      },
+      {
+        "slot": 474175610,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 74211
+      },
+      {
+        "slot": 474175331,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 77950
+      },
+      {
+        "slot": 474175055,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 81667
+      },
+      {
+        "slot": 474174774,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 95934
+      },
+      {
+        "slot": 474174497,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 91644
+      },
+      {
+        "slot": 474174218,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 92424
+      },
+      {
+        "slot": 474173942,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 100824
+      },
+      {
+        "slot": 474173658,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 79610
+      },
+      {
+        "slot": 474173378,
+        "slots": 284,
+        "seconds": 60,
+        "transactions": 90540
+      },
+      {
+        "slot": 474173094,
+        "slots": 286,
+        "seconds": 60,
+        "transactions": 69603
+      },
+      {
+        "slot": 474172808,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 79948
+      },
+      {
+        "slot": 474172529,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 86979
+      },
+      {
+        "slot": 474172246,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 82682
+      },
+      {
+        "slot": 474171966,
+        "slots": 275,
+        "seconds": 60,
+        "transactions": 88606
+      },
+      {
+        "slot": 474171691,
+        "slots": 283,
+        "seconds": 60,
+        "transactions": 88138
+      },
+      {
+        "slot": 474171408,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 87524
+      },
+      {
+        "slot": 474171127,
+        "slots": 276,
+        "seconds": 60,
+        "transactions": 85744
+      },
+      {
+        "slot": 474170851,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 86304
+      },
+      {
+        "slot": 474170571,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 80917
+      },
+      {
+        "slot": 474170293,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 95333
+      },
+      {
+        "slot": 474170016,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 97312
+      },
+      {
+        "slot": 474169738,
+        "slots": 280,
+        "seconds": 60,
+        "transactions": 99825
+      },
+      {
+        "slot": 474169458,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 84199
+      },
+      {
+        "slot": 474169179,
+        "slots": 277,
+        "seconds": 60,
+        "transactions": 92540
+      },
+      {
+        "slot": 474168902,
+        "slots": 281,
+        "seconds": 60,
+        "transactions": 88995
+      },
+      {
+        "slot": 474168621,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 95682
+      },
+      {
+        "slot": 474168343,
+        "slots": 274,
+        "seconds": 60,
+        "transactions": 92953
+      },
+      {
+        "slot": 474168069,
+        "slots": 279,
+        "seconds": 60,
+        "transactions": 89458
+      },
+      {
+        "slot": 474167790,
+        "slots": 278,
+        "seconds": 60,
+        "transactions": 76412
+      },
+      {
+        "slot": 474167512,
+        "slots": 273,
+        "seconds": 60,
+        "transactions": 77611
+      }
+    ]
+  },
+  "measured_transactions": {
+    "enroll": {
+      "bytes": 3982,
+      "compute_units": 4425,
+      "cost_units": 6702,
+      "landed": 40000
+    },
+    "activate": {
+      "bytes": 3982,
+      "compute_units": 3483,
+      "cost_units": 5760,
+      "landed": 40000
+    },
+    "fee_lamports_per_transaction": 5000
+  },
+  "verification": {
+    "ml_dsa_44_verify_microseconds": 70.9435,
+    "ed25519_verify_microseconds": 30.1085,
+    "statistic": "median over the five rounds of each round's median",
+    "ml_dsa_44_time_over_ed25519_time": 2.3562615208329873,
+    "ed25519_precompile_signature_cost_units": 2400,
+    "charge_cost_units_per_ml_dsa_44_verification": 5655,
+    "charge_rule": "the cost units of a signature that the Ed25519 precompile verifies, times the ratio of the two times",
+    "charge_at_30_cost_units_per_microsecond_of_the_machine_time": 2128,
+    "library": "fips204 0.5.0 (ML-DSA-44, public key decoded for every verification), ed25519-dalek 2 (verify_strict)"
+  },
+  "per_account": {
+    "transactions": 2,
+    "entry_bytes": 8076,
+    "cost_units": 23772,
+    "fee_lamports": 10000,
+    "record_bytes": 1354,
+    "rent_exempt_deposit_lamports_mainnet": 7528560
+  },
+  "full_block": {
+    "enrollments": 2596,
+    "entry_bytes": 10482648,
+    "cost_units_measured": 17398392,
+    "cost_units_with_the_verification_charge": 32078772,
+    "accounts_in_an_empty_block": 1298
+  },
+  "local_run": {
+    "node": {
+      "feature-set": 2681577653,
+      "solana-core": "4.4.1"
+    },
+    "largest_block": {
+      "enroll": 2596,
+      "activate": 2596
+    },
+    "blocks_at_the_largest_count": {
+      "enroll": 15,
+      "activate": 14
+    },
+    "limit_predicted_from_the_entry_byte_budget": {
+      "enroll": 2596,
+      "activate": 2596
+    }
+  },
+  "local_runs": {
+    "local-run-200ms": {
+      "node_flags": "--alpenglow --slots-per-epoch 32",
+      "wallets": 40017,
+      "bulk_wallets": 40000,
+      "sending_connections": 16,
+      "largest_block": {
+        "enroll": 2596,
+        "activate": 2596
+      },
+      "blocks_at_the_largest_count": {
+        "enroll": 15,
+        "activate": 14
+      },
+      "those_blocks_are_consecutive": {
+        "enroll": true,
+        "activate": true
+      },
+      "largest_block_tx_bytes": 10337272,
+      "largest_block_cost_units": 18946101,
+      "landed": {
+        "enroll": 40000,
+        "activate": 40000
+      },
+      "failed": {
+        "enroll": 0,
+        "activate": 0
+      },
+      "sent_again": {
+        "enroll": 0,
+        "activate": 0
+      },
+      "sent_per_second": {
+        "enroll": 25130.277210416745,
+        "activate": 24100.587247260417
+      },
+      "checks_passed": 11,
+      "checks": 11,
+      "blocks_read": 175,
+      "milliseconds_per_slot": 183.90804597701148,
+      "transactions": {
+        "enroll": {
+          "bytes": 3982,
+          "compute_units": 4425,
+          "cost_units": 6702
+        },
+        "activate": {
+          "bytes": 3982,
+          "compute_units": 3483,
+          "cost_units": 5760
+        }
+      }
+    },
+    "local-run-genesis": {
+      "node_flags": "--alpenglow --ticks-per-slot 256",
+      "wallets": 60017,
+      "bulk_wallets": 60000,
+      "sending_connections": 16,
+      "largest_block": {
+        "enroll": 5193,
+        "activate": 5193
+      },
+      "blocks_at_the_largest_count": {
+        "enroll": 11,
+        "activate": 11
+      },
+      "those_blocks_are_consecutive": {
+        "enroll": true,
+        "activate": true
+      },
+      "largest_block_tx_bytes": 20678526,
+      "largest_block_cost_units": 34803486,
+      "landed": {
+        "enroll": 60000,
+        "activate": 60000
+      },
+      "failed": {
+        "enroll": 0,
+        "activate": 0
+      },
+      "sent_again": {
+        "enroll": 0,
+        "activate": 0
+      },
+      "sent_per_second": {
+        "enroll": 28173.786287408846,
+        "activate": 27361.420935500937
+      },
+      "checks_passed": 11,
+      "checks": 11,
+      "blocks_read": 65,
+      "milliseconds_per_slot": 1587.3015873015872,
+      "transactions": {
+        "enroll": {
+          "bytes": 3982,
+          "compute_units": 4425,
+          "cost_units": 6702
+        },
+        "activate": {
+          "bytes": 3982,
+          "compute_units": 3483,
+          "cost_units": 5760
+        }
+      }
+    }
+  },
+  "verification_inside_the_virtual_machine": {
+    "compute_units_per_verification": {
+      "min": 1750658,
+      "median": 1750745,
+      "max": 1750932
+    },
+    "fits_one_transaction": false,
+    "every_simulation_stops_at_the_limit_of_a_transaction": true,
+    "simulations": {
+      "valid_signatures": 5,
+      "altered_signatures": 5
+    },
+    "max_compute_units_per_transaction": 1400000,
+    "times_the_maximum_of_a_transaction": 1.2505321428571428,
+    "program_sha256": "bbc922aa9e3a8e31f539fea61d0322cecb223a0a868ed26ac3941e33cc5cf438",
+    "differential_test": {
+      "pairs_of_key_and_message": 10000,
+      "comparisons": 189890,
+      "different_answers": 0
+    },
+    "edge_case_test": {
+      "inputs": 4397,
+      "different_answers": 0
+    },
+    "tests": {
+      "passed": 26,
+      "failed": 0
+    },
+    "fips204_control": {
+      "frame_of_the_verification_bytes": 62656,
+      "frame_limit_bytes": 4096,
+      "functions_over_the_frame_limit": 15,
+      "simulations_that_failed": 20,
+      "simulations": 20
+    },
+    "if_both_verifications_ran_in_a_program": {
+      "cost_units_per_account": 3513952,
+      "accounts_in_an_empty_block": 14,
+      "accounts_per_slot": 9.443460717364916,
+      "accounts_per_day": 3797916.6990700783,
+      "blocks_where_cost_binds": 1700
+    }
+  },
+  "mainnet_sample": {
+    "first_slot": 474231891,
+    "last_slot": 474233590,
+    "slots": 1700,
+    "blocks": 1700,
+    "skipped_slots": 0,
+    "first_block_time": 1795714114,
+    "last_block_time": 1795714479,
+    "seconds": 365,
+    "milliseconds_per_slot": 214.832254267216,
+    "slots_per_day": 402174.2465753425,
+    "transactions": 640488,
+    "per_block": {
+      "transactions": {
+        "min": 21,
+        "median": 358.0,
+        "mean": 376.7576470588235,
+        "p90": 503,
+        "max": 1381
+      },
+      "tx_bytes": {
+        "min": 10964,
+        "median": 373484.0,
+        "mean": 397750.50176470587,
+        "p90": 554967,
+        "max": 1567161
+      },
+      "cost_units": {
+        "min": 800248,
+        "median": 14865891.0,
+        "mean": 16816132.32529412,
+        "p90": 26120101,
+        "max": 49999374
+      },
+      "compute_units": {
+        "min": 724684,
+        "median": 12616463.5,
+        "mean": 14437373.08,
+        "p90": 22845017,
+        "max": 45971341
+      }
+    },
+    "slot_of_the_most_tx_bytes": 474232852,
+    "slot_of_the_most_cost_units": 474232417,
+    "entry_bytes_per_block_mean": 418848.93,
+    "largest_transaction_bytes": 4096,
+    "transactions_per_second": 1753.7294311039486,
+    "cluster_transactions_per_second": {
+      "minutes": 317,
+      "from_slot": 474167240,
+      "to_slot": 474255581,
+      "min": 1140.35,
+      "median": 1878.7833333333333,
+      "max": 3291.95,
+      "share_of_minutes_slower_than_the_sample": 0.3722397476340694
+    },
+    "share_of_entry_byte_budget_used_at_most": 0.03994454669952392,
+    "share_of_block_cost_limit_used": 0.33632264650588234,
+    "largest_share_of_entry_byte_budget_in_a_block_at_most": 0.15468988418579102,
+    "largest_share_of_block_cost_limit_in_a_block": 0.99998748,
+    "slot_intervals_between_first_and_last_block": 1699,
+    "blocks_where_bytes_bind": 1394,
+    "blocks_where_cost_binds": 306
+  },
+  "rates": {
+    "first": {
+      "what": "the migration takes every entry byte and cost unit that ordinary traffic leaves under the block limits",
+      "accounts_per_slot": 1184.5994606658471,
+      "accounts_per_second": 5514.067078551437,
+      "accounts_per_day": 476415395.58684415
+    },
+    "second": {
+      "what": "as the first, and the migration takes no more entry bytes in a block than that block's ordinary traffic",
+      "accounts_per_slot": 51.04472575554355,
+      "accounts_per_second": 237.6027097497767,
+      "accounts_per_day": 20528874.122380707
+    }
+  },
+  "second_rate_capped_at_transaction_bytes_alone": 19497248.611542378,
+  "rates_by_charge_per_verification": [
+    {
+      "charge": "none",
+      "cost_units_per_verification": 0,
+      "accounts_per_day": 493391702.08867186,
+      "accounts_per_day_second_rate": 20549766.580151867,
+      "blocks_where_cost_binds": 53
+    },
+    {
+      "charge": "30 cost units per microsecond of the time on the run's machine",
+      "cost_units_per_verification": 2128,
+      "accounts_per_day": 489403815.6148072,
+      "accounts_per_day_second_rate": 20538587.40017413,
+      "blocks_where_cost_binds": 114
+    },
+    {
+      "charge": "the charge",
+      "cost_units_per_verification": 5655,
+      "accounts_per_day": 476415395.58684415,
+      "accounts_per_day_second_rate": 20528874.122380707,
+      "blocks_where_cost_binds": 306
+    },
+    {
+      "charge": "2 times the charge",
+      "cost_units_per_verification": 11310,
+      "accounts_per_day": 380366489.7321294,
+      "accounts_per_day_second_rate": 20521452.601123538,
+      "blocks_where_cost_binds": 1695
+    },
+    {
+      "charge": "5 times the charge",
+      "cost_units_per_verification": 28275,
+      "accounts_per_day": 193382266.57002696,
+      "accounts_per_day_second_rate": 20474453.529021796,
+      "blocks_where_cost_binds": 1700
+    },
+    {
+      "charge": "10 times the charge",
+      "cost_units_per_verification": 56550,
+      "accounts_per_day": 106287706.31664596,
+      "accounts_per_day_second_rate": 20340268.113221247,
+      "blocks_where_cost_binds": 1700
+    }
+  ],
+  "order_of_inclusion": {
+    "source": "core/src/transaction_priority.rs, Agave v4.4.1: priority = reward x 1,000,000 / (1 + cost at the limits asked for), rounded down",
+    "migration_priority": 194810,
+    "migration_priority_without_the_charge": 348286,
+    "migration_cost_units_at_its_limits": {
+      "enroll": 7177,
+      "activate": 6177
+    },
+    "migration_cost_units_at_its_limits_with_the_charge": {
+      "enroll": 12832,
+      "activate": 11832
+    },
+    "migration_reward_per_cost_unit_lamports": 0.19481,
+    "migration_reward_per_cost_unit_lamports_without_the_charge": 0.348286,
+    "ordinary_below_the_migration_at_least": {
+      "transactions": 0.3976140068197999,
+      "bytes": 0.4959170939220156,
+      "cost_units": 0.7833622507035183
+    },
+    "ordinary_below_the_migration_counts": {
+      "transactions": 254667,
+      "bytes": 335327164,
+      "cost_units": 22394309553
+    },
+    "fee_top_up_to_rank_level_lamports_at_least": {
+      "min": 1,
+      "median": 8477,
+      "mean": 12485.333168412084,
+      "p90": 27938,
+      "max": 261260
+    },
+    "fee_top_ups_over_all_ordinary_fees": 0.18448729167340883,
+    "other_pricings_of_the_migration": {
+      "without_the_charge": {
+        "migration_priority": 348286,
+        "migration_reward_per_cost_unit_lamports": 0.348286,
+        "ordinary_below_the_migration_at_least": {
+          "transactions": 0.5159534604863791,
+          "bytes": 0.6368655137408463,
+          "cost_units": 0.8597181424142522
+        }
+      },
+      "with_the_charge_and_a_signature_fee_for_the_ml_dsa_signature": {
+        "migration_priority": 389620,
+        "migration_reward_per_cost_unit_lamports": 0.38962,
+        "ordinary_below_the_migration_at_least": {
+          "transactions": 0.533803912017087,
+          "bytes": 0.6578681640676689,
+          "cost_units": 0.8693761405884118
+        }
+      }
+    },
+    "ordinary_totals": {
+      "transactions": 640488,
+      "bytes": 676175853,
+      "cost_units": 28587424953
+    },
+    "leader_fee_reward_by_rule_lamports": 15489671660,
+    "leader_fee_reward_reported_lamports": 15485004160,
+    "fee_reward_difference_lamports": 4667500,
+    "precompile_signatures_implied": 1867,
+    "tips": {
+      "what": "increase of the balance of one of Jito's eight tip accounts (data/jito_tip_accounts.json) by a transaction",
+      "transactions_with_a_tip": 29936,
+      "share_of_transactions": 0.04673936123705674,
+      "blocks_with_a_tip": 1684,
+      "tips_lamports": 3383570284,
+      "tips_over_fee_rewards": 0.2185062560551485,
+      "ordinary_below_the_migration_with_tips_counted": {
+        "transactions": 0.3907052122756398,
+        "bytes": 0.4879874141261297,
+        "cost_units": 0.7740434223572091
+      }
+    }
+  },
+  "days": [
+    {
+      "population": "addresses with at least 100 SOL",
+      "accounts": 155015,
+      "fees_sol": 1.55015,
+      "rent_exempt_deposits_sol": 1167.0397284,
+      "new_account_data_gib": 0.19547558389604092,
+      "first": {
+        "days": 0.0003253778140587878,
+        "hours": 0.007809067537410907
+      },
+      "second": {
+        "days": 0.007551071679620349,
+        "hours": 0.18122572031088838
+      }
+    },
+    {
+      "population": "addresses with at least 10 SOL",
+      "accounts": 981966,
+      "fees_sol": 9.81966,
+      "rent_exempt_deposits_sol": 7392.78994896,
+      "new_account_data_gib": 1.2382696978747845,
+      "first": {
+        "days": 0.002061155053124224,
+        "hours": 0.04946772127498138
+      },
+      "second": {
+        "days": 0.04783340743121682,
+        "hours": 1.1480017783492036
+      }
+    },
+    {
+      "population": "addresses with at least 1 SOL",
+      "accounts": 3146571,
+      "fees_sol": 31.46571,
+      "rent_exempt_deposits_sol": 23689.14856776,
+      "new_account_data_gib": 3.9678599070757627,
+      "first": {
+        "days": 0.006604679506891423,
+        "hours": 0.15851230816539416
+      },
+      "second": {
+        "days": 0.15327538087291345,
+        "hours": 3.6786091409499226
+      }
+    },
+    {
+      "population": "addresses with at least 0.1 SOL",
+      "accounts": 10750665,
+      "fees_sol": 107.50665,
+      "rent_exempt_deposits_sol": 80937.0264924,
+      "new_account_data_gib": 13.556704306975007,
+      "first": {
+        "days": 0.02256573800843994,
+        "hours": 0.5415777122025586
+      },
+      "second": {
+        "days": 0.5236850757577376,
+        "hours": 12.568441818185702
+      }
+    },
+    {
+      "population": "addresses with at least 0.01 SOL",
+      "accounts": 39667156,
+      "fees_sol": 396.67156,
+      "rent_exempt_deposits_sol": 298636.56397536,
+      "new_account_data_gib": 50.02071077376604,
+      "first": {
+        "days": 0.08326170054000534,
+        "hours": 1.9982808129601282
+      },
+      "second": {
+        "days": 1.9322616410197877,
+        "hours": 46.3742793844749
+      }
+    },
+    {
+      "population": "addresses with any balance",
+      "accounts": 1235803896,
+      "fees_sol": 12358.03896,
+      "rent_exempt_deposits_sol": 9303823.77926976,
+      "new_account_data_gib": 1558.362017557025,
+      "first": {
+        "days": 2.5939629731691354,
+        "hours": 62.255111356059246
+      },
+      "second": {
+        "days": 60.19832790794498,
+        "hours": 1444.7598697906794
+      }
+    }
+  ],
+  "population_sources": [
+    {
+      "name": "Glassnode Studio, Solana address counts by balance",
+      "read_on": "2026-11-26",
+      "value_used": "the figure labelled \"in the last 24 hours\" in the block \"LATEST VALUES\" of each page; the pages state no date for it",
+      "what_is_counted": "unique addresses holding at least the stated amount of SOL; every kind of address, not only key-controlled wallets, so each count is an upper bound for wallets",
+      "urls": [
+        "https://studio.glassnode.com/charts/addresses.Min100Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.Min10Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.Min1Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.MinPoint1Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.MinPointZero1Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.NonZeroCount?a=SOL"
+      ]
+    }
+  ]
+}

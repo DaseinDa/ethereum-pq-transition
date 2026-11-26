@@ -1,0 +1,26 @@
+[package]
+name = "pq-verify-fips204"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Control: the fips204 crate's ML-DSA-44 verification as a program for the Solana virtual machine"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+fips204 = { version = "=0.5.0", default-features = false, features = ["ml-dsa-44"] }
+solana-program = "=6.0.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1

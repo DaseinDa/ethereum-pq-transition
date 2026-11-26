@@ -1,0 +1,4 @@
+# the sampled transactions are a gzip file
+*.gz binary
+# the shell scripts keep their line ends on every platform
+*.sh text eol=lf

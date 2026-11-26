@@ -1,0 +1,25 @@
+[package]
+name = "pq-enroll-registry"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Measurement program: a post-quantum key registry for Solana wallets (enroll, activate)"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+# Features that the entrypoint macro of solana-program refers to.
+[features]
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+solana-program = "=6.0.0"
+solana-sha256-hasher = "3"
+solana-system-interface = { version = "3.3", features = ["bincode"] }
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1

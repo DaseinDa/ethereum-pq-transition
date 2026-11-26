@@ -1,0 +1,6 @@
+program sha256: f713868ad4904fe21aea7045aac5dfc14b328d69068dc856cc44e115ced9b4ce
+client sha256: edddc3e3cd99b77febd607761021fa476358f259515e01fe6fe93879d4916725
+solana-cli 4.4.1 (src:5bb30402; feat:9fd5a0b5, client:Agave)
+solana-test-validator 4.4.1 (src:5bb30402; feat:9fd5a0b5, client:Agave)
+cargo-build-sbf 4.5.0;Default platform-tools: v1.57;Default Rust: 1.95.0;
+rustc 1.96.0 (ac68faa20 2026-05-25)

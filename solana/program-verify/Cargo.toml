@@ -1,0 +1,32 @@
+[package]
+name = "pq-verify-in-vm"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Measurement program: one ML-DSA-44 verification inside the Solana virtual machine"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+# Features that the entrypoint macro of solana-program refers to.
+[features]
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+sha3 = { version = "=0.10.9", default-features = false }
+solana-program = "=6.0.0"
+
+# The reference implementation that the tests compare the verifier with; it is not part of the program.
+[dev-dependencies]
+fips204 = { version = "=0.5.0", default-features = false, features = ["ml-dsa-44"] }
+
+# The entrypoint macro of solana-program tests for the target of the virtual machine.
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1

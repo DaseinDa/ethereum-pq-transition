@@ -1,0 +1,393 @@
+{
+  "features": [
+    {
+      "id": "A1pengvuM6JEcyNuTnMqepBKhwHE3N6PmUrdATGawhJS",
+      "description": "SIMD-0326: Alpenglow: new consensus algorithm",
+      "status": "active",
+      "sinceSlot": 459648000
+    },
+    {
+      "id": "8whkDenELnfwYLirBc4Wb4H2Z1z5K7tiykpdxJS7cWg1",
+      "description": "Apply a minimum loaded data size to loader-v3 ProgramData accounts",
+      "status": "active",
+      "sinceSlot": 466128000
+    },
+    {
+      "id": "7VgiehxNxu53KdxgLspGQY8myE6f7UokaWa4jsGcaSz",
+      "description": "SIMD-0460: Virtual Address Space Adjustments",
+      "status": "active",
+      "sinceSlot": 473472000
+    },
+    {
+      "id": "CR3dVN2Yoo95Y96kLSTaziWDAQT2MNEpiWh5cqVq2pNE",
+      "description": "enable account data direct mapping",
+      "status": "active",
+      "sinceSlot": 473904000
+    },
+    {
+      "id": "51VCKU5eV6mcTc9q9ArfWELU2CqDoi13hdAjr6fHMdtv",
+      "description": "Verify retransmitter signature #1840",
+      "status": "inactive"
+    },
+    {
+      "id": "5TuppMutoyzhUSfuYdhgzD47F92GL1g89KpCZQKqedxP",
+      "description": "enable the remaining_compute_units syscall",
+      "status": "inactive"
+    },
+    {
+      "id": "6TkHkRmP7JZy1fdM6fg5uXn76wChQBWGokHBJzrLB3mj",
+      "description": "SIMD-0268: Raise CPI nesting limit from 4 to 8",
+      "status": "inactive"
+    },
+    {
+      "id": "8aXvSuopd1PUj7UhehfXJRg6619RHp8ZvwTyyJHdUYsj",
+      "description": "fail libsecp256k1_verify if count appears wrong",
+      "status": "inactive"
+    },
+    {
+      "id": "9LZdXeKGeBV6hRLdxS1rHbHoEUsKqesCC2ZAPTPKJAbK",
+      "description": "increase tx account lock limit to 128 #27241",
+      "status": "inactive"
+    },
+    {
+      "id": "9onWzzvCzNC2jfhxxeqRgs5q7nFAAKpCUvkj6T6GJK9i",
+      "description": "Raise minimum stake delegation to 1.0 SOL #24357",
+      "status": "inactive"
+    },
+    {
+      "id": "B8JJXCy5amZyWG9r7EnUYLwzXSXTxG7GZ1qZ1qggo83g",
+      "description": "SIMD-0500: Disable deployment of SBPF v0, v1 and v2 programs",
+      "status": "inactive"
+    },
+    {
+      "id": "Crbnc267wkJvFhYakqwWWX57sx5bkrftJLekzy6yWKLT",
+      "description": "SIMD-0123: Block Revenue Sharing",
+      "status": "inactive"
+    },
+    {
+      "id": "DT4n6ABDqs6w4bnfwrXT9rsprcPf6cdDga1egctaPkLC",
+      "description": "full inflation on devnet and testnet",
+      "status": "inactive"
+    },
+    {
+      "id": "EaQpmC6GtRssaZ3PCUM5YksGqUdMLeZ46BQXYtHYakDS",
+      "description": "include transaction loaded accounts data size in base fee calculation #30657",
+      "status": "inactive"
+    },
+    {
+      "id": "EhisBfVtGvEA8bVCVN5VMaYEaX6iTfoUrmcDi8LY7Kxy",
+      "description": "SIMD-0433: Loader V3 Set Program Data to ELF Length",
+      "status": "inactive"
+    },
+    {
+      "id": "ExtendProgCheckedWi11BeDe1eted11111111111111",
+      "description": "Enable ExtendProgramChecked instruction",
+      "status": "inactive"
+    },
+    {
+      "id": "FEEXbxUuKobtrt1qNK5pjtzbPQhsppBTrNNG74xu4mai",
+      "description": "SIMD-0290: Relax block constraint requiring valid fee-payer",
+      "status": "inactive"
+    },
+    {
+      "id": "FastLeaderHandover11111111111111111111111111",
+      "description": "SIMD-0326: Alpenglow fast leader handover",
+      "status": "inactive"
+    },
+    {
+      "id": "HTW2pSyErTj4BV6KBM9NZ9VBUJVxt7sacNWcf76wtzb3",
+      "description": "blake3 syscall",
+      "status": "inactive"
+    },
+    {
+      "id": "LoaderV4WasAbandoned11111111111111111111111",
+      "description": "SIMD-0167: Enable Loader-v4",
+      "status": "inactive"
+    },
+    {
+      "id": "RMsTKfD6hZnBhhNvgGBeKNrqCNkeoP3DYYxNtcuWtRg",
+      "description": "SIMD-0599: Remove inactive stakes from stake delegations",
+      "status": "inactive"
+    },
+    {
+      "id": "RfEcA95xnhuwooVAhUUksEJLZBF7xKCLuqrJoqk4Zph",
+      "description": "vote only on retransmitter signed fec sets",
+      "status": "inactive"
+    },
+    {
+      "id": "TestFeature11111111111111111111111111111111",
+      "description": "SIMD-0161: Disables execution of SBPFv0 programs",
+      "status": "inactive"
+    },
+    {
+      "id": "TestFeature21111111111111111111111111111111",
+      "description": "Re-enables execution of SBPFv0 programs",
+      "status": "inactive"
+    },
+    {
+      "id": "VoteAccount1nitia1izeV211111111111111111111",
+      "description": "SIMD-0464: Vote Account Initialize V2",
+      "status": "inactive"
+    },
+    {
+      "id": "chaie9S2zVfuxJKNRGkyTDokLwWxx6kD2ZLsqQHaDD8",
+      "description": "generate duplicate proofs for chained merkle root conflicts",
+      "status": "inactive"
+    },
+    {
+      "id": "ddibiks7RHZR69QXYMCmk4EZNt6WckspTqEEWv6cS38",
+      "description": "SIMD-0550: Double disinflation rate",
+      "status": "inactive"
+    },
+    {
+      "id": "depVvnQ2UysGrhwdiwU42tCadZL8GcBb1i2GYhMopQv",
+      "description": "Deprecate legacy vote instructions",
+      "status": "inactive"
+    },
+    {
+      "id": "expH2ppKPW2ANEdEmAjfhSEcnBQJfmoX4FjuNpe9ttg",
+      "description": "SIMD-0529: big_integer mod_exp syscall",
+      "status": "inactive"
+    },
+    {
+      "id": "ptr9umikaeAS7ZBBp2fsfRhie16F1V2jCKA2y6gXNAK",
+      "description": "SIMD-0449: Direct Account Pointers in Program Input",
+      "status": "inactive"
+    },
+    {
+      "id": "rnt8ZQpz2HYhX3DkYBDGjJS1a36mYq69oXka7JrhEdi",
+      "description": "SIMD-0438: Reset lamports per byte to legacy value of 6960",
+      "status": "inactive"
+    },
+    {
+      "id": "rntCigrTppP5JdZz7K8TyN9sMzLdAcXp8SejYpVpX6D",
+      "description": "SIMD-0437-3: Set lamports per byte to 2575",
+      "status": "inactive"
+    },
+    {
+      "id": "rntD7invRBswCAdKtRsh1G4psKjrPdS3BKqtnA78C7N",
+      "description": "SIMD-0437-4: Set lamports per byte to 1322",
+      "status": "inactive"
+    },
+    {
+      "id": "rntTjNZ9boq8owDxjGVFHPfWNQPDaKiM5JcjxmDGg47",
+      "description": "SIMD-0437-5: Set lamports per byte to 696",
+      "status": "inactive"
+    },
+    {
+      "id": "s512oDwgx8hjMnaQjXfqqrZroVj4HvC6TkN3iSSWXCh",
+      "description": "SIMD-0512: SHA512 Syscall",
+      "status": "inactive"
+    },
+    {
+      "id": "turbzzBJLGMJJikLvgCCJu9e1hTmfxwarrbLndYAsK5",
+      "description": "SIMD-0317: Enforce the Merkle proof size of a fixed 32:32 FEC set",
+      "status": "inactive"
+    },
+    {
+      "id": "zk1snxsc6Fh3wsGNbbHAJNHiJoYgF29mMnTSusGx5EJ",
+      "description": "enable Zk Token proof program and syscalls",
+      "status": "inactive"
+    },
+    {
+      "id": "zkNLP7EQALfC1TYeB3biDU7akDckj8iPkvh9y2Mt2K3",
+      "description": "enable Zk Token proof program transfer with fee",
+      "status": "inactive"
+    },
+    {
+      "id": "zkiTNuzBKxrCLMKehzuQeKZyLtX2yvFcEKMML8nExU8",
+      "description": "Enable zk token proof program to read proof from accounts instead of instruction data #34750",
+      "status": "inactive"
+    }
+  ],
+  "featureActivationAllowed": false,
+  "clusterFeatureSets": {
+    "toolFeatureSet": 2681577653,
+    "featureSets": [
+      {
+        "softwareVersions": [
+          "26.11.1",
+          "26.11.0",
+          "0.1.1"
+        ],
+        "featureSet": 651708893,
+        "stakePercent": 5.842124777902203,
+        "rpcPercent": 0.0
+      },
+      {
+        "softwareVersions": [
+          "26.10.8",
+          "26.10.6"
+        ],
+        "featureSet": 242196534,
+        "stakePercent": 12.704632284286706,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersions": [
+          "5.0.0-alpha.1",
+          "5.0.0-alpha.0",
+          "4.5.0-rc.0",
+          "4.5.0-beta.0"
+        ],
+        "featureSet": 1591744305,
+        "stakePercent": 0.5634714980869372,
+        "rpcPercent": 1.2
+      },
+      {
+        "softwareVersions": [
+          "4.4.1",
+          "4.4.0"
+        ],
+        "featureSet": 2681577653,
+        "stakePercent": 79.18860523069563,
+        "rpcPercent": 93.6
+      },
+      {
+        "softwareVersions": [
+          "4.4.0"
+        ],
+        "featureSet": 3722100051,
+        "stakePercent": 1.4174306397729626,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersions": [
+          "4.4.0-rc.1"
+        ],
+        "featureSet": 3993424257,
+        "stakePercent": 0.0,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersions": [
+          "4.3.2",
+          "4.3.0",
+          "4.3.0-rc.1"
+        ],
+        "featureSet": 3383571666,
+        "stakePercent": 0.012759789658443451,
+        "rpcPercent": 2.0
+      },
+      {
+        "softwareVersions": [
+          "4.2.1"
+        ],
+        "featureSet": 565236538,
+        "stakePercent": 0.0,
+        "rpcPercent": 1.2
+      },
+      {
+        "softwareVersions": [
+          "3.1.5"
+        ],
+        "featureSet": 2086771155,
+        "stakePercent": 0.0,
+        "rpcPercent": 0.8
+      },
+      {
+        "softwareVersions": [
+          "0.0.0"
+        ],
+        "featureSet": 0,
+        "stakePercent": 0.23897324375568288,
+        "rpcPercent": 0.0
+      }
+    ]
+  },
+  "clusterSoftwareVersions": {
+    "toolSoftwareVersion": "4.4.1",
+    "softwareVersions": [
+      {
+        "softwareVersion": "26.11.1",
+        "stakePercent": 3.9238836424766284,
+        "rpcPercent": 0.0
+      },
+      {
+        "softwareVersion": "26.11.0",
+        "stakePercent": 1.4612477227780079,
+        "rpcPercent": 0.0
+      },
+      {
+        "softwareVersion": "26.10.8",
+        "stakePercent": 12.44698968792374,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersion": "26.10.6",
+        "stakePercent": 0.2576425963629667,
+        "rpcPercent": 0.0
+      },
+      {
+        "softwareVersion": "5.0.0-alpha.1",
+        "stakePercent": 0.05555417587422568,
+        "rpcPercent": 0.0
+      },
+      {
+        "softwareVersion": "5.0.0-alpha.0",
+        "stakePercent": 0.0,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersion": "4.5.0-rc.0",
+        "stakePercent": 0.43025465215609454,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersion": "4.5.0-beta.0",
+        "stakePercent": 0.07766267005661696,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersion": "4.4.1",
+        "stakePercent": 54.504968453973525,
+        "rpcPercent": 66.799995
+      },
+      {
+        "softwareVersion": "4.4.0",
+        "stakePercent": 26.101067416495063,
+        "rpcPercent": 27.2
+      },
+      {
+        "softwareVersion": "4.4.0-rc.1",
+        "stakePercent": 0.0,
+        "rpcPercent": 0.4
+      },
+      {
+        "softwareVersion": "4.3.2",
+        "stakePercent": 0.0,
+        "rpcPercent": 1.2
+      },
+      {
+        "softwareVersion": "4.3.0",
+        "stakePercent": 0.0,
+        "rpcPercent": 0.8
+      },
+      {
+        "softwareVersion": "4.3.0-rc.1",
+        "stakePercent": 0.012759789658443451,
+        "rpcPercent": 0.0
+      },
+      {
+        "softwareVersion": "4.2.1",
+        "stakePercent": 0.0,
+        "rpcPercent": 1.2
+      },
+      {
+        "softwareVersion": "3.1.5",
+        "stakePercent": 0.0,
+        "rpcPercent": 0.8
+      },
+      {
+        "softwareVersion": "0.1.1",
+        "stakePercent": 0.45699341264756627,
+        "rpcPercent": 0.0
+      },
+      {
+        "softwareVersion": "0.0.0",
+        "stakePercent": 0.23897324375568288,
+        "rpcPercent": 0.0
+      }
+    ]
+  }
+}

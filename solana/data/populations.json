@@ -1,0 +1,26 @@
+{
+  "sources": [
+    {
+      "name": "Glassnode Studio, Solana address counts by balance",
+      "read_on": "2026-11-26",
+      "value_used": "the figure labelled \"in the last 24 hours\" in the block \"LATEST VALUES\" of each page; the pages state no date for it",
+      "what_is_counted": "unique addresses holding at least the stated amount of SOL; every kind of address, not only key-controlled wallets, so each count is an upper bound for wallets",
+      "urls": [
+        "https://studio.glassnode.com/charts/addresses.Min100Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.Min10Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.Min1Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.MinPoint1Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.MinPointZero1Count?a=SOL",
+        "https://studio.glassnode.com/charts/addresses.NonZeroCount?a=SOL"
+      ]
+    }
+  ],
+  "counts": [
+    {"label": "addresses with at least 100 SOL", "min_sol": 100, "count": 155015},
+    {"label": "addresses with at least 10 SOL", "min_sol": 10, "count": 981966},
+    {"label": "addresses with at least 1 SOL", "min_sol": 1, "count": 3146571},
+    {"label": "addresses with at least 0.1 SOL", "min_sol": 0.1, "count": 10750665},
+    {"label": "addresses with at least 0.01 SOL", "min_sol": 0.01, "count": 39667156},
+    {"label": "addresses with any balance", "min_sol": 0, "count": 1235803896}
+  ]
+}

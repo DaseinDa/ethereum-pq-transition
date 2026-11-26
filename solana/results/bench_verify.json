@@ -1,0 +1,103 @@
+{
+  "library": "fips204 0.5.0 (ML-DSA-44, public key decoded for every verification), ed25519-dalek 2 (verify_strict)",
+  "message_bytes": 1420,
+  "rounds": [
+    {
+      "ed25519_verify_ns": {
+        "max": 99108,
+        "mean": 33332.34,
+        "median": 32497,
+        "min": 27755,
+        "n": 2000,
+        "p90": 36929
+      },
+      "ml_dsa_44_verify_ns": {
+        "max": 225530,
+        "mean": 73789.4615,
+        "median": 72818,
+        "min": 65939,
+        "n": 2000,
+        "p90": 78499
+      },
+      "round": 0
+    },
+    {
+      "ed25519_verify_ns": {
+        "max": 95547,
+        "mean": 31208.5845,
+        "median": 30636.5,
+        "min": 27882,
+        "n": 2000,
+        "p90": 33186
+      },
+      "ml_dsa_44_verify_ns": {
+        "max": 169915,
+        "mean": 73393.3185,
+        "median": 72500,
+        "min": 66094,
+        "n": 2000,
+        "p90": 78121
+      },
+      "round": 1
+    },
+    {
+      "ed25519_verify_ns": {
+        "max": 72082,
+        "mean": 30492.7405,
+        "median": 30108.5,
+        "min": 28044,
+        "n": 2000,
+        "p90": 32092
+      },
+      "ml_dsa_44_verify_ns": {
+        "max": 199524,
+        "mean": 71644.228,
+        "median": 70943.5,
+        "min": 66175,
+        "n": 2000,
+        "p90": 75501
+      },
+      "round": 2
+    },
+    {
+      "ed25519_verify_ns": {
+        "max": 346182,
+        "mean": 30426.153,
+        "median": 29836.5,
+        "min": 27847,
+        "n": 2000,
+        "p90": 31786
+      },
+      "ml_dsa_44_verify_ns": {
+        "max": 158698,
+        "mean": 71086.2645,
+        "median": 70310.5,
+        "min": 65776,
+        "n": 2000,
+        "p90": 75514
+      },
+      "round": 3
+    },
+    {
+      "ed25519_verify_ns": {
+        "max": 123736,
+        "mean": 30354.4925,
+        "median": 29654.5,
+        "min": 27838,
+        "n": 2000,
+        "p90": 32562
+      },
+      "ml_dsa_44_verify_ns": {
+        "max": 245888,
+        "mean": 71285.75,
+        "median": 69741,
+        "min": 65824,
+        "n": 2000,
+        "p90": 76661
+      },
+      "round": 4
+    }
+  ],
+  "samples_per_round": 2000,
+  "threads": 1
+}

@@ -32,6 +32,7 @@ demonstrate a live BLS-to-Lean checkpoint transition or a mainnet state import.
 | `bench/` | measurement scripts |
 | `formal/` | an Apalache model of one account's authority record (an inductive invariant over unbounded integers), its runner, mutation controls and run of record |
 | `docs/` | build, demo, wallet and local release instructions |
+| `solana/` | the enrollment step measured for Solana on one local node and a sample of mainnet blocks: two measurement programs and a control, a client, scripts, the run records and the sample's per-slot and per-transaction data; added after the paper and not part of it |
 
 Start with [the offline build instructions](docs/BUILD.md), then
 [the local demo commands](docs/DEMO.md). The runtime package includes no expiring
@@ -47,7 +48,7 @@ unverified steps; source compilation alone is not an end-to-end result.
 
 ## Provenance
 
-This repository is a snapshot of the code behind the paper's measurements: commit bbf13f0 of the development repository, published without its history. Files whose bytes are pinned by digests keep their original text, so some of them name the project's working title (PQ-Migrate) or refer to development commits, to paths of an unpublished research tree (`code/...`, `results/...`) and to sections of an unpublished protocol specification. The offline dependency bundle (pinned upstream sources and module caches, about 0.9 GB), the run records and the research scripts are not in this repository; the authors provide them on request.
+This repository is a snapshot of the code behind the paper's measurements: commit bbf13f0 of the development repository, published without its history. Files whose bytes are pinned by digests keep their original text, so some of them name the project's working title (PQ-Migrate) or refer to development commits, to paths of an unpublished research tree (`code/...`, `results/...`) and to sections of an unpublished protocol specification. The offline dependency bundle (pinned upstream sources and module caches, about 0.9 GB), the run records and the research scripts are not in this repository; the authors provide them on request. The directory `solana/` is not part of that snapshot or of the paper: it was added later and holds a measurement of 26 November 2026 with its own scripts, data and run records.
 
 ## Scope
 

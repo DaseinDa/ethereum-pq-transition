@@ -1,0 +1,742 @@
+{
+  "what": "One ML-DSA-44 verification (FIPS 204, pure variant, empty context string) inside the Solana virtual machine: the program of program-verify, simulated on a local Agave node",
+  "date": "2026-11-26",
+  "program": {
+    "crate": "program-verify (pq-verify-in-vm 0.1.0)",
+    "verifier": "src/mldsa44.rs, mldsa44::verify; SHAKE128 and SHAKE256 from the sha3 crate 0.10.9 (default-features = false); fips204 0.5.0 is a dev-dependency of the tests only",
+    "instruction": "account 0: the wallet (signer); data: public key (1,312 bytes), signature (2,420 bytes); message: pq-enroll-v1, wallet address (32 bytes), public key (1,312 bytes), 1,356 bytes in all",
+    "so_sha256": "bbc922aa9e3a8e31f539fea61d0322cecb223a0a868ed26ac3941e33cc5cf438",
+    "so_bytes": 66816,
+    "build": {
+      "tool": "cargo-build-sbf 4.5.0",
+      "arch": "v3",
+      "target": "sbpfv3-solana-solana",
+      "elf_e_flags": "0x3",
+      "platform_tools": "v1.57",
+      "rust": "1.95.0",
+      "profile": "release: opt-level 3, overflow-checks = true, codegen-units = 1; lto is not applied (cargo-build-sbf: the crate has the types cdylib and lib)",
+      "command": "cargo-build-sbf --manifest-path program-verify/Cargo.toml --sbf-out-dir <out>"
+    },
+    "frame_messages": 0,
+    "frame_messages_note": "count of 'overflows the maximum allowed frame space' in the output of the build after the last source change: 0; in the whole output of a build from an empty target directory (92 crates compiled, same SHA-256 of the program): 0",
+    "largest_function_frame_bytes": 1344,
+    "function_frames_bytes": {
+      "mldsa44::verify": 1344,
+      "mldsa44::expand_a_mul_add": 1216,
+      "mldsa44::shake256_64": 1152,
+      "mldsa44::sample_in_ball_negated": 1152,
+      "keccak::keccak_p": 320,
+      "mldsa44::use_hint_and_pack": 64,
+      "mldsa44::ntt": 64,
+      "mldsa44::inv_ntt": 64
+    },
+    "function_frames_note": "stack frames of the functions of the verifier and of the Keccak permutation, as the compiler records them (a build of the same sources with -Z emit-stack-sizes, read with llvm-readobj --stack-sizes); the limit of the virtual machine is 4,096 bytes"
+  },
+  "tests": {
+    "command": "cargo test --release --manifest-path program-verify/Cargo.toml",
+    "tests_passed": 26,
+    "tests_failed": 0,
+    "tests_by_file": {
+      "src/mldsa44_tests.rs": 11,
+      "tests/differential.rs": 5,
+      "tests/edges.rs": 8,
+      "tests/heap.rs": 1,
+      "tests/program.rs": 1
+    },
+    "differential_against_fips204": {
+      "passed": true,
+      "pairs_of_key_and_message": 10000,
+      "pairs_with_the_clients_1356_byte_message": 2500,
+      "comparisons": 189890,
+      "comparisons_with_different_answers": 0,
+      "inputs_accepted_by_both": 10000,
+      "generator": "SplitMix64 with the fixed seeds 0x2026112600000001, 0x2026112600000002, 0x2026112600000003, 0x2026112600000004, 0x2026112600000005; keys and signatures from fips204 keygen_from_seed and try_sign_with_seed",
+      "cases": {
+        "another key": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "bit flipped in c-tilde": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "bit flipped in hint": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "bit flipped in z": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "hint end offset above omega": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "hint end offset going backwards": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "hint position repeated": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "hint positions out of order": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "hint with a non-zero byte after the lists": {
+          "compared": 9945,
+          "accepted_by_both": 0
+        },
+        "hint with the last list one byte longer": {
+          "compared": 9945,
+          "accepted_by_both": 0
+        },
+        "key with a flipped bit in rho": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "key with a flipped bit in t1": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "key with the lowest bit of a t1 coefficient flipped": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "message one byte longer or shorter": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "message with a flipped bit": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "one coefficient of z all ones": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "one polynomial of z all 0xff": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        },
+        "valid signature": {
+          "compared": 10000,
+          "accepted_by_both": 10000
+        },
+        "z all 0xff": {
+          "compared": 10000,
+          "accepted_by_both": 0
+        }
+      }
+    },
+    "edge_cases": {
+      "file": "tests/edges.rs",
+      "what": "inputs built so that one check alone decides (the norm bound of z, the hint encoding, the special residues of Decompose and UseHint, the message format); each input must get the same answer from mldsa44::verify, from fips204 and from a transcription of FIPS 204 written for that file",
+      "inputs": 4397,
+      "inputs_with_different_answers": 0,
+      "groups": {
+        "hint encodings": {
+          "inputs": 2045,
+          "accepted": 294,
+          "rejected": 1751
+        },
+        "inputs without a signer": {
+          "inputs": 750,
+          "accepted": 150,
+          "rejected": 600
+        },
+        "keys written by hand": {
+          "inputs": 336,
+          "accepted": 84,
+          "rejected": 252
+        },
+        "message formats": {
+          "inputs": 194,
+          "accepted": 26,
+          "rejected": 168
+        },
+        "program instruction": {
+          "inputs": 96,
+          "accepted": 60,
+          "rejected": 36
+        },
+        "transcription against the fips204 signer": {
+          "inputs": 120,
+          "accepted": 60,
+          "rejected": 60
+        },
+        "special residues of Decompose and UseHint": {
+          "inputs": 256,
+          "accepted": 256,
+          "rejected": 0
+        },
+        "z at the bound of the infinity norm": {
+          "inputs": 600,
+          "accepted": 276,
+          "rejected": 324
+        }
+      }
+    }
+  },
+  "runs": {
+    "default_limit": {
+      "command": "bash tools/start_node.sh --alpenglow --slots-per-epoch 32 --bpf-program <program id> <out>/pq_verify_in_vm.so; until [ \"$(solana -u <rpc> epoch)\" -ge 3 ]; do sleep 1; done; pqsol verify-in-vm <rpc> <funder key> <program id> 5 1400000",
+      "node_compute_unit_limit": "the node's default: the limit that the transaction asks for, 1,400,000 at most",
+      "compute_unit_limit_requested_by_transaction": 1400000,
+      "node_version": {
+        "feature-set": 2681577653,
+        "solana-core": "4.4.1"
+      },
+      "program_id": "59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4",
+      "simulations": [
+        {
+          "key": 0,
+          "signature": "valid",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 0,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 1,
+          "signature": "valid",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 1,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 2,
+          "signature": "valid",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 2,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 3,
+          "signature": "valid",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 3,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 4,
+          "signature": "valid",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        },
+        {
+          "key": 4,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "ProgramFailedToComplete"
+            ]
+          },
+          "unitsConsumed": 1400000,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: exceeded CUs meter at BPF instruction"
+        }
+      ],
+      "valid_signatures": {
+        "all_succeeded": false,
+        "errors": [
+          "{\"InstructionError\": [0, \"ProgramFailedToComplete\"]}"
+        ],
+        "unitsConsumed": {
+          "n": 5,
+          "min": 1400000,
+          "median": 1400000,
+          "max": 1400000
+        }
+      },
+      "flipped_signatures": {
+        "all_failed_with_InvalidArgument": false,
+        "errors": [
+          "{\"InstructionError\": [0, \"ProgramFailedToComplete\"]}"
+        ],
+        "unitsConsumed": {
+          "n": 5,
+          "min": 1400000,
+          "median": 1400000,
+          "max": 1400000
+        }
+      }
+    },
+    "lifted_limit": {
+      "command": "bash tools/start_node.sh --alpenglow --slots-per-epoch 32 --bpf-program <program id> <out>/pq_verify_in_vm.so --compute-unit-limit 200000000; until [ \"$(solana -u <rpc> epoch)\" -ge 3 ]; do sleep 1; done; pqsol verify-in-vm <rpc> <funder key> <program id> 5 1400000",
+      "node_compute_unit_limit": "200,000,000 (solana-test-validator --compute-unit-limit 200000000)",
+      "compute_unit_limit_requested_by_transaction": 1400000,
+      "node_version": {
+        "feature-set": 2681577653,
+        "solana-core": "4.4.1"
+      },
+      "program_id": "59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4",
+      "simulations": [
+        {
+          "key": 0,
+          "signature": "valid",
+          "err": null,
+          "unitsConsumed": 1750658,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 success"
+        },
+        {
+          "key": 0,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "InvalidArgument"
+            ]
+          },
+          "unitsConsumed": 1750647,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: invalid program argument"
+        },
+        {
+          "key": 1,
+          "signature": "valid",
+          "err": null,
+          "unitsConsumed": 1750872,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 success"
+        },
+        {
+          "key": 1,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "InvalidArgument"
+            ]
+          },
+          "unitsConsumed": 1750862,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: invalid program argument"
+        },
+        {
+          "key": 2,
+          "signature": "valid",
+          "err": null,
+          "unitsConsumed": 1750745,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 success"
+        },
+        {
+          "key": 2,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "InvalidArgument"
+            ]
+          },
+          "unitsConsumed": 1750730,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: invalid program argument"
+        },
+        {
+          "key": 3,
+          "signature": "valid",
+          "err": null,
+          "unitsConsumed": 1750932,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 success"
+        },
+        {
+          "key": 3,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "InvalidArgument"
+            ]
+          },
+          "unitsConsumed": 1750920,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: invalid program argument"
+        },
+        {
+          "key": 4,
+          "signature": "valid",
+          "err": null,
+          "unitsConsumed": 1750699,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 success"
+        },
+        {
+          "key": 4,
+          "signature": "one bit flipped",
+          "err": {
+            "InstructionError": [
+              0,
+              "InvalidArgument"
+            ]
+          },
+          "unitsConsumed": 1750687,
+          "last_log": "Program 59SDP3UdCg4VG2KpNphxpqxh1r7DBBUra3hSK29ddZa4 failed: invalid program argument"
+        }
+      ],
+      "valid_signatures": {
+        "all_succeeded": true,
+        "errors": [
+          "null"
+        ],
+        "unitsConsumed": {
+          "n": 5,
+          "min": 1750658,
+          "median": 1750745,
+          "max": 1750932
+        }
+      },
+      "flipped_signatures": {
+        "all_failed_with_InvalidArgument": true,
+        "errors": [
+          "{\"InstructionError\": [0, \"InvalidArgument\"]}"
+        ],
+        "unitsConsumed": {
+          "n": 5,
+          "min": 1750647,
+          "median": 1750730,
+          "max": 1750920
+        }
+      }
+    }
+  },
+  "valid_signature_unitsConsumed": {
+    "source": "runs.lifted_limit (with the default limit every simulation stops at 1,400,000 units)",
+    "min": 1750658,
+    "median": 1750745,
+    "max": 1750932
+  },
+  "fits_in_1400000": false,
+  "fits_in_1400000_note": "No. With the default limit the node stops every simulation, valid or flipped, at 1,400,000 units (ProgramFailedToComplete, 'exceeded CUs meter at BPF instruction'). With the limit lifted a valid signature succeeds and a flipped one fails with InvalidArgument, both after about 1,750,745 units.",
+  "heap": "mldsa44::verify makes one heap request of 7,168 bytes (7 polynomials of 256 32-bit coefficients; tests/heap.rs asserts it); with the 1,356-byte message and 120 bytes of the entrypoint the program uses 8,644 of the 32,768 bytes of heap (a diagnostic build logged the address of a last 1-byte allocation: 0x300005e3b, 8,645 bytes below the end of the heap)",
+  "heap_bytes_verifier": 7168,
+  "heap_bytes_program_total": 8644,
+  "where_the_units_go": {
+    "note": "Measured by the same node (limit lifted, 100 keys) on a diagnostic build of the same sources that logs one line and returns Ok at one of 14 phase boundaries, chosen by the first byte of the public key. unitsConsumed is the cost up to the boundary; the diagnostic build is not the program above. The source of the diagnostic build is not in this repository.",
+    "diagnostic_so_sha256": "60ff197e4fd280929eb7510afd5c2269f2e06d379791f2e746d0c14162325d6a",
+    "boundaries": [
+      {
+        "boundary": 0,
+        "reached_after": "instruction entered (entrypoint, one log line of the diagnostic build)",
+        "keys": 6,
+        "unitsConsumed_min": 486,
+        "unitsConsumed_median": 486,
+        "unitsConsumed_max": 486,
+        "median_minus_previous_median": 486
+      },
+      {
+        "boundary": 1,
+        "reached_after": "message assembled (label, wallet address, public key)",
+        "keys": 11,
+        "unitsConsumed_min": 546,
+        "unitsConsumed_median": 546,
+        "unitsConsumed_max": 546,
+        "median_minus_previous_median": 60
+      },
+      {
+        "boundary": 2,
+        "reached_after": "hint checked, working memory allocated",
+        "keys": 5,
+        "unitsConsumed_min": 1238,
+        "unitsConsumed_median": 1260,
+        "unitsConsumed_max": 1266,
+        "median_minus_previous_median": 714
+      },
+      {
+        "boundary": 3,
+        "reached_after": "z: four polynomials unpacked, norm checked, transformed (4 NTT)",
+        "keys": 7,
+        "unitsConsumed_min": 56947,
+        "unitsConsumed_median": 56969,
+        "unitsConsumed_max": 56979,
+        "median_minus_previous_median": 55709
+      },
+      {
+        "boundary": 4,
+        "reached_after": "tr = H(pk, 64)",
+        "keys": 9,
+        "unitsConsumed_min": 184498,
+        "unitsConsumed_median": 184524,
+        "unitsConsumed_max": 184546,
+        "median_minus_previous_median": 127555
+      },
+      {
+        "boundary": 5,
+        "reached_after": "mu = H(tr || M', 64)",
+        "keys": 4,
+        "unitsConsumed_min": 323746,
+        "unitsConsumed_median": 323753,
+        "unitsConsumed_max": 323778,
+        "median_minus_previous_median": 139229
+      },
+      {
+        "boundary": 6,
+        "reached_after": "challenge sampled (SampleInBall)",
+        "keys": 7,
+        "unitsConsumed_min": 348257,
+        "unitsConsumed_median": 348303,
+        "unitsConsumed_max": 348323,
+        "median_minus_previous_median": 24550
+      },
+      {
+        "boundary": 7,
+        "reached_after": "challenge transformed (1 NTT)",
+        "keys": 13,
+        "unitsConsumed_min": 359481,
+        "unitsConsumed_median": 359513,
+        "unitsConsumed_max": 359565,
+        "median_minus_previous_median": 11210
+      },
+      {
+        "boundary": 8,
+        "reached_after": "row 0 of A: four entries expanded (SHAKE128) and multiplied into the row sum",
+        "keys": 7,
+        "unitsConsumed_min": 653218,
+        "unitsConsumed_median": 653260,
+        "unitsConsumed_max": 653299,
+        "median_minus_previous_median": 293747
+      },
+      {
+        "boundary": 9,
+        "reached_after": "row 0: t1 unpacked and transformed (1 NTT)",
+        "keys": 5,
+        "unitsConsumed_min": 666406,
+        "unitsConsumed_median": 666428,
+        "unitsConsumed_max": 666458,
+        "median_minus_previous_median": 13168
+      },
+      {
+        "boundary": 10,
+        "reached_after": "row 0: row sum plus challenge times t1",
+        "keys": 6,
+        "unitsConsumed_min": 668731,
+        "unitsConsumed_median": 668773,
+        "unitsConsumed_max": 668821,
+        "median_minus_previous_median": 2345
+      },
+      {
+        "boundary": 11,
+        "reached_after": "row 0: inverse transform (1 NTT^-1)",
+        "keys": 6,
+        "unitsConsumed_min": 680631,
+        "unitsConsumed_median": 680685,
+        "unitsConsumed_max": 680704,
+        "median_minus_previous_median": 11912
+      },
+      {
+        "boundary": 12,
+        "reached_after": "row 0: hint used, w1 packed and absorbed",
+        "keys": 6,
+        "unitsConsumed_min": 695608,
+        "unitsConsumed_median": 695746.5,
+        "unitsConsumed_max": 695848,
+        "median_minus_previous_median": 15061.5
+      },
+      {
+        "boundary": 13,
+        "reached_after": "whole verification (rows 1 to 3, last hash, comparison)",
+        "keys": 8,
+        "unitsConsumed_min": 1750717,
+        "unitsConsumed_median": 1750983.5,
+        "unitsConsumed_max": 1751215,
+        "median_minus_previous_median": 1055237
+      }
+    ],
+    "keccak_permutations": 129,
+    "keccak": "Derived from the table and from the sources of sha3 0.10.9, not a figure that the node prints: the sha3 crate runs 129 Keccak-f[1600] permutations for one verification of the client's message. 96 for the 16 entries of A (each: 1 to absorb the seed, 5 for the 5 output blocks; the reader of sha3 runs a permutation after every block it returns, so the fifth is not used), 11 for tr, 12 for mu, 2 for the challenge, 8 for the last hash; 20 of the 129 follow the last block that is read. tr costs 127,555 units for its 11 permutations, about 11,600 each (the round loop of keccak_p is 475 instructions in 476 eight-byte slots, 24 rounds), so the permutations take about 1.50 million units, more than the 1,400,000 that a transaction may ask for; everything else (13 transforms, unpacking, products, hint) takes about 0.25 million."
+  },
+  "second_run": "The tests and both measurements of the program were run a second time on 2026-11-26, with the same units in every simulation; tests/edges.rs was added then.",
+  "fips204_in_the_virtual_machine": {
+    "what": "Control: the same instruction, verified by the fips204 crate 0.5.0 in place of src/mldsa44.rs (the crate of program-verify-fips204)",
+    "date": "2026-11-26",
+    "commands": [
+      "cargo-build-sbf --manifest-path program-verify-fips204/Cargo.toml --sbf-out-dir <out>",
+      "bash tools/start_node.sh --alpenglow --slots-per-epoch 32 --bpf-program <program id> <out>/pq_verify_fips204.so [--compute-unit-limit 200000000]; pqsol verify-in-vm <rpc> <funder key> <program id> 5 1400000"
+    ],
+    "build": {
+      "tool": "cargo-build-sbf 4.5.0",
+      "platform_tools": "v1.57",
+      "so_sha256": "6d3f4cbc781e00f37c0778a0f50302c4aa39e6915cca0cd23ca504be86f0624f",
+      "so_bytes": 63416
+    },
+    "frame_limit_bytes": 4096,
+    "functions_over_the_frame_limit": 15,
+    "frame_of_the_verification_bytes": 62656,
+    "build_message_for_the_verification": "Error: Function _RINvNtCsbiItzjCAto2_7fips2046ml_dsa15verify_internalKb0_Kj4_KBT_Kj20_Kj520_Kj974_Kj300_EB4_ overflows the maximum allowed frame space by accessing an offset 58560 bytes greater than the maximum of 4096. Please, minimize large stack variables. Estimated function frame size: 62656 bytes.",
+    "frames_over_the_limit": [
+      {
+        "function": "<fips204::types::PrivateKey as fips204::traits::Signer>::get_public_key",
+        "estimated_frame_bytes": 69760,
+        "symbol": "_RNvXs_NtCsbiItzjCAto2_7fips2049ml_dsa_44INtNtB6_5types10PrivateKeyKj4_KB13_ENtNtB6_6traits6Signer14get_public_key"
+      },
+      {
+        "function": "fips204::ml_dsa::verify_internal",
+        "estimated_frame_bytes": 62656,
+        "symbol": "_RINvNtCsbiItzjCAto2_7fips2046ml_dsa15verify_internalKb0_Kj4_KBT_Kj20_Kj520_Kj974_Kj300_EB4_"
+      },
+      {
+        "function": "<fips204::ml_dsa_44::KG as fips204::traits::KeyGen>::keygen_from_seed",
+        "estimated_frame_bytes": 59776,
+        "symbol": "_RNvXNtCsbiItzjCAto2_7fips2049ml_dsa_44NtB2_2KGNtNtB4_6traits6KeyGen16keygen_from_seed"
+      },
+      {
+        "function": "<fips204::types::PrivateKey as fips204::traits::SerDes>::try_from_bytes",
+        "estimated_frame_bytes": 49344,
+        "symbol": "_RNvXs1_NtCsbiItzjCAto2_7fips2049ml_dsa_44INtNtB7_5types10PrivateKeyKj4_KB14_ENtNtB7_6traits6SerDes14try_from_bytes"
+      },
+      {
+        "function": "<fips204::types::PrivateKey as fips204::traits::SerDes>::into_bytes",
+        "estimated_frame_bytes": 33024,
+        "symbol": "_RNvXs1_NtCsbiItzjCAto2_7fips2049ml_dsa_44INtNtB7_5types10PrivateKeyKj4_KB14_ENtNtB7_6traits6SerDes10into_bytes"
+      },
+      {
+        "function": "<fips204::types::PublicKey as fips204::traits::SerDes>::try_from_bytes",
+        "estimated_frame_bytes": 29248,
+        "symbol": "_RNvXs2_NtCsbiItzjCAto2_7fips2049ml_dsa_44INtNtB7_5types9PublicKeyKj4_KB12_ENtNtB7_6traits6SerDes14try_from_bytes"
+      },
+      {
+        "function": "core::array::try_from_fn, called in fips204::hashing::expand_a",
+        "estimated_frame_bytes": 25920,
+        "symbol": "_RINvNtCskXIvWxbO49l_4core5array11try_from_fnINtNtNtB4_3ops9try_trait17NeverShortCircuitANtNtCsbiItzjCAto2_7fips2045types1Tj4_EKB1W_INtBJ_7WrappedB1n_jNCINvNtB1s_7hashing8expand_aKb0_KB1W_KB1W_E0EEB1s_"
+      },
+      {
+        "function": "<fips204::types::PublicKey as fips204::traits::SerDes>::into_bytes",
+        "estimated_frame_bytes": 19584,
+        "symbol": "_RNvXs2_NtCsbiItzjCAto2_7fips2049ml_dsa_44INtNtB7_5types9PublicKeyKj4_KB12_ENtNtB7_6traits6SerDes10into_bytes"
+      },
+      {
+        "function": "fips204::high_low::power2round",
+        "estimated_frame_bytes": 13376,
+        "symbol": "_RINvNtCsbiItzjCAto2_7fips2048high_low11power2roundKj4_EB4_"
+      },
+      {
+        "function": "pq_verify_fips204::process_instruction",
+        "estimated_frame_bytes": 12160,
+        "symbol": "_RNvCs22wqRMxCZTg_17pq_verify_fips20419process_instruction"
+      },
+      {
+        "function": "fips204::helpers::add_vector_ntt",
+        "estimated_frame_bytes": 9280,
+        "symbol": "_RINvNtCsbiItzjCAto2_7fips2047helpers14add_vector_nttKj4_EB4_"
+      },
+      {
+        "function": "core::array::try_from_fn, called in fips204::helpers::to_mont",
+        "estimated_frame_bytes": 9280,
+        "symbol": "_RINvNtCskXIvWxbO49l_4core5array11try_from_fnINtNtNtB4_3ops9try_trait17NeverShortCircuitNtNtCsbiItzjCAto2_7fips2045types1TEKj4_INtBJ_7WrappedB1n_jNCINvNtB1r_7helpers7to_montKB1X_E0EEB1r_"
+      },
+      {
+        "function": "fips204::ntt::ntt",
+        "estimated_frame_bytes": 8256,
+        "symbol": "_RINvNtCsbiItzjCAto2_7fips2043ntt3nttKj4_EB4_"
+      },
+      {
+        "function": "fips204::helpers::mat_vec_mul",
+        "estimated_frame_bytes": 8256,
+        "symbol": "_RINvNtCsbiItzjCAto2_7fips2047helpers11mat_vec_mulKj4_KBM_EB4_"
+      },
+      {
+        "function": "fips204::ntt::inv_ntt",
+        "estimated_frame_bytes": 4224,
+        "symbol": "_RINvNtCsbiItzjCAto2_7fips2043ntt7inv_nttKj4_EB4_"
+      }
+    ],
+    "frames_note": "The crate has the types cdylib and lib, as program-verify has, so the build also compiles the key generation and the functions of the private key. The instruction itself calls PublicKey::try_from_bytes and the verification (verify_internal).",
+    "runs": {
+      "default_limit": {
+        "simulations": 10,
+        "valid_signatures": 5,
+        "err_of_every_simulation": {
+          "InstructionError": [
+            0,
+            "ProgramFailedToComplete"
+          ]
+        },
+        "last_log_of_every_simulation": "failed: Overlapping copy",
+        "unitsConsumed_of_every_simulation": 370932,
+        "program_id": "Z1KfxtcKWc5WnGyvrFezxaeXeeYVt6i8yBS8kbhm3Y1"
+      },
+      "lifted_limit": {
+        "simulations": 10,
+        "valid_signatures": 5,
+        "err_of_every_simulation": {
+          "InstructionError": [
+            0,
+            "ProgramFailedToComplete"
+          ]
+        },
+        "last_log_of_every_simulation": "failed: Overlapping copy",
+        "unitsConsumed_of_every_simulation": 370932,
+        "program_id": "Z1KfxtcKWc5WnGyvrFezxaeXeeYVt6i8yBS8kbhm3Y1"
+      }
+    },
+    "result": "The build finishes and prints the messages above. On the node every simulation, of a valid signature or of one with a flipped bit, with the default limit or with the limit lifted, ends with ProgramFailedToComplete ('Overlapping copy')."
+  }
+}
