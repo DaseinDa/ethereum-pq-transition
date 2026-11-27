@@ -10,6 +10,7 @@ Reads
   RESULTS_DIR/local-run-*/             the local runs; local-run-200ms is the one in mainnet's slot parameters
   RESULTS_DIR/bench_verify.json        ML-DSA-44 and Ed25519 verification times on the run's machine
   RESULTS_DIR/verify-in-vm.json        one ML-DSA-44 verification inside the virtual machine (program-verify)
+  RESULTS_DIR/cost_check.json          the sampled transactions checked against Agave's cost model (cost_check.py)
 and writes RESULTS_DIR/SOLANA.json and RESULTS_DIR/SOLANA.md.
 
 Rate. A block offers the migration the entry bytes and the cost units that ordinary traffic leaves under the two
@@ -21,19 +22,27 @@ every sampled slot of min(free bytes / bytes per account, free cost / cost per a
 room. The second rate also caps the migration's entry bytes in a block at the entry bytes of that block's
 ordinary traffic.
 
-Order of inclusion. A leader that runs Agave gives a transaction the priority reward x 1,000,000 / (1 + cost),
-rounded down, and takes the cost at the limits the transaction asks for (core/src/transaction_priority.rs in
-Agave v4.4.1). The reward is the fee less the burnt half of the signature fees. For the migration the reward and
-the limits are known exactly (run.json records the limits its transactions ask for), and the charge for a
-verification is added to its cost. For an ordinary transaction the sample has the cost units it used, which are at most the cost at
-the limits it asked for, and its reward computed here counts 2,500 burnt lamports per transaction signature,
-which is at least the true reward (signatures that a precompile verifies burn more). Both errors make an
-ordinary transaction rank higher here than that rule ranks it, so by fees alone the share of ordinary traffic
-that ranks below the migration is a lower bound, and so is the fee each such transaction would add. A tip is not
-part of the fee: the script also reports the shares with every transaction's tip counted as reward.
+Order of inclusion. A leader that runs Agave ranks a transaction by its priority, which is reward x 1,000,000 /
+(1 + cost), rounded down, and takes the cost at the limits the transaction asks for
+(core/src/transaction_priority.rs in Agave v4.4.1). The reward is the fee less the burnt half of the signature fees: 2,500 lamports for every
+transaction signature and for every signature that a precompile verifies. For the migration the limits are those
+its transactions ask for (run.json records them), and the charge for a verification is added to its cost. For an
+ordinary transaction parse_blocks.py read the limits from the transaction's bytes and computed the cost at them
+by the rules of Agave's cost model (the column cost_units_at_limits). Three checks stand behind those columns.
+The priority fee of every legacy or v0 transaction is the price it states times its compute-unit limit, rounded
+up. The rewards computed here add up, in every sampled block, to the fee reward that the block reports. And
+RESULTS_DIR/cost_check.json records that Agave's own crates give the same limits, cost and fee for every sampled
+transaction, and that the reward and the priority derived from them are the same (tools/cost_check.py); the
+script stops unless that record is of the data file it reads and records no disagreement. A tip is not part of
+the fee: the script also reports the shares with every transaction's tip counted as reward. For comparison it
+reports the shares with every ordinary transaction ranked by the cost units it used, once at the fee it paid and
+once at the price it states (a legacy or v0 transaction that asked for fewer compute units would pay less at the
+same price), the shares for other limits of the migration's own transactions, and the same counts apart for the
+transactions that succeeded and for those that failed.
 """
 import csv
 import gzip
+import hashlib
 import json
 import math
 import statistics
@@ -55,14 +64,26 @@ CU_PER_US = params["cost_units_per_microsecond"]
 ED25519_PRECOMPILE_COST = params["ed25519_precompile_signature_cost_units"]
 LAMPORTS_PER_SIGNATURE = 5000
 PAGE = 32 * 1024
+DATA_PAGE_COST = 8                  # cost units for every 32 KiB of loaded account data
+MAX_LOADED_DATA = 64 * 1024 * 1024  # the bytes a transaction may load if it states no limit
 BURN = 2500
 MAX_TX_COMPUTE_UNITS = 1_400_000
 PRIORITY_MULTIPLIER = 1_000_000
+U64_MAX = 2**64 - 1
+# the compute-unit limit that a legacy or v0 transaction which states none gets for every instruction of a program
+# outside Agave's built-in list
+DEFAULT_COMPUTE_UNITS = 200_000
 
 
 def priority(reward, cost):
-    """Agave's priority of a transaction (core/src/transaction_priority.rs): whole numbers, rounded down."""
-    return reward * PRIORITY_MULTIPLIER // (cost + 1)
+    """Agave's priority of a transaction (core/src/transaction_priority.rs): whole numbers, the product capped at
+    2^64 - 1, the quotient rounded down."""
+    return min(reward * PRIORITY_MULTIPLIER, U64_MAX) // (cost + 1)
+
+
+def pages(size):
+    """The 32 KiB pages that hold this many bytes of account data, as Agave's cost model counts them."""
+    return -(-size // PAGE)
 
 
 # Sums of floating-point numbers use math.fsum, which rounds the exact sum once: the result is the same on every
@@ -106,14 +127,22 @@ cost_per_account = enroll_cost + activate_cost + 2 * verify_charge
 # the cost a leader ranks the two transactions by: the cost at the limits they ask for, plus the charge
 phases = {p["phase"]: p for p in run["phases"]}
 simulated = {s["step"]: s for s in run["simulations"]}
+# the part of a transaction's cost that its limits do not change (signatures, write locks, instruction data): the
+# cost charged, less the compute units used and less the pages of account data loaded
+fixed_cost = {kind: executed - tx[kind]["compute_units"]["min"] - pages(simulated[kind]["loadedAccountsDataSize"]) * DATA_PAGE_COST
+              for kind, executed in (("enroll", enroll_cost), ("activate", activate_cost))}
+
+
+def cost_at(kind, compute_units, loaded_bytes):
+    """The cost of the enrollment or the activation at these two limits, without the charge for a verification."""
+    return fixed_cost[kind] + compute_units + pages(loaded_bytes) * DATA_PAGE_COST
+
+
 cost_at_limits, rank_cost = {}, {}
-for kind, executed in (("enroll", enroll_cost), ("activate", activate_cost)):
-    asked = phases[kind]["compute_unit_limit"]
-    used = tx[kind]["compute_units"]["min"]
-    assert asked >= used, kind
-    # the loaded-accounts charge is the same at the limit asked for and at the size loaded
-    assert phases[kind]["loaded_accounts_data_size_limit"] // PAGE == -(-simulated[kind]["loadedAccountsDataSize"] // PAGE), kind
-    cost_at_limits[kind] = executed - used + asked
+for kind in ("enroll", "activate"):
+    assert phases[kind]["compute_unit_limit"] >= tx[kind]["compute_units"]["min"], kind
+    assert phases[kind]["loaded_accounts_data_size_limit"] >= simulated[kind]["loadedAccountsDataSize"], kind
+    cost_at_limits[kind] = cost_at(kind, phases[kind]["compute_unit_limit"], phases[kind]["loaded_accounts_data_size_limit"])
     rank_cost[kind] = cost_at_limits[kind] + verify_charge
 migration_priority = min(priority(fee_one_signature - BURN, c) for c in rank_cost.values())
 migration_priority_without_charge = min(priority(fee_one_signature - BURN, c) for c in cost_at_limits.values())
@@ -195,40 +224,129 @@ assert charge_sensitivity[2]["accounts_per_day"] == rates["first"]["accounts_per
 assert charge_sensitivity[2]["accounts_per_day_second_rate"] == rates["second"]["accounts_per_day"]
 
 # ---- order of inclusion: ordinary transactions that Agave's rule ranks below the migration at the signature fee
-with gzip.open(data / "mainnet_txs.csv.gz", "rt", encoding="utf-8", newline="") as f:
-    txs = list(csv.DictReader(f))
+tx_text = gzip.decompress((data / "mainnet_txs.csv.gz").read_bytes())
+txs = list(csv.DictReader(tx_text.decode("utf-8").splitlines()))
 keys = ("transactions", "bytes", "cost_units")
 total = dict.fromkeys(keys, 0)
-rule_reward = total_fees = tips = tipping = 0
-ordinary = []  # (reward by the rule, cost units, bytes, tip) of every sampled transaction
+total_reward = total_fees = tips = tipping = precompile_signatures = with_precompile = cost_at_limits_total = 0
+states_compute_unit_limit = states_data_limit = default_data_limit = no_compute_units = fee_depends_on_limit = 0
+reward_by_slot = dict.fromkeys((r["slot"] for r in blocks), 0)
+failed_by_slot = dict.fromkeys((r["slot"] for r in blocks), 0)
+used_over_limit, limits_over_used = [], []
+used_over_limit_by_outcome = {False: [], True: []}
+fees_of_those_below = []  # the fees that the transactions ranking below the enrollment pay today
+# (reward, cost at the limits asked for, cost units used, bytes, tip, reward at the stated price if the compute-unit
+# limit were the compute units used, whether it failed) of every sampled transaction
+ordinary = []
 for r in txs:
-    fee, sigs, cost, size, tip = (int(r[k]) for k in ("fee_lamports", "signatures", "cost_units", "bytes", "tip_lamports"))
-    assert cost > 0, r
-    reward = fee - BURN * sigs
+    fee, sigs, precompile, cost, at_limits, size, tip, units, unit_limit, data_limit = (int(r[k]) for k in (
+        "fee_lamports", "signatures", "precompile_signatures", "cost_units", "cost_units_at_limits", "bytes", "tip_lamports",
+        "compute_units", "compute_unit_limit", "loaded_accounts_data_size_limit"))
+    assert at_limits >= cost > 0 and units <= unit_limit, r
+    assert r["failed"] in ("0", "1"), r
+    failed = r["failed"] == "1"
+    failed_by_slot[r["slot"]] += failed
+    reward = fee - BURN * (sigs + precompile)
+    if priority(reward, at_limits) < migration_priority:
+        fees_of_those_below.append(fee)
     assert reward >= 0, r
-    rule_reward += reward
+    # The priority fee is the lamports a v1 transaction states, or the price a legacy or v0 transaction states for a
+    # compute unit, in millionths of a lamport, times its compute-unit limit, rounded up.
+    priority_fee = fee - LAMPORTS_PER_SIGNATURE * (sigs + precompile)
+    if r["version"] == "1":
+        assert r["compute_unit_price"] == "", r
+        reward_at_use = reward
+    else:
+        price = int(r["compute_unit_price"] or 0)
+        assert priority_fee == -(-price * unit_limit // 1_000_000), r
+        reward_at_use = reward - priority_fee + -(-price * units // 1_000_000)
+        fee_depends_on_limit += price > 0
+    total_reward += reward
+    reward_by_slot[r["slot"]] += reward
     total_fees += fee
     tips += tip
     tipping += tip > 0
+    precompile_signatures += precompile
+    with_precompile += precompile > 0
+    cost_at_limits_total += at_limits
+    states_compute_unit_limit += r["states_compute_unit_limit"] == "1"
+    states_data_limit += r["states_loaded_data_limit"] == "1"
+    if r["states_loaded_data_limit"] == "0" and r["version"] != "1":
+        assert data_limit == MAX_LOADED_DATA, r
+        default_data_limit += 1
+    no_compute_units += unit_limit == 0
+    if unit_limit:
+        used_over_limit.append(units / unit_limit)
+        used_over_limit_by_outcome[failed].append(units / unit_limit)
+    limits_over_used.append(at_limits / cost)
     for k, v in zip(keys, (1, size, cost)):
         total[k] += v
-    ordinary.append((reward, cost, size, tip))
+    ordinary.append((reward, at_limits, cost, size, tip, reward_at_use, failed))
+assert failed_by_slot == {r["slot"]: int(r["failed_txs"]) for r in blocks}, "the two files disagree on failed transactions"
+# the rewards add up, block by block, to the fee reward that each block reports
+reported_by_slot = {r["slot"]: int(r["leader_fee_reward_lamports"]) for r in blocks}
+assert reward_by_slot == reported_by_slot, "the rewards computed here differ from the fee rewards that the blocks report"
+reported_reward = sum(col("leader_fee_reward_lamports"))
+assert total_reward == reported_reward
+assert total["transactions"] == sum(col("txs")), "the two files disagree"
+assert tips == sum(col("tips_lamports")), "the two files disagree on tips"
+# Agave's own crates gave the same limits, costs and fees for these transactions, and the rewards and priorities
+# derived from them are the same (tools/cost_check.py)
+check = json.loads((results / "cost_check.json").read_text(encoding="utf-8"))
+assert check["sha256_of_the_rows_compared"] == hashlib.sha256(tx_text).hexdigest(), (
+    f"cost_check.json is of another data file (it covers {check['transactions']} transactions, the data file "
+    f"{len(txs)}): run tools/cost_check.py on this sample")
+assert not any(check["transactions_that_disagree"].values()), (
+    "cost_check.json records transactions on which Agave's cost model disagrees")
+assert check["transactions_whose_cost_is_the_same_by_calculate_cost"] == check["transactions"] == len(txs), (
+    "cost_check.json records transactions whose cost by calculate_cost is another one")
+assert check["sum_of_the_costs_at_the_limits"] == cost_at_limits_total and check["sum_of_the_rewards_lamports"] == total_reward
 
 
-def ranked_below(threshold, count_tips=False):
+def ranked_below(threshold, count_tips=False, by_cost_used=False, price_kept=False):
     """The ordinary transactions with a priority below the threshold: their counts, and the fewest whole lamports
-    each would add to its fee to reach the threshold."""
+    each would add to its fee to reach the threshold. A transaction is ranked by its cost at the limits it asks
+    for; by_cost_used ranks it by the cost units it used instead, at the fee it paid or, with price_kept, at the
+    fee that the price it states would give for the compute units it used."""
     counts, added = dict.fromkeys(keys, 0), []
-    for reward, cost, size, tip in ordinary:
-        if priority(reward + (tip if count_tips else 0), cost) < threshold:
-            added.append(-(-threshold * (cost + 1) // PRIORITY_MULTIPLIER) - reward)
+    for reward, at_limits, cost, size, tip, reward_at_use, _ in ordinary:
+        ranked_by = cost if by_cost_used else at_limits
+        offered = reward_at_use if price_kept else reward
+        if priority(offered + (tip if count_tips else 0), ranked_by) < threshold:
+            added.append(-(-threshold * (ranked_by + 1) // PRIORITY_MULTIPLIER) - offered)
             for k, v in zip(keys, (1, size, cost)):
                 counts[k] += v
     return counts, added
 
 
+def shares(counts):
+    return {k: counts[k] / total[k] for k in keys}
+
+
 below, top_ups = ranked_below(migration_priority)
 below_with_tips, _ = ranked_below(migration_priority, count_tips=True)
+below_by_cost_used, _ = ranked_below(migration_priority, by_cost_used=True)
+below_at_the_price, _ = ranked_below(migration_priority, by_cost_used=True, price_kept=True)
+assert all(below_by_cost_used[k] <= below_at_the_price[k] <= below[k] for k in keys)
+assert len(fees_of_those_below) == below["transactions"]
+# the same counts apart for the transactions that succeeded and for those that failed: a transaction that failed
+# stopped before the end, so what it used says less about what its sender had to allow for
+by_outcome = {}
+for name, outcome in (("succeeded", False), ("failed", True)):
+    n = at = by_use = 0
+    for reward, at_limits, cost, size, tip, reward_at_use, failed in ordinary:
+        if failed is outcome:
+            n += 1
+            at += priority(reward, at_limits) < migration_priority
+            by_use += priority(reward, cost) < migration_priority
+    by_outcome[name] = {
+        "transactions": n, "share_of_the_sample": n / len(ordinary),
+        "compute_units_used_over_the_limit_median": statistics.median(used_over_limit_by_outcome[outcome]),
+        "below_the_migration": at / n,
+        "below_the_migration_if_ranked_by_the_cost_units_used": by_use / n,
+        "share_of_those_below_that_are_below_only_at_the_limits": (at - by_use) / at,
+        "share_of_the_transactions_below_the_migration": at / below["transactions"]}
+assert sum(x["transactions"] for x in by_outcome.values()) == len(ordinary)
 # two other pricings of the migration's transactions: as they are today, without a charge; and with the charge and a
 # signature fee for the ML-DSA-44 signature, as every signature that a precompile verifies pays one
 reward_with_a_second_fee = fee_one_signature + LAMPORTS_PER_SIGNATURE - 2 * BURN
@@ -237,37 +355,93 @@ pricings = {}
 for name, threshold in (("without_the_charge", migration_priority_without_charge),
                         ("with_the_charge_and_a_signature_fee_for_the_ml_dsa_signature", priority_with_a_second_fee)):
     counts, _ = ranked_below(threshold)
+    counts_by_cost_used, _ = ranked_below(threshold, by_cost_used=True)
     pricings[name] = {"migration_priority": threshold, "migration_reward_per_cost_unit_lamports": threshold / PRIORITY_MULTIPLIER,
-                      "ordinary_below_the_migration_at_least": {k: counts[k] / total[k] for k in keys}}
-assert total["transactions"] == sum(col("txs")), "the two files disagree"
-assert tips == sum(col("tips_lamports")), "the two files disagree on tips"
-reported_reward = sum(col("leader_fee_reward_lamports"))
-extra_signatures = (rule_reward - reported_reward) / BURN
-assert extra_signatures >= 0 and extra_signatures == int(extra_signatures), extra_signatures
+                      "ordinary_below_the_migration": shares(counts),
+                      "ordinary_below_the_migration_if_ranked_by_the_cost_units_used": shares(counts_by_cost_used)}
+# The same count for other limits of the migration's own transactions. The run's bulk transactions ask for the
+# limits of the first row; the client's first transactions ask for those of the third (run.json, probes).
+roomy = next(x for x in run["probes"] if x["limits"] == "roomy")
+kinds = ("enroll", "activate")
+limit_variants = (
+    ("the limits of the run",
+     {k: (phases[k]["compute_unit_limit"], phases[k]["loaded_accounts_data_size_limit"]) for k in kinds}),
+    ("the run's compute-unit limits with the largest loaded-data limit",
+     {k: (phases[k]["compute_unit_limit"], MAX_LOADED_DATA) for k in kinds}),
+    ("the limits of the client's first transactions",
+     {k: (roomy[k + "_limits"]["compute_units"], roomy[k + "_limits"]["loaded_accounts_data_size"]) for k in kinds}),
+    ("the default limits of a legacy transaction with one instruction of a program outside Agave's built-in list",
+     {k: (DEFAULT_COMPUTE_UNITS, MAX_LOADED_DATA) for k in kinds}),
+)
+by_migration_limits = []
+for label, limits in limit_variants:
+    costs = {k: cost_at(k, *limits[k]) + verify_charge for k in kinds}
+    threshold = min(priority(fee_one_signature - BURN, c) for c in costs.values())
+    counts, _ = ranked_below(threshold)
+    by_migration_limits.append({
+        "limits": label, "compute_units": {k: limits[k][0] for k in kinds},
+        "loaded_account_data_bytes": {k: limits[k][1] for k in kinds},
+        "cost_units_with_the_charge": costs, "migration_priority": threshold,
+        "migration_reward_per_cost_unit_lamports": threshold / PRIORITY_MULTIPLIER,
+        "ordinary_below_the_migration": shares(counts)})
+assert by_migration_limits[0]["migration_priority"] == migration_priority
+assert by_migration_limits[0]["ordinary_below_the_migration"] == shares(below)
+n_txs = total["transactions"]
 ordering = {
     "source": "core/src/transaction_priority.rs, Agave v4.4.1: priority = reward x 1,000,000 / (1 + cost at the limits "
-              "asked for), rounded down",
+              "asked for), rounded down. Each reward per cost unit recorded here is that priority over 1,000,000, for the "
+              "enrollment, which has the lower priority of the migration's two transactions",
     "migration_priority": migration_priority,
     "migration_priority_without_the_charge": migration_priority_without_charge,
+    "migration_limits": {kind: {"compute_units": phases[kind]["compute_unit_limit"],
+                                "loaded_account_data_bytes": phases[kind]["loaded_accounts_data_size_limit"]}
+                         for kind in kinds},
     "migration_cost_units_at_its_limits": cost_at_limits,
     "migration_cost_units_at_its_limits_with_the_charge": rank_cost,
     "migration_reward_per_cost_unit_lamports": migration_priority / PRIORITY_MULTIPLIER,
     "migration_reward_per_cost_unit_lamports_without_the_charge": migration_priority_without_charge / PRIORITY_MULTIPLIER,
-    "ordinary_below_the_migration_at_least": {k: below[k] / total[k] for k in keys},
+    "ordinary_below_the_migration": shares(below),
     "ordinary_below_the_migration_counts": below,
-    "fee_top_up_to_rank_level_lamports_at_least": spread(top_ups),
+    "ordinary_below_the_migration_if_ranked_by_the_cost_units_used": shares(below_by_cost_used),
+    "ordinary_below_the_migration_if_ranked_by_the_cost_units_used_at_the_price_stated": shares(below_at_the_price),
+    "share_of_those_below_that_are_below_only_at_the_limits":
+        (below["transactions"] - below_by_cost_used["transactions"]) / below["transactions"],
+    "ordinary_by_outcome": by_outcome,
+    "fee_top_up_to_rank_level_lamports": spread(top_ups),
     "fee_top_ups_over_all_ordinary_fees": sum(top_ups) / total_fees,
+    "fee_paid_today_by_the_transactions_below_lamports_median": statistics.median(fees_of_those_below),
     "other_pricings_of_the_migration": pricings,
+    "other_limits_of_the_migration": by_migration_limits,
     "ordinary_totals": total,
-    "leader_fee_reward_by_rule_lamports": rule_reward,
-    "leader_fee_reward_reported_lamports": reported_reward,
-    "fee_reward_difference_lamports": rule_reward - reported_reward,
-    "precompile_signatures_implied": int(extra_signatures),
+    "ordinary_limits": {
+        "share_stating_a_compute_unit_limit": states_compute_unit_limit / n_txs,
+        "share_stating_a_limit_on_loaded_data": states_data_limit / n_txs,
+        "share_ranked_at_the_default_of_64_mib_of_loaded_data": default_data_limit / n_txs,
+        "cost_units_of_the_default_of_64_mib_of_loaded_data": pages(MAX_LOADED_DATA) * DATA_PAGE_COST,
+        "transactions_with_a_compute_unit_limit_of_zero": no_compute_units,
+        "transactions_whose_fee_depends_on_the_compute_unit_limit": fee_depends_on_limit,
+        "share_whose_fee_depends_on_the_compute_unit_limit": fee_depends_on_limit / n_txs,
+        "compute_units_used_over_the_limit_median": statistics.median(used_over_limit),
+        "compute_units_used_over_the_limits_in_total": sum(col("compute_units")) / sum(int(r["compute_unit_limit"]) for r in txs),
+        "cost_at_the_limits_over_cost_used_median": statistics.median(limits_over_used),
+        "cost_at_the_limits_in_total": cost_at_limits_total,
+        "cost_at_the_limits_over_cost_used_in_total": cost_at_limits_total / total["cost_units"],
+    },
+    "checks": {
+        "blocks_whose_reported_fee_reward_equals_the_rewards_computed": len(reported_by_slot),
+        "leader_fee_reward_lamports": reported_reward,
+        "precompile_signatures": precompile_signatures,
+        "transactions_with_a_precompile_signature": with_precompile,
+        "against_agave": {k: check[k] for k in ("crates", "transactions", "transactions_that_disagree",
+                                                 "transactions_whose_cost_is_the_same_by_calculate_cost",
+                                                 "features_switched_off", "sha256_of_the_rows_compared",
+                                                 "sha256_of_the_answers")},
+    },
     "tips": {"what": "increase of the balance of one of Jito's eight tip accounts (data/jito_tip_accounts.json) by a transaction",
-             "transactions_with_a_tip": tipping, "share_of_transactions": tipping / total["transactions"],
+             "transactions_with_a_tip": tipping, "share_of_transactions": tipping / n_txs,
              "blocks_with_a_tip": sum(1 for v in col("tips_lamports") if v > 0),
              "tips_lamports": tips, "tips_over_fee_rewards": tips / reported_reward,
-             "ordinary_below_the_migration_with_tips_counted": {k: below_with_tips[k] / total[k] for k in keys}},
+             "ordinary_below_the_migration_with_tips_counted": shares(below_with_tips)},
 }
 
 fee_per_account = 2 * fee_one_signature
@@ -448,6 +622,11 @@ s = out["mainnet_sample"]
 c = s["cluster_transactions_per_second"]
 o = ordering
 tp = o["tips"]
+by_use = o["ordinary_below_the_migration_if_ranked_by_the_cost_units_used"]
+at_price = o["ordinary_below_the_migration_if_ranked_by_the_cost_units_used_at_the_price_stated"]
+out_ok, out_failed = o["ordinary_by_outcome"]["succeeded"], o["ordinary_by_outcome"]["failed"]
+lim = o["ordinary_limits"]
+chk = o["checks"]
 vmx = in_vm["if_both_verifications_ran_in_a_program"]
 lines = [
     "# Solana enrollment: results",
@@ -472,11 +651,16 @@ lines = [
     f"| The same shares in the fullest blocks | {pct(s['largest_share_of_entry_byte_budget_in_a_block_at_most'])} of the entry bytes, {s['per_block']['cost_units']['max']:,} of the {BLOCK_COST:,} cost units |",
     f"| Per-block maxima of ordinary traffic | {s['per_block']['tx_bytes']['max']:,} bytes (slot {by_bytes_slot:,}); {s['per_block']['cost_units']['max']:,} cost units (slot {by_cost_slot:,}); largest transaction {s['largest_transaction_bytes']:,} bytes |",
     f"| Blocks where the byte limit binds, where the cost limit binds | {s['blocks_where_bytes_bind']:,}, {s['blocks_where_cost_binds']:,} |",
-    f"| The migration's reward per cost unit at the signature fee | {o['migration_reward_per_cost_unit_lamports']:.3f} lamports with the verification charge in its cost ({o['migration_reward_per_cost_unit_lamports_without_the_charge']:.3f} without it) |",
-    f"| Ordinary transactions that rank below it by fees (at least) | {pct(o['ordinary_below_the_migration_at_least']['transactions'])} of the transactions, {pct(o['ordinary_below_the_migration_at_least']['bytes'])} of their bytes, {pct(o['ordinary_below_the_migration_at_least']['cost_units'])} of their cost units |",
-    f"| Fee those transactions would add to rank level with it (at least) | median {o['fee_top_up_to_rank_level_lamports_at_least']['median']:,.0f} lamports, 90th percentile {o['fee_top_up_to_rank_level_lamports_at_least']['p90']:,.0f}; {pct(o['fee_top_ups_over_all_ordinary_fees'])} of all ordinary fees in total |",
+    f"| The enrollment's reward per cost unit at the signature fee, at its limits | {o['migration_reward_per_cost_unit_lamports']:.3f} lamports with the verification charge in its cost ({o['migration_reward_per_cost_unit_lamports_without_the_charge']:.3f} without it) |",
+    f"| Ordinary transactions that rank below the enrollment at the limits they ask for, tips not counted | {pct(o['ordinary_below_the_migration']['transactions'])} of the transactions, {pct(o['ordinary_below_the_migration']['bytes'])} of their bytes, {pct(o['ordinary_below_the_migration']['cost_units'])} of the cost units they used |",
+    f"| The same shares with every ordinary transaction ranked by the cost units it used, at the fee it paid | {pct(by_use['transactions'])}, {pct(by_use['bytes'])}, {pct(by_use['cost_units'])} |",
+    f"| The same shares ranked by the cost units used, with each legacy or v0 transaction paying its stated price on the compute units it used | {pct(at_price['transactions'])}, {pct(at_price['bytes'])}, {pct(at_price['cost_units'])} |",
+    f"| Transactions that failed | {out_failed['transactions']:,} ({pct(out_failed['share_of_the_sample'])}); a transaction that failed used a median of {pct(out_failed['compute_units_used_over_the_limit_median'])} of its compute-unit limit, one that succeeded {pct(out_ok['compute_units_used_over_the_limit_median'])}; of the {out_ok['transactions']:,} that succeeded, {pct(out_ok['below_the_migration'])} rank below the enrollment at their limits and {pct(out_ok['below_the_migration_if_ranked_by_the_cost_units_used'])} by the cost units they used |",
+    f"| Limits of the ordinary transactions | {pct(lim['share_stating_a_compute_unit_limit'])} state a compute-unit limit; the median transaction uses {pct(lim['compute_units_used_over_the_limit_median'])} of its compute-unit limit; {pct(lim['share_ranked_at_the_default_of_64_mib_of_loaded_data'])} state no limit on loaded data and are ranked at the default of 64 MiB ({lim['cost_units_of_the_default_of_64_mib_of_loaded_data']:,} cost units); for the median transaction the cost at the limits is {lim['cost_at_the_limits_over_cost_used_median']:.1f} times the cost it used, and summed over all transactions {lim['cost_at_the_limits_over_cost_used_in_total']:.1f} times |",
+    f"| Fee that the transactions ranking below the enrollment at their limits would add to rank level with it | median {o['fee_top_up_to_rank_level_lamports']['median']:,.0f} lamports, 90th percentile {o['fee_top_up_to_rank_level_lamports']['p90']:,.0f}; in total {pct(o['fee_top_ups_over_all_ordinary_fees'])} of the fees that all ordinary transactions paid; the transactions ranking below pay a median of {o['fee_paid_today_by_the_transactions_below_lamports_median']:,.0f} lamports today |",
+    f"| Checks of the limits, costs and rewards | the rewards equal the reported fee reward in {chk['blocks_whose_reported_fee_reward_equals_the_rewards_computed']:,} of {n_blocks:,} blocks; Agave's cost model (`cost-check/`) agrees on {chk['against_agave']['transactions'] - max(chk['against_agave']['transactions_that_disagree'].values()):,} of {n_txs:,} transactions |",
     f"| Transactions that also pay a tip | {tp['transactions_with_a_tip']:,} ({pct(tp['share_of_transactions'])}), in {tp['blocks_with_a_tip']:,} blocks; {tp['tips_lamports'] / 1e9:.2f} SOL against {reported_reward / 1e9:.2f} SOL of fee rewards |",
-    f"| The same shares with tips counted as reward | {pct(tp['ordinary_below_the_migration_with_tips_counted']['transactions'])}, {pct(tp['ordinary_below_the_migration_with_tips_counted']['bytes'])}, {pct(tp['ordinary_below_the_migration_with_tips_counted']['cost_units'])} |",
+    f"| The shares below the enrollment at the limits they ask for, with tips counted as reward | {pct(tp['ordinary_below_the_migration_with_tips_counted']['transactions'])}, {pct(tp['ordinary_below_the_migration_with_tips_counted']['bytes'])}, {pct(tp['ordinary_below_the_migration_with_tips_counted']['cost_units'])} |",
     "",
     "| Rate | Accounts per slot | Accounts per day |",
     "|---|---|---|",
@@ -490,13 +674,21 @@ lines = [
 ]
 for x in charge_sensitivity:
     lines.append(f"| {x['charge']} | {x['cost_units_per_verification']:,} | {x['accounts_per_day']:,.0f} | {x['blocks_where_cost_binds']:,} of {n_blocks:,} | {x['accounts_per_day_second_rate']:,.0f} |")
-lines += ["", "| Pricing of the migration's transactions | Reward per cost unit (lamports) | Ordinary transactions that rank below it by fees (at least) |",
-          "|---|---|---|",
-          f"| the charge, one signature fee per transaction (as above) | {o['migration_reward_per_cost_unit_lamports']:.3f} | {pct(o['ordinary_below_the_migration_at_least']['transactions'])} of the transactions, {pct(o['ordinary_below_the_migration_at_least']['bytes'])} of their bytes, {pct(o['ordinary_below_the_migration_at_least']['cost_units'])} of their cost units |"]
+lines += ["", "| Pricing of the migration's transactions | The enrollment's reward per cost unit (lamports) | Ordinary transactions that rank below the enrollment at the limits they ask for | The same, ranked by the cost units they used at the fees they paid |",
+          "|---|---|---|---|",
+          f"| the charge, one signature fee per transaction (as above) | {o['migration_reward_per_cost_unit_lamports']:.3f} | {pct(o['ordinary_below_the_migration']['transactions'])} of the transactions, {pct(o['ordinary_below_the_migration']['bytes'])} of their bytes, {pct(o['ordinary_below_the_migration']['cost_units'])} of the cost units they used | {pct(by_use['transactions'])}, {pct(by_use['bytes'])}, {pct(by_use['cost_units'])} |"]
 for name, label in (("without_the_charge", "no charge: the transactions as they are today"),
                     ("with_the_charge_and_a_signature_fee_for_the_ml_dsa_signature", "the charge and a signature fee for the ML-DSA-44 signature")):
     x = pricings[name]
-    lines.append(f"| {label} | {x['migration_reward_per_cost_unit_lamports']:.3f} | {pct(x['ordinary_below_the_migration_at_least']['transactions'])}, {pct(x['ordinary_below_the_migration_at_least']['bytes'])}, {pct(x['ordinary_below_the_migration_at_least']['cost_units'])} |")
+    y = x["ordinary_below_the_migration_if_ranked_by_the_cost_units_used"]
+    lines.append(f"| {label} | {x['migration_reward_per_cost_unit_lamports']:.3f} | {pct(x['ordinary_below_the_migration']['transactions'])}, {pct(x['ordinary_below_the_migration']['bytes'])}, {pct(x['ordinary_below_the_migration']['cost_units'])} | {pct(y['transactions'])}, {pct(y['bytes'])}, {pct(y['cost_units'])} |")
+lines += ["", "| Limits of the migration's transactions (enrollment; activation) | The enrollment's reward per cost unit (lamports) | Ordinary transactions that rank below the enrollment at the limits they ask for |",
+          "|---|---|---|"]
+for x in o["other_limits_of_the_migration"]:
+    y = x["ordinary_below_the_migration"]
+    lines.append(f"| {x['limits']}: {x['compute_units']['enroll']:,} and {x['compute_units']['activate']:,} compute units, "
+                 f"{x['loaded_account_data_bytes']['enroll']:,} bytes of loaded data | {x['migration_reward_per_cost_unit_lamports']:.3f} | "
+                 f"{pct(y['transactions'])}, {pct(y['bytes'])}, {pct(y['cost_units'])} |")
 lines += ["", "| Population | Accounts | First rate | Second rate | Fees (SOL) | Deposits (SOL) | New account data (GiB) |",
           "|---|---|---|---|---|---|---|"]
 for row in days:

@@ -32,8 +32,11 @@ an epoch is 432,000 slots on mainnet. A block is a sequence of entries, the batc
 transactions; its entry bytes are the bytes of its transactions plus 56 bytes for each batch. A program is code
 deployed on chain, which the validator runs in a virtual machine; a precompile is a signature verifier built
 into the validator itself. Compute units meter what a transaction executes. Cost units are what the per-block
-cost limit counts: the compute units plus fixed charges for signatures, write locks, instruction data and loaded
-account data. A feature is a protocol change that the validator software carries and that an account on chain
+cost limit counts: the compute units plus charges for signatures, write locks, instruction data and loaded
+account data. A transaction also has two limits of its own, on the compute units it may use and on the account
+data it may load. It states them, or the validator applies its defaults. Its cost at the limits is what it would
+be charged if it used both in full. A transaction's fee reward is its fee less the half of the signature fees
+that is burnt. A feature is a protocol change that the validator software carries and that an account on chain
 switches on. A lamport is 0.000000001 SOL.
 
 ## Findings
@@ -66,16 +69,27 @@ switches on. A lamport is 0.000000001 SOL.
    is the minimum balance (the rent-exempt minimum) that mainnet requires of the record: 5,080 lamports for each
    of its 1,354 bytes and for the 128 bytes of overhead of every account. It is not a fee: it stays in the
    record, and this program has no instruction that returns it.
-6. **If more enrollments arrive than the free space holds, part of today's traffic ranks below them.** The two
-   rates displace nothing: they use only the space that ordinary traffic leaves. Beyond that space the leader's
-   ranking decides. A leader that runs Agave ranks a transaction by its fee reward per cost unit, and an
-   enrollment that pays only the signature fee offers 0.195 lamports per cost unit with the verification charge
-   counted in its cost (0.348 without it). In the sample at least 39.8 % of ordinary transactions offer less
-   (51.6 % without the charge); they carry 49.6 % of the ordinary bytes and 78.3 % of the ordinary cost units.
-   Those transactions would wait, or add a fee to rank level with the migration: a median of at least 8,477
-   lamports, 27,938 at the 90th percentile. Tips are outside this rule: 29,936 of the sampled transactions (4.7
-   %) also pay a tip into one of Jito's tip accounts, and Jito's block engine orders the groups of transactions
-   (bundles) it hands to a leader by its own rule (docs.jito.wtf/lowlatencytxnsend).
+6. **If more enrollments arrive than the free space holds, a leader that runs Agave ranks most of today's
+   traffic below them.** The two rates displace nothing: they use only the space that ordinary traffic leaves.
+   Beyond that space the leader's ranking decides. Such a leader ranks a transaction by its fee reward per cost
+   unit, and it takes the cost at the transaction's own limits, stated or default, before the transaction has
+   run. An enrollment that pays only the signature fee offers 0.195 lamports per cost unit with the verification
+   charge counted in its cost (0.348 without it). In the sample 80.2 % of ordinary transactions offer less (82.6
+   % without the charge); they carry 89.0 % of the bytes and 91.0 % of the cost units that ordinary transactions
+   use. This share rests on the limits of both sides. The run sets the limits of its enrollments just above what
+   they use: 4,900 compute units for 4,425 used. The median ordinary transaction uses 21.6 % of its compute-unit
+   limit, or 34.9 % among the two thirds of the sample that succeeded. And 40.7 % of the ordinary transactions
+   state no limit on the account data they load, so they are ranked as if they loaded 64 MiB. Ranked by the cost
+   units they used, at the fees they paid, 39.8 % of the ordinary transactions would offer less: about half of
+   those that rank below do so only because they ask for more than they use. In turn, an enrollment that asked
+   for 200,000 compute units and 64 MiB of loaded data, the defaults of a legacy transaction whose one
+   instruction calls a program that is not on Agave's list of built-in programs, would rank above only 17.3 %.
+   While enrollments wait, the transactions that offer less would be taken after them, and dropped if the
+   leader's slots end first (section 5), unless they ask for tighter limits or add a fee: at their present
+   limits a median of 26,041 lamports more ranks them level with an enrollment, 81,195 at the 90th percentile.
+   Tips are outside this rule: 29,936 of the sampled transactions (4.7 %) also pay a tip into one of Jito's tip
+   accounts, and Jito's block engine orders the groups of transactions (bundles) it hands to a leader by its own
+   rule (docs.jito.wtf/lowlatencytxnsend).
 7. **The ML-DSA-44 verifier written for this run does not fit in one transaction.** It takes 1,750,745 compute
    units inside the virtual machine, 1.25 times the 1,400,000 a transaction may use. It is one implementation,
    so the figure is no floor for other programs. The rates above assume a verifier built into the validator,
@@ -186,16 +200,24 @@ it for which the RPC node reports the cluster's rate, that rate ranges from 1,14
 ### 4. The limits (`tools/mainnet_params.py`)
 
 The limits are constants of the validator (`runtime/src/slot_params.rs`), and feature accounts on chain select
-the row that applies. The script reads those accounts. The feature that selects the 200 ms row was activated at
-slot 454,464,000 and applies from the next epoch (slot 454,896,000); the feature that raises the cost limit was
-activated at slot 435,888,000. Together they give 10,485,760 entry bytes and 50,000,000 cost units per block.
-Two observations agree with the constants. The block of the sample that uses the most cost units uses
-49,999,374. And the local node stops at 2,596 enrollments per block: with 56 bytes of entry overhead each that
-is 10,482,648 entry bytes, 3,112 short of the limit, less than the 4,038 of one more enrollment.
+the row that applies. The script reads those accounts and writes what it reads to `data/mainnet_params.json`.
+The feature that selects the 200 ms row was activated at slot 454,464,000 and applies from the next epoch (slot
+454,896,000); the feature that raises the cost limit was activated at slot 435,888,000. Together they give
+10,485,760 entry bytes and 50,000,000 cost units per block. Two observations agree with the constants. The block
+of the sample that uses the most cost units uses 49,999,374. And the local node stops at 2,596 enrollments per
+block: with 56 bytes of entry overhead each that is 10,482,648 entry bytes, 3,112 short of the limit, less than
+the 4,038 of one more enrollment.
 
-The same file also caps the account data a block allocates at 50 MB and the cost of the transactions that
-write-lock one account at 20 million cost units. Neither binds here: a block of 2,596 activations adds 3.4 MB,
-and a migration transaction write-locks only its own wallet and record.
+`runtime/src/slot_params.rs` also caps the account data a block allocates at 50 MB and the cost of the
+transactions that write-lock one account at 20 million cost units. Neither binds here: a block of 2,596
+activations adds 3.4 MB, and a migration transaction write-locks only its own wallet and record.
+
+`data/mainnet_params.json` also holds the feature `bls_pubkey_management_in_vote_account` (activated at slot
+431,568,000). With it Agave no longer counts the vote program as a built-in program when it sets a transaction's
+default compute-unit limit (`builtins-default-costs/src/lib.rs`), and the defaults in section 5 rely on that.
+The entry was added on 27 November 2026 (`features_read_at_unix`) with the script's `--features` form, which
+reads the feature accounts again and leaves the rest of the file as it was read on 26 November 2026
+(`read_at_unix`).
 
 ### 5. The rate (`tools/analyze.py`)
 
@@ -210,28 +232,75 @@ by the 1,699 slots between them. The second rate also caps the migration's entry
 entry bytes of that block's ordinary traffic, counted the same way; with the cap at the ordinary transactions'
 bytes alone it is about 19.5 million accounts a day.
 
-For the order of inclusion, a leader that runs Agave gives a transaction the priority reward x 1,000,000 / (1 +
-cost), rounded down, and takes the cost at the limits the transaction asks for
+For the order of inclusion, a leader that runs Agave ranks a transaction by its priority, which is reward x
+1,000,000 / (1 + cost), rounded down, and takes the cost at the transaction's limits
 (`core/src/transaction_priority.rs`). The reward is the fee less the burnt half of the signature fees, 2,500
-lamports per signature. For the migration the reward and the limits are exact: its transactions ask for 4,900
-and 3,900 compute units, which makes 7,177 and 6,177 cost units, and the charge for a verification is added
-(12,832 and 11,832).
+lamports per signature (`runtime/src/bank/fee_distribution.rs`). The migration's transactions ask for 4,900 and
+3,900 compute units and for 98,304 bytes of loaded account data, which makes 7,177 and 6,177 cost units, and the
+charge for a verification is added (12,832 and 11,832). The client sets these limits from its first
+transactions: the most compute units that one of them used plus a tenth, rounded up to a hundred, and the
+account data that a simulation loaded, rounded up to whole 32 KiB pages. Finding 6 holds for these limits, and
+an enrollment that asked for more would rank lower. With the same compute-unit limits and 64 MiB of loaded data,
+62.1 % of the ordinary transactions would rank below it; with the limits of the client's first transactions
+(60,000 compute units and 1,048,576 bytes), 43.1 %; with 200,000 compute units and 64 MiB, 17.3 %.
 
-For an ordinary transaction the sample gives two approximations. It has the cost units the transaction used,
-which are at most the cost at the limits it asked for. And it has the fee, from which the analysis subtracts
-2,500 lamports for each transaction signature; signatures that a precompile verifies pay the signature fee too,
-so the true reward is the same or smaller. The sampled blocks show the size of this second error: the fee
-rewards they report are 4,667,500 lamports below the analysis's total, which is 1,867 such signatures in 640,488
-transactions. Both approximations rank an ordinary transaction higher than the rule does, so by fees alone, and
-at this charge, the shares and the fee amounts in finding 6 are lower bounds. They move with the pricing of the
-migration. Without the charge, as the transactions are today, the same lower bounds are 51.6 %, 63.7 % and 86.0
-%. With the charge and a signature fee for the ML-DSA-44 signature, as a precompile's signatures pay, they are
-53.4 %, 65.8 % and 86.9 %.
+For an ordinary transaction, `tools/parse_blocks.py` reads the limits from the transaction's bytes and computes
+the cost at them by the rules of Agave's cost model (`cost-model/src/cost_model.rs`). A legacy or v0 transaction
+states its limits in instructions of the compute-budget program. If none sets the compute-unit limit, it is
+ranked at 200,000 compute units for every instruction, or at 3,000 for an instruction of a program on Agave's
+built-in list, up to 1,400,000 in all. That list (`builtins-default-costs/src/lib.rs`) holds the system and
+compute-budget programs, the four program loaders and the Ed25519 and secp256k1 precompiles. If none sets the
+loaded-data limit, it is ranked at 64 MiB of loaded account data, which is 16,384 cost units. Its priority fee
+is the price it states for a compute unit, in millionths of a lamport, times its compute-unit limit, rounded up
+to a lamport. A v1 transaction states its limits and its priority fee, in lamports, in fields of its own,
+without instructions, and a limit it does not state is zero. The reward is the fee less 2,500 lamports for every
+signature, including the 1,867 signatures in the sample that a precompile verifies.
+
+Three kinds of check stand behind these numbers. First, `tools/parse_blocks.py` holds every sampled transaction
+to three conditions against what the node recorded. The fee is the signature fees plus the priority fee that the
+script read or computed. The compute units used are within the compute-unit limit. And the cost units charged
+are the script's figure for signatures, write locks and instruction data, plus the compute units used, plus 8
+for each of a whole number of 32 KiB pages within the loaded-data limit. The first condition tests the
+compute-unit limit only where the fee depends on it, for the legacy and v0 transactions that state a price above
+zero: 175,195 of the sampled transactions (27.4 %). Second, in each of the 1,700 blocks the rewards add up to
+the fee reward the block reports. Third, `cost-check/`, a small program built on the crates that Agave itself is
+built from (`solana-cost-model`, `solana-runtime-transaction` and `solana-fee` 4.4.1), takes the same bytes and
+gives the same limits, cost and fee, and with them the same reward and priority, for all 640,488 transactions
+(`results/cost_check.json`).
+
+In the sample 92.7 % of the transactions state a compute-unit limit and 59.3 % a limit on loaded data. The
+median transaction uses 21.6 % of its compute-unit limit (5,328 transactions have a limit of zero and are left
+out of this median). 211,352 of the sampled transactions (33.0 %) failed: each is in its block and paid its fee.
+A transaction that failed used a median of 8.1 % of its compute-unit limit, one that succeeded 34.9 %. For the
+median transaction the cost at the limits is 6.2 times the cost it used; summed over all transactions it is 4.2
+times.
+
+Ranked by the cost units they used, at the fees they paid, the shares of finding 6 would be 39.8 %, 49.6 % and
+78.3 %. The fee is held fixed in that count. A legacy or v0 transaction pays its price for every compute unit of
+its limit, so with a limit equal to its use and the same price it would pay less; the shares are then 43.6 %,
+53.0 % and 82.5 %. Among the 429,136 transactions that succeeded, 76.5 % rank below the enrollment at their
+limits and 43.4 % by the cost units they used, at the fees they paid.
+
+At the limits, the shares of finding 6 (80.2 %, 89.0 % and 91.0 %) also move with the pricing of the migration's
+transactions. Without the charge, which is how those transactions run today, they are 82.6 %, 91.4 % and 93.6 %.
+With the charge and a signature fee for the ML-DSA-44 signature, as a precompile's signatures pay, they are 83.0
+%, 91.7 % and 93.9 %. At their present limits, the transactions that rank below the enrollment of finding 6 pay
+a median of 5,526 lamports today, and the fees they would add to rank level with it sum to 110.9 % of the fees
+that all sampled transactions paid.
+
+The same priority also decides which transactions such a leader drops for lack of room. When its buffer of
+waiting transactions (100,000 at most, `core/src/banking_stage.rs`) is nearly full, it discards arrivals at or
+below the lowest priority in the buffer, and when the buffer is full it removes the waiting transactions of
+lowest priority (`core/src/sigverify.rs` and, under `core/src/banking_stage/transaction_scheduler/`,
+`scheduler_controller.rs` and `transaction_state_container.rs`). Two other drops do not look at priority. The
+leader clears what still waits when its slots are over and it is not due to lead again soon
+(`core/src/banking_stage/decision_maker.rs`), and it removes a waiting transaction that is no longer valid, for
+example because its blockhash has expired.
 
 Payments outside the fee are not part of that rule. 29,936 transactions, in 1,684 of the 1,700 blocks, add to
 the balance of one of Jito's eight tip accounts (`data/jito_tip_accounts.json`): 3.38 SOL in the sample, against
-15.49 SOL of fee rewards. With each transaction's tip counted as reward, the shares of finding 6 are 39.1 %,
-48.8 % and 77.4 %. Transactions that the block engine handed to the leader as one group with a tipping
+15.49 SOL of fee rewards. With each transaction's tip counted as reward, the shares of finding 6 are 79.5 %,
+88.7 % and 90.5 %. Transactions that the block engine handed to the leader as one group with a tipping
 transaction (a bundle) cannot be told from the blocks.
 
 ## What is measured, and what is not
@@ -239,12 +308,21 @@ transaction (a bundle) cannot be told from the blocks.
 - **Measured on the node:** transaction sizes, compute units and cost units; the number of transactions a block
   holds at the limit; the program's rules; the compute units of a simulated verification inside the virtual
   machine.
-- **Measured on mainnet:** what ordinary traffic uses of each block, the slot time, and which limits are active.
+- **Measured on mainnet:** what ordinary traffic uses of each block, the limits its transactions ask for and the
+  fees and tips they pay, the slot time, and which per-block limits are active.
 - **Read from Agave's source (github.com/anza-xyz/agave, tag v4.4.1, commit 5bb30402):** the per-block limits
   (`runtime/src/slot_params.rs`), the 56 bytes of entry overhead (`core/src/banking_stage/consumer.rs`), the
   prices of signature verification (`cost-model/src/block_cost_limits.rs`), the signature fee of a precompile's
-  signatures (`fee/src/lib.rs`) and the rule by which a leader ranks transactions
-  (`core/src/transaction_priority.rs`).
+  signatures (`fee/src/lib.rs`), the half of the signature fees that is burnt
+  (`runtime/src/bank/fee_distribution.rs`), the rule by which a leader ranks transactions
+  (`core/src/transaction_priority.rs`), the rules by which it drops waiting transactions
+  (`core/src/banking_stage.rs`, `core/src/banking_stage/decision_maker.rs`, `core/src/sigverify.rs` and, under
+  `core/src/banking_stage/transaction_scheduler/`, `scheduler_controller.rs` and
+  `transaction_state_container.rs`), and the limits and the cost it ranks them at
+  (`cost-model/src/cost_model.rs`, `compute-budget-instruction/src/compute_budget_instruction_details.rs`,
+  `runtime-transaction/src/transaction_meta.rs`, `builtins-default-costs/src/lib.rs`, and
+  `program-runtime/src/execution_budget.rs` for the default values). The layout of a v1 transaction is read from
+  the crate `agave-transaction-view` 7.0.0 (github.com/anza-xyz/agave-sdk), which that tag depends on.
 - **Charged by rule, not executed on chain:** the two ML-DSA-44 verifications of an account.
 - **Taken from a third party:** the address counts (Glassnode, read on 26 November 2026; the pages give no date
   for the figures). They count addresses of every kind, so each is an upper bound for key-controlled wallets.
@@ -253,9 +331,10 @@ The run uses one node. Its blocks of 10 MiB were built and executed on one machi
 nodes; the block of the mainnet sample with the most bytes has 1,567,161 bytes of transactions. The second rate
 needs only blocks twice the size of today's.
 
-The limits are read from Agave's source, and the rates apply them to every slot. That is an assumption for part
-of the stake: 80.6 % reported version 4.4.0 or 4.4.1, and 18.5 % reported other version lines (26.x and 0.1.x)
-with other feature sets, whose leaders may pack blocks by other rules. `solana feature status` reports version
+The per-block limits and the ranking rule are read from Agave's source. The rates apply the limits to every
+slot, and finding 6 applies the rule to every sampled transaction. That is an assumption for part of the stake:
+80.6 % reported version 4.4.0 or 4.4.1, and 18.5 % reported other version lines (26.x and 0.1.x) with other
+feature sets, whose leaders may pack and order blocks by other rules. `solana feature status` reports version
 numbers only: it does not tell Agave from the modified Agave clients that report the same numbers.
 
 The client sends through the node's own RPC; what mainnet's leaders accept from one sender each second is not
@@ -266,8 +345,8 @@ paper's recovery of an account by seed proof, after the old signatures are retir
 ## Reproduce
 
 Needs the Agave v4.4.1 release (`solana`, `solana-test-validator`, `solana-keygen` and its `cargo-build-sbf`,
-which reports version 4.5.0), Rust and Python 3.10 or later. The run used an Intel Core i9-12950HX (24 threads)
-under WSL2 with 50 GiB of memory.
+which reports version 4.5.0), Rust (1.98.1 or later for `cost-check/`, as the Agave crates require) and Python
+3.10 or later. The run used an Intel Core i9-12950HX (24 threads) under WSL2 with 50 GiB of memory.
 
 ```bash
 cd solana
@@ -276,7 +355,7 @@ cargo-build-sbf --manifest-path program/Cargo.toml --sbf-out-dir "$WORK/out"
 cargo build --release --manifest-path harness/Cargo.toml
 harness/target/release/pqsol bench-verify 2000 > results/bench_verify.json
 
-solana feature status -u mainnet-beta --output json > data/features_mainnet.json    # start_node.sh reads it
+solana feature status -u mainnet-beta --output json > data/features_mainnet.json    # start_node.sh and cost_check.py read it
 bash tools/start_node.sh --alpenglow --slots-per-epoch 32
 bash tools/run_local.sh 40017 run-200ms run-200ms        # then copy $WORK/run/run-200ms to results/local-run-200ms
 bash tools/start_node.sh --alpenglow --ticks-per-slot 256
@@ -286,6 +365,9 @@ kill "$(cat "$WORK/run/node.pid")"                       # stop the node
 python3 tools/sample_blocks.py sample FIRST_SLOT 1700    # FIRST_SLOT: a finalized slot; about 75 minutes on the public RPC
 python3 tools/tip_accounts.py data/jito_tip_accounts.json
 python3 tools/parse_blocks.py sample data
+cargo build --release --manifest-path cost-check/Cargo.toml      # Agave's cost model on the same transactions
+python3 tools/cost_check.py feed sample data | cost-check/target/release/cost-check \
+  | python3 tools/cost_check.py compare data results/cost_check.json
 python3 tools/mainnet_params.py data/mainnet_params.json # after the sample: its per-minute rates must cover the sampled slots
 python3 tools/analyze.py data results
 ```
@@ -323,11 +405,12 @@ SHA-256, `f713868ad4904fe21aea7045aac5dfc14b328d69068dc856cc44e115ced9b4ce`, and
 | `program-verify/` | ML-DSA-44 verification inside the virtual machine, with its tests |
 | `program-verify-fips204/` | control: the same instruction verified by the `fips204` crate, which does not run in the virtual machine |
 | `harness/` | the client `pqsol`: wallets, ML-DSA-44 keys, v1 transactions, block statistics |
-| `tools/` | node start, local run, mainnet sample, limits, rate |
+| `cost-check/` | Agave's cost model on transaction bytes: the limits, cost, fee, reward and priority of each transaction |
+| `tools/` | node start, local run, mainnet sample, per-block limits, cost check, rate |
 | `data/mainnet_blocks.csv` | the sampled mainnet slots, one row each |
-| `data/mainnet_txs.csv.gz` | the sampled transactions, one row each: size, fee, cost units, tip |
+| `data/mainnet_txs.csv.gz` | the sampled transactions, one row each: size, fee, cost units, tip, whether it failed, its two limits and whether it states them, the price it states, and its cost at the limits |
 | `data/mainnet_block_index.jsonl` | size and SHA-256 of every sampled block as downloaded (the blocks themselves are not in the repository) |
-| `data/mainnet_params.json` | mainnet's limits, the feature accounts that select them, the cluster's transaction rate |
+| `data/mainnet_params.json` | mainnet's limits, the feature accounts that select them, the feature account on which the default compute-unit limits of section 5 rely, the cluster's transaction rate |
 | `data/features_mainnet.json` | `solana feature status` of mainnet on the day of the run |
 | `data/jito_tip_accounts.json` | the tip accounts that Jito's block engine names |
 | `data/populations.json` | the address counts and their source |
@@ -335,6 +418,7 @@ SHA-256, `f713868ad4904fe21aea7045aac5dfc14b328d69068dc856cc44e115ced9b4ce`, and
 | `results/bench_verify.json` | verification times on the run's machine |
 | `results/verify-in-vm.json` | the verification inside the virtual machine: tests, build, simulations, and the control |
 | `results/build_check.txt` | two builds of the registry program and their SHA-256 |
+| `results/cost_check.json` | the comparison of every sampled transaction with Agave's cost model |
 | `results/SOLANA.json`, `results/SOLANA.md` | the rates and the days |
 
 ## Next
@@ -345,4 +429,3 @@ SHA-256, `f713868ad4904fe21aea7045aac5dfc14b328d69068dc856cc44e115ced9b4ce`, and
 - ML-DSA-44 verification inside the validator, in place of the charge by rule.
 - A verifier for the virtual machine with a hash function written for it, to see whether one verification fits
   in one transaction.
-- The order of inclusion at the limits that ordinary transactions ask for, in place of the lower bounds.

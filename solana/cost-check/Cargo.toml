@@ -1,0 +1,22 @@
+[package]
+name = "cost-check"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98.1"
+license = "MIT OR Apache-2.0"
+description = "Agave's cost model applied to transaction bytes: the cost and the priority that a leader ranks a transaction by"
+publish = false
+
+[dependencies]
+agave-feature-set = { version = "=4.4.1", features = ["agave-unstable-api"] }
+agave-transaction-view = "=7.0.0"
+base64 = "0.22"
+solana-cost-model = { version = "=4.4.1", features = ["agave-unstable-api"] }
+solana-fee = { version = "=4.4.1", features = ["agave-unstable-api"] }
+solana-pubkey = "4"
+solana-runtime-transaction = { version = "=4.4.1", features = ["agave-unstable-api"] }
+solana-svm-transaction = "=6.0.0"
+solana-transaction = "=5.0.0"
+
+[profile.release]
+opt-level = 3

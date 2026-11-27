@@ -1,0 +1,46 @@
+{
+  "what": "every sampled transaction, as it is on the wire, given to the crates that Agave is built from (cost-check/), and the answers compared with the transaction's row in data/mainnet_txs.csv.gz",
+  "steps": "those of calculate_priority_from_bytes and calculate_priority_and_cost in core/src/transaction_priority.rs, Agave v4.4.1; the limits, the cost and the fee come from the crates, and cost-check computes the reward as Bank::calculate_reward_and_burn_fee_details does and the priority as calculate_priority_and_cost does",
+  "crates": {
+    "agave-feature-set": "4.4.1",
+    "agave-transaction-view": "7.0.0",
+    "solana-cost-model": "4.4.1",
+    "solana-fee": "4.4.1",
+    "solana-runtime-transaction": "4.4.1",
+    "solana-svm-transaction": "6.0.0",
+    "solana-transaction": "5.0.0"
+  },
+  "features_switched_off": 35,
+  "features_source": "data/features_mainnet.json: the features that solana feature status lists as inactive on mainnet",
+  "transactions": 640488,
+  "sha256_of_the_rows_compared": "3e5f5eee08c48037adc12aa878607262e113364ec7a41d84a7cf2853788be69e",
+  "compared": [
+    "slot",
+    "version",
+    "transaction signatures",
+    "signatures that a precompile verifies",
+    "compute-unit limit",
+    "limit on loaded account data",
+    "cost at the limits",
+    "fee",
+    "reward",
+    "priority"
+  ],
+  "transactions_that_disagree": {
+    "slot": 0,
+    "version": 0,
+    "transaction signatures": 0,
+    "signatures that a precompile verifies": 0,
+    "compute-unit limit": 0,
+    "limit on loaded account data": 0,
+    "cost at the limits": 0,
+    "fee": 0,
+    "reward": 0,
+    "priority": 0
+  },
+  "transactions_whose_cost_is_the_same_by_calculate_cost": 640488,
+  "simple_vote_transactions": 0,
+  "sum_of_the_costs_at_the_limits": 118997333597,
+  "sum_of_the_rewards_lamports": 15485004160,
+  "sha256_of_the_answers": "49bfc3a5800e283bf3b38b55ad7412602b4f90b8374354228faef39366095721"
+}

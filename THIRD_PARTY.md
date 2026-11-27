@@ -9,14 +9,15 @@ Third-party code keeps its own licence. The main upstream components are:
 | Plonky3 | <https://github.com/Plonky3/Plonky3> | MIT OR Apache-2.0 | the proof system |
 | leanSig | <https://github.com/leanEthereum/leanSig> | Apache-2.0 | leanXMSS validator signatures (used by Ream) |
 | fips204 | <https://github.com/integritychain/fips204> | MIT OR Apache-2.0 | ML-DSA-44 keys and signatures |
-| Solana SDK crates | <https://github.com/anza-xyz/solana-sdk> | Apache-2.0 | the three programs under `solana/` (`solana-program` 6.0.0) |
+| Solana SDK crates | <https://github.com/anza-xyz/solana-sdk> | Apache-2.0 | the three programs under `solana/` (`solana-program` 6.0.0) and `solana/cost-check/` |
+| Agave crates | <https://github.com/anza-xyz/agave>, <https://github.com/anza-xyz/agave-sdk> | Apache-2.0 | `solana/cost-check/`: `solana-cost-model`, `solana-runtime-transaction`, `solana-fee` and `agave-feature-set` 4.4.1, `agave-transaction-view` 7.0.0 |
 
 The execution and consensus revisions and complete patched-source hashes are in
 `client/geth/source.json` and `client/ream/source.json`. Rust dependency revisions
 are fixed by each `Cargo.lock`; Go dependencies by the client's `go.mod` and
 `go.sum`. The build does not substitute newer versions.
 
-The directory `solana/` is outside the build and the two inventories described below. Its four `Cargo.lock`
+The directory `solana/` is outside the build and the two inventories described below. Its five `Cargo.lock`
 files fix the dependencies of its crates, which Cargo fetches from crates.io; none is copied into this repository.
 
 `third_party/rust-dependencies.json` and `third_party/go-dependencies.json` list

@@ -1,6 +1,7 @@
 """Record mainnet's per-block limits and the on-chain state that selects them.
 
 python -X utf8 -I mainnet_params.py OUT_FILE [RPC_URL]
+python -X utf8 -I mainnet_params.py --features OUT_FILE [RPC_URL]
 
 The limits are constants of the validator source (Agave v4.4.1, commit 5bb304027fe1a166b02cb26dc8c161593f416fca):
   runtime/src/slot_params.rs            the parameter table per slot-time regime (entry bytes, cost limits)
@@ -11,6 +12,11 @@ Which row of the table applies is decided by feature accounts on chain. This scr
 rent-exempt minimum of the two record sizes, the version of the node that answers, and the cluster's transaction
 rate per minute for as long back as that node keeps it (720 minutes at most), and writes them next to the
 constants.
+
+The second form reads only the feature accounts again, into a file that the first form wrote. Every feature that
+the file holds must read as it did, a feature that the file lacks is added, and the time of this read is recorded
+as features_read_at_unix. Nothing else in the file changes. It adds a feature to the record of a sample whose
+per-minute rates the node no longer keeps.
 """
 import base64
 import json
@@ -18,8 +24,10 @@ import sys
 import time
 import urllib.request
 
-out_file = sys.argv[1]
-rpc = sys.argv[2] if len(sys.argv) > 2 else "https://api.mainnet-beta.solana.com"
+arguments = [a for a in sys.argv[1:] if a != "--features"]
+features_only = "--features" in sys.argv[1:]
+out_file = arguments[0]
+rpc = arguments[1] if len(arguments) > 1 else "https://api.mainnet-beta.solana.com"
 
 # feature gates, in the order of runtime/src/slot_params.rs, with the table row each one selects; a row applies
 # from the first slot of the epoch after its gate's activation
@@ -38,6 +46,9 @@ OTHER_GATES = [
     ("raise_block_limits_to_100m", "P1BCUMpAC7V2GRBRiJCNUgpMyWZhoqt3LKo712ePqsz"),
     ("alpenglow", "A1pengvuM6JEcyNuTnMqepBKhwHE3N6PmUrdATGawhJS"),
     ("enable_tx_v1", "txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL"),
+    # with this gate the vote program is no longer a built-in program in the default compute-unit limit of a
+    # transaction (builtins-default-costs/src/lib.rs); parse_blocks.py relies on it
+    ("bls_pubkey_management_in_vote_account", "AnAP9zPV4KL7czAPQbFhpDKV2tx7g4UGNbK9wvXwjaRo"),
 ]
 RECORD_ENROLLED = 42
 RECORD_ACTIVATED = 42 + 1312
@@ -72,6 +83,25 @@ for name, fid, row in SLOT_TIME_GATES:
 for name, fid in OTHER_GATES:
     features[name] = {"id": fid, "activated_at_slot": activation_slot(fid)}
 
+if features_only:
+    with open(out_file, encoding="utf-8") as f:
+        stored = json.load(f)
+    for name, entry in stored["features"].items():
+        assert features[name] == entry, f"the feature account of {name} reads differently now"
+    assert stored["slot_regime"] == regime, "the feature accounts select another row of the table now"
+    merged = {}
+    for key, value in stored.items():
+        if key == "features_read_at_unix":
+            continue
+        merged[key] = features if key == "features" else value
+        if key == "features":
+            merged["features_read_at_unix"] = int(time.time())
+    with open(out_file, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(merged, indent=2) + "\n")
+    print(json.dumps({"added": [name for name in features if name not in stored["features"]],
+                      "features_read_at_unix": merged["features_read_at_unix"], "features": features}, indent=1))
+    raise SystemExit(0)
+
 account_cost, block_cost, allocated = regime["cost_tracker_limits"]
 if features["raise_block_limits_to_100m"]["activated_at_slot"] is not None:
     # SlotParams::cost_limits: both cost limits scale by 100 / 60
@@ -80,8 +110,9 @@ if features["raise_block_limits_to_100m"]["activated_at_slot"] is not None:
 # one sample per minute, 720 at most
 samples = call("getRecentPerformanceSamples", [720])
 epoch = call("getEpochInfo", [{"commitment": "finalized"}])
+now = int(time.time())
 out = {
-    "read_at_unix": int(time.time()),
+    "read_at_unix": now,
     "rpc": rpc,
     "genesis_hash": call("getGenesisHash"),
     "rpc_node_version": call("getVersion"),
@@ -91,6 +122,7 @@ out = {
                "files": ["runtime/src/slot_params.rs", "cost-model/src/block_cost_limits.rs", "core/src/banking_stage/consumer.rs",
                          "runtime/src/bank/entry_bytes_budget.rs"]},
     "features": features,
+    "features_read_at_unix": now,
     "slot_regime": regime,
     "max_entry_bytes_per_slot": regime["max_entry_bytes_per_slot"],
     "block_cost_limit": block_cost,

@@ -32,7 +32,7 @@ demonstrate a live BLS-to-Lean checkpoint transition or a mainnet state import.
 | `bench/` | measurement scripts |
 | `formal/` | an Apalache model of one account's authority record (an inductive invariant over unbounded integers), its runner, mutation controls and run of record |
 | `docs/` | build, demo, wallet and local release instructions |
-| `solana/` | the enrollment step measured for Solana on one local node and a sample of mainnet blocks: two measurement programs and a control, a client, scripts, the run records and the sample's per-slot and per-transaction data; added after the paper and not part of it |
+| `solana/` | the enrollment step measured for Solana on one local node and a sample of mainnet blocks: two measurement programs and a control, a client, a check against Agave's cost model, scripts, the run records and the sample's per-slot and per-transaction data; added after the paper and not part of it |
 
 Start with [the offline build instructions](docs/BUILD.md), then
 [the local demo commands](docs/DEMO.md). The runtime package includes no expiring

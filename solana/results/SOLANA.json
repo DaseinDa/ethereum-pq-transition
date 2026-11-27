@@ -48,8 +48,13 @@
       "enable_tx_v1": {
         "id": "txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL",
         "activated_at_slot": 447120000
+      },
+      "bls_pubkey_management_in_vote_account": {
+        "id": "AnAP9zPV4KL7czAPQbFhpDKV2tx7g4UGNbK9wvXwjaRo",
+        "activated_at_slot": 431568000
       }
     },
+    "features_read_at_unix": 1795752209,
     "slot_regime": {
       "ns_per_slot": 200000000,
       "cost_tracker_limits": [
@@ -2312,9 +2317,19 @@
     }
   ],
   "order_of_inclusion": {
-    "source": "core/src/transaction_priority.rs, Agave v4.4.1: priority = reward x 1,000,000 / (1 + cost at the limits asked for), rounded down",
+    "source": "core/src/transaction_priority.rs, Agave v4.4.1: priority = reward x 1,000,000 / (1 + cost at the limits asked for), rounded down. Each reward per cost unit recorded here is that priority over 1,000,000, for the enrollment, which has the lower priority of the migration's two transactions",
     "migration_priority": 194810,
     "migration_priority_without_the_charge": 348286,
+    "migration_limits": {
+      "enroll": {
+        "compute_units": 4900,
+        "loaded_account_data_bytes": 98304
+      },
+      "activate": {
+        "compute_units": 3900,
+        "loaded_account_data_bytes": 98304
+      }
+    },
     "migration_cost_units_at_its_limits": {
       "enroll": 7177,
       "activate": 6177
@@ -2325,53 +2340,229 @@
     },
     "migration_reward_per_cost_unit_lamports": 0.19481,
     "migration_reward_per_cost_unit_lamports_without_the_charge": 0.348286,
-    "ordinary_below_the_migration_at_least": {
-      "transactions": 0.3976140068197999,
-      "bytes": 0.4959170939220156,
-      "cost_units": 0.7833622507035183
+    "ordinary_below_the_migration": {
+      "transactions": 0.801719938546858,
+      "bytes": 0.8901776931688212,
+      "cost_units": 0.9097492463122584
     },
     "ordinary_below_the_migration_counts": {
-      "transactions": 254667,
-      "bytes": 335327164,
-      "cost_units": 22394309553
+      "transactions": 513492,
+      "bytes": 601916661,
+      "cost_units": 26007388305
     },
-    "fee_top_up_to_rank_level_lamports_at_least": {
-      "min": 1,
-      "median": 8477,
-      "mean": 12485.333168412084,
-      "p90": 27938,
-      "max": 261260
+    "ordinary_below_the_migration_if_ranked_by_the_cost_units_used": {
+      "transactions": 0.39765772348584205,
+      "bytes": 0.49595285680809426,
+      "cost_units": 0.7834159994060519
     },
-    "fee_top_ups_over_all_ordinary_fees": 0.18448729167340883,
+    "ordinary_below_the_migration_if_ranked_by_the_cost_units_used_at_the_price_stated": {
+      "transactions": 0.4363032562670963,
+      "bytes": 0.529713130705364,
+      "cost_units": 0.8254452392895102
+    },
+    "share_of_those_below_that_are_below_only_at_the_limits": 0.5039942199683735,
+    "ordinary_by_outcome": {
+      "succeeded": {
+        "transactions": 429136,
+        "share_of_the_sample": 0.6700141142378936,
+        "compute_units_used_over_the_limit_median": 0.34872613327674024,
+        "below_the_migration": 0.7652073002498042,
+        "below_the_migration_if_ranked_by_the_cost_units_used": 0.4337715782409306,
+        "share_of_those_below_that_are_below_only_at_the_limits": 0.4331319394112882,
+        "share_of_the_transactions_below_the_migration": 0.6394997390416988
+      },
+      "failed": {
+        "transactions": 211352,
+        "share_of_the_sample": 0.3299858857621064,
+        "compute_units_used_over_the_limit_median": 0.08146456613167452,
+        "below_the_migration": 0.8758563912335819,
+        "below_the_migration_if_ranked_by_the_cost_units_used": 0.32433097392028465,
+        "share_of_those_below_that_are_below_only_at_the_limits": 0.6296984560865196,
+        "share_of_the_transactions_below_the_migration": 0.3605002609583012
+      }
+    },
+    "fee_top_up_to_rank_level_lamports": {
+      "min": 3,
+      "median": 26041.0,
+      "mean": 37227.18739337711,
+      "p90": 81195,
+      "max": 276784
+    },
+    "fee_top_ups_over_all_ordinary_fees": 1.1091430300882514,
+    "fee_paid_today_by_the_transactions_below_lamports_median": 5526.0,
     "other_pricings_of_the_migration": {
       "without_the_charge": {
         "migration_priority": 348286,
         "migration_reward_per_cost_unit_lamports": 0.348286,
-        "ordinary_below_the_migration_at_least": {
-          "transactions": 0.5159534604863791,
-          "bytes": 0.6368655137408463,
-          "cost_units": 0.8597181424142522
+        "ordinary_below_the_migration": {
+          "transactions": 0.8263261762905785,
+          "bytes": 0.9137708116293825,
+          "cost_units": 0.936081385609086
+        },
+        "ordinary_below_the_migration_if_ranked_by_the_cost_units_used": {
+          "transactions": 0.5159643896528897,
+          "bytes": 0.6368742954800547,
+          "cost_units": 0.8597276153206242
         }
       },
       "with_the_charge_and_a_signature_fee_for_the_ml_dsa_signature": {
         "migration_priority": 389620,
         "migration_reward_per_cost_unit_lamports": 0.38962,
-        "ordinary_below_the_migration_at_least": {
-          "transactions": 0.533803912017087,
-          "bytes": 0.6578681640676689,
-          "cost_units": 0.8693761405884118
+        "ordinary_below_the_migration": {
+          "transactions": 0.8296408363622738,
+          "bytes": 0.9172519711377508,
+          "cost_units": 0.9391164346609907
+        },
+        "ordinary_below_the_migration_if_ranked_by_the_cost_units_used": {
+          "transactions": 0.5338601191591411,
+          "bytes": 0.6579520948968286,
+          "cost_units": 0.8694433307954053
         }
       }
     },
+    "other_limits_of_the_migration": [
+      {
+        "limits": "the limits of the run",
+        "compute_units": {
+          "enroll": 4900,
+          "activate": 3900
+        },
+        "loaded_account_data_bytes": {
+          "enroll": 98304,
+          "activate": 98304
+        },
+        "cost_units_with_the_charge": {
+          "enroll": 12832,
+          "activate": 11832
+        },
+        "migration_priority": 194810,
+        "migration_reward_per_cost_unit_lamports": 0.19481,
+        "ordinary_below_the_migration": {
+          "transactions": 0.801719938546858,
+          "bytes": 0.8901776931688212,
+          "cost_units": 0.9097492463122584
+        }
+      },
+      {
+        "limits": "the run's compute-unit limits with the largest loaded-data limit",
+        "compute_units": {
+          "enroll": 4900,
+          "activate": 3900
+        },
+        "loaded_account_data_bytes": {
+          "enroll": 67108864,
+          "activate": 67108864
+        },
+        "cost_units_with_the_charge": {
+          "enroll": 29192,
+          "activate": 28192
+        },
+        "migration_priority": 85636,
+        "migration_reward_per_cost_unit_lamports": 0.085636,
+        "ordinary_below_the_migration": {
+          "transactions": 0.6208687750590175,
+          "bytes": 0.7671117812010954,
+          "cost_units": 0.8285574781898755
+        }
+      },
+      {
+        "limits": "the limits of the client's first transactions",
+        "compute_units": {
+          "enroll": 60000,
+          "activate": 60000
+        },
+        "loaded_account_data_bytes": {
+          "enroll": 1048576,
+          "activate": 1048576
+        },
+        "cost_units_with_the_charge": {
+          "enroll": 68164,
+          "activate": 68164
+        },
+        "migration_priority": 36675,
+        "migration_reward_per_cost_unit_lamports": 0.036675,
+        "ordinary_below_the_migration": {
+          "transactions": 0.4309807521764654,
+          "bytes": 0.5228217237151176,
+          "cost_units": 0.6632112184000807
+        }
+      },
+      {
+        "limits": "the default limits of a legacy transaction with one instruction of a program outside Agave's built-in list",
+        "compute_units": {
+          "enroll": 200000,
+          "activate": 200000
+        },
+        "loaded_account_data_bytes": {
+          "enroll": 67108864,
+          "activate": 67108864
+        },
+        "cost_units_with_the_charge": {
+          "enroll": 224292,
+          "activate": 224292
+        },
+        "migration_priority": 11146,
+        "migration_reward_per_cost_unit_lamports": 0.011146,
+        "ordinary_below_the_migration": {
+          "transactions": 0.17272298622300497,
+          "bytes": 0.24203943437773132,
+          "cost_units": 0.3511526754334878
+        }
+      }
+    ],
     "ordinary_totals": {
       "transactions": 640488,
       "bytes": 676175853,
       "cost_units": 28587424953
     },
-    "leader_fee_reward_by_rule_lamports": 15489671660,
-    "leader_fee_reward_reported_lamports": 15485004160,
-    "fee_reward_difference_lamports": 4667500,
-    "precompile_signatures_implied": 1867,
+    "ordinary_limits": {
+      "share_stating_a_compute_unit_limit": 0.9270040968761319,
+      "share_stating_a_limit_on_loaded_data": 0.5931570927168034,
+      "share_ranked_at_the_default_of_64_mib_of_loaded_data": 0.40684290728319655,
+      "cost_units_of_the_default_of_64_mib_of_loaded_data": 16384,
+      "transactions_with_a_compute_unit_limit_of_zero": 5328,
+      "transactions_whose_fee_depends_on_the_compute_unit_limit": 175195,
+      "share_whose_fee_depends_on_the_compute_unit_limit": 0.2735336181161864,
+      "compute_units_used_over_the_limit_median": 0.21630652776642628,
+      "compute_units_used_over_the_limits_in_total": 0.2230148939969398,
+      "cost_at_the_limits_over_cost_used_median": 6.189653957290859,
+      "cost_at_the_limits_in_total": 118997333597,
+      "cost_at_the_limits_over_cost_used_in_total": 4.162576160414626
+    },
+    "checks": {
+      "blocks_whose_reported_fee_reward_equals_the_rewards_computed": 1700,
+      "leader_fee_reward_lamports": 15485004160,
+      "precompile_signatures": 1867,
+      "transactions_with_a_precompile_signature": 1586,
+      "against_agave": {
+        "crates": {
+          "agave-feature-set": "4.4.1",
+          "agave-transaction-view": "7.0.0",
+          "solana-cost-model": "4.4.1",
+          "solana-fee": "4.4.1",
+          "solana-runtime-transaction": "4.4.1",
+          "solana-svm-transaction": "6.0.0",
+          "solana-transaction": "5.0.0"
+        },
+        "transactions": 640488,
+        "transactions_that_disagree": {
+          "slot": 0,
+          "version": 0,
+          "transaction signatures": 0,
+          "signatures that a precompile verifies": 0,
+          "compute-unit limit": 0,
+          "limit on loaded account data": 0,
+          "cost at the limits": 0,
+          "fee": 0,
+          "reward": 0,
+          "priority": 0
+        },
+        "transactions_whose_cost_is_the_same_by_calculate_cost": 640488,
+        "features_switched_off": 35,
+        "sha256_of_the_rows_compared": "3e5f5eee08c48037adc12aa878607262e113364ec7a41d84a7cf2853788be69e",
+        "sha256_of_the_answers": "49bfc3a5800e283bf3b38b55ad7412602b4f90b8374354228faef39366095721"
+      }
+    },
     "tips": {
       "what": "increase of the balance of one of Jito's eight tip accounts (data/jito_tip_accounts.json) by a transaction",
       "transactions_with_a_tip": 29936,
@@ -2380,9 +2571,9 @@
       "tips_lamports": 3383570284,
       "tips_over_fee_rewards": 0.2185062560551485,
       "ordinary_below_the_migration_with_tips_counted": {
-        "transactions": 0.3907052122756398,
-        "bytes": 0.4879874141261297,
-        "cost_units": 0.7740434223572091
+        "transactions": 0.7953622862567292,
+        "bytes": 0.8865962771965475,
+        "cost_units": 0.9049487790009976
       }
     }
   },
